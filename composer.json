@@ -1,0 +1,29 @@
+{
+    "name": "predatorstudio/live-table",
+    "description": "Interactive Livewire table component for Laravel — sortable, filterable, paginated, with drag-and-drop columns.",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "PredatorStudio\\LiveTable\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Predator Studio"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "php": "^8.2",
+        "laravel/framework": "^11.0|^12.0",
+        "livewire/livewire": "^4.0"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "PredatorStudio\\LiveTable\\LiveTableServiceProvider"
+            ]
+        }
+    }
+}
