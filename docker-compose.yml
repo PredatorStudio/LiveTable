@@ -1,0 +1,13 @@
+services:
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+      - vendor:/app/vendor
+    working_dir: /app
+    command: tail -f /dev/null
+
+volumes:
+  vendor:

@@ -1,41 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="AutoImportSettings">
-    <option name="autoReloadType" value="SELECTIVE" />
+  <component name="MessDetectorOptionsConfiguration">
+    <option name="transferred" value="true" />
   </component>
-  <component name="ChangeListManager">
-    <list default="true" id="7d8a5d63-f11d-4422-9580-802720222ac3" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/LiveTable.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/LiveTable.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/composer.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/views/base-table.blade.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/BaseTable.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/BaseTable.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Column.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Column.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/LiveTableServiceProvider.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/LiveTableServiceProvider.php" afterDir="false" />
-    </list>
-    <option name="SHOW_DIALOG" value="false" />
-    <option name="HIGHLIGHT_CONFLICTS" value="true" />
-    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
-    <option name="LAST_RESOLUTION" value="IGNORE" />
+  <component name="PHPCSFixerOptionsConfiguration">
+    <option name="transferred" value="true" />
   </component>
-  <component name="ComposerSettings" synchronizationState="SYNCHRONIZE">
-    <pharConfigPath>$PROJECT_DIR$/composer.json</pharConfigPath>
-    <execution />
+  <component name="PHPCodeSnifferOptionsConfiguration">
+    <option name="highlightLevel" value="WARNING" />
+    <option name="transferred" value="true" />
   </component>
-  <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="20" />
-    <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
-  </component>
-  <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
-  </component>
-  <component name="McpProjectServerCommands">
-    <commands />
-    <urls />
-  </component>
-  <component name="PhpWorkspaceProjectConfiguration" interpreter_name="/bin/php">
+  <component name="PhpIncludePathManager">
     <include_path>
       <path value="$PROJECT_DIR$/vendor/composer" />
       <path value="$PROJECT_DIR$/vendor/doctrine/deprecations" />
@@ -169,63 +144,16 @@
       <path value="$PROJECT_DIR$/vendor/league/uri-interfaces" />
     </include_path>
   </component>
-  <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 7
-}</component>
-  <component name="ProjectId" id="3AdC6SQQcSDtL6XfUa8NJZKH83G" />
-  <component name="ProjectViewState">
-    <option name="hideEmptyMiddlePackages" value="true" />
-    <option name="showLibraryContents" value="true" />
+  <component name="PhpProjectSharedConfiguration" php_language_level="8.2" />
+  <component name="PhpStanOptionsConfiguration">
+    <option name="transferred" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.MCP Project settings loaded": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "CellRefactor",
-    "junie.onboarding.icon.badge.shown": "true",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "to.speed.mode.migration.done": "true",
-    "ts.external.directory.path": "/snap/phpstorm/607/plugins/javascript-plugin/jsLanguageServicesImpl/external",
-    "vue.rearranger.settings.migration": "true"
-  }
-}]]></component>
-  <component name="RecapSpentCounter">
-    <option name="endsOfQuotaMs" value="1773241205485" />
-    <option name="spentUsd" value="0.017511599" />
+  <component name="PhpUnit">
+    <phpunit_settings>
+      <PhpUnitSettings custom_loader_path="$PROJECT_DIR$/vendor/autoload.php" paratest_path="$PROJECT_DIR$/vendor/bin/paratest_for_phpstorm" />
+    </phpunit_settings>
   </component>
-  <component name="RecapUselessUpdatesCounter">
-    <option name="suspendCountdown" value="8" />
-  </component>
-  <component name="SharedIndexes">
-    <attachedChunks>
-      <set>
-        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-PS-253.31033.138" />
-        <option value="bundled-php-predefined-a98d8de5180a-0e0d91225499-com.jetbrains.php.sharedIndexes-PS-253.31033.138" />
-      </set>
-    </attachedChunks>
-  </component>
-  <component name="TaskManager">
-    <task active="true" id="Default" summary="Default task">
-      <changelist id="7d8a5d63-f11d-4422-9580-802720222ac3" name="Changes" comment="" />
-      <created>1772912885037</created>
-      <option name="number" value="Default" />
-      <option name="presentableId" value="Default" />
-      <updated>1772912885037</updated>
-      <workItem from="1772912886046" duration="1788000" />
-      <workItem from="1772984908769" duration="7820000" />
-    </task>
-    <servers />
-  </component>
-  <component name="TypeScriptGeneratedFilesManager">
-    <option name="version" value="3" />
+  <component name="PsalmOptionsConfiguration">
+    <option name="transferred" value="true" />
   </component>
 </project>

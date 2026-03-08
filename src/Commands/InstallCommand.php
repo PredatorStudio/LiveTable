@@ -1,0 +1,72 @@
+<?php
+
+namespace PredatorStudio\LiveTable\Commands;
+
+use Illuminate\Console\Command;
+
+class InstallCommand extends Command
+{
+    protected $signature = 'live-table:install';
+
+    protected $description = 'Install the LiveTable package (publish config & views)';
+
+    public function handle(): int
+    {
+        $theme = $this->choice(
+            'Which CSS framework would you like to use?',
+            ['bootstrap', 'tailwind'],
+            'bootstrap',
+        );
+
+        $this->publishConfig($theme);
+        $this->publishViews($theme);
+
+        if ($theme === 'tailwind') {
+            $this->showTailwindInstructions();
+        }
+
+        $this->components->info('LiveTable installed successfully.');
+
+        return self::SUCCESS;
+    }
+
+    private function publishConfig(string $theme): void
+    {
+        $this->callSilently('vendor:publish', [
+            '--tag'   => 'live-table-config',
+            '--force' => true,
+        ]);
+
+        $path = config_path('live-table.php');
+
+        if (file_exists($path)) {
+            file_put_contents(
+                $path,
+                str_replace("'theme' => 'bootstrap'", "'theme' => '{$theme}'", file_get_contents($path)),
+            );
+        }
+
+        $this->components->task('Config published');
+    }
+
+    private function publishViews(string $theme): void
+    {
+        $this->callSilently('vendor:publish', [
+            '--tag' => "live-table-views-{$theme}",
+        ]);
+
+        $this->components->task("Views published ({$theme})");
+    }
+
+    private function showTailwindInstructions(): void
+    {
+        $this->newLine();
+        $this->components->warn('Tailwind CSS – add the package path to your tailwind.config.js:');
+        $this->newLine();
+        $this->line("  content: [");
+        $this->line("      // ... your existing paths");
+        $this->line("      <fg=green>'./vendor/predatorstudio/live-table/resources/views/**/*.blade.php'</>,");
+        $this->line("  ],");
+        $this->newLine();
+    }
+}

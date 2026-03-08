@@ -20,6 +20,8 @@ abstract class BaseTable extends Component
 
     public array $selected = [];
 
+    private ?array $columnsCache = null;
+
     /** Enable per-row checkboxes and bulk actions zone. */
     protected bool $selectable = false;
 
@@ -111,7 +113,8 @@ abstract class BaseTable extends Component
      */
     public function mount(): void
     {
-        $cols = $this->columns();
+        $this->columnsCache = null;
+        $cols = $this->cachedColumns();
 
         $this->columnOrder = array_column($cols, 'key');
 
@@ -119,6 +122,11 @@ abstract class BaseTable extends Component
             array_filter($cols, fn(Column $c) => ! $c->visible),
             'key',
         ));
+    }
+
+    private function cachedColumns(): array
+    {
+        return $this->columnsCache ??= $this->columns();
     }
 
     public function updatedSearch(): void
@@ -134,7 +142,7 @@ abstract class BaseTable extends Component
     public function sort(string $column): void
     {
         $sortable = array_column(
-            array_filter($this->columns(), fn(Column $c) => $c->sortable),
+            array_filter($this->cachedColumns(), fn(Column $c) => $c->sortable),
             'key',
         );
 
@@ -159,7 +167,7 @@ abstract class BaseTable extends Component
 
     public function toggleColumn(string $key): void
     {
-        $valid = array_column($this->columns(), 'key');
+        $valid = array_column($this->cachedColumns(), 'key');
 
         if (! in_array($key, $valid, true)) {
             return;
@@ -176,7 +184,7 @@ abstract class BaseTable extends Component
 
     public function reorderColumns(array $order): void
     {
-        $allowed   = array_column($this->columns(), 'key');
+        $allowed   = array_column($this->cachedColumns(), 'key');
         $sanitized = array_values(array_intersect($order, $allowed));
 
         foreach ($allowed as $key) {
@@ -199,6 +207,34 @@ abstract class BaseTable extends Component
         $this->activeFilters    = [];
         $this->showFiltersModal = false;
         $this->page             = 1;
+    }
+
+    public function removeFilter(string $key): void
+    {
+        $filters = $this->activeFilters;
+        unset($filters[$key]);
+        $this->activeFilters = $filters;
+        $this->page          = 1;
+    }
+
+    public function updateCell(string $rowId, string $columnKey, mixed $value): void
+    {
+        $col = collect($this->cachedColumns())->firstWhere('key', $columnKey);
+
+        if ($col === null) {
+            return;
+        }
+
+        $cell = $col->getCell();
+
+        if (! ($cell instanceof \PredatorStudio\LiveTable\Cells\EditableCell)) {
+            return;
+        }
+
+        $cell->validate($value);
+
+        $row = $this->baseQuery()->where($this->primaryKey, $rowId)->firstOrFail();
+        $cell->update($row, $value);
     }
 
     public function toggleSelectRow(string $id): void
@@ -230,7 +266,7 @@ abstract class BaseTable extends Component
 
     private function resolvedColumns(): array
     {
-        $cols    = collect($this->columns())->keyBy('key');
+        $cols    = collect($this->cachedColumns())->keyBy('key');
         $ordered = [];
 
         foreach ($this->columnOrder as $key) {
@@ -298,6 +334,7 @@ abstract class BaseTable extends Component
         return $result;
     }
 
+    /** @codeCoverageIgnore – requires full Livewire + Blade view stack */
     public function render(): mixed
     {
         $query    = $this->buildQuery();
