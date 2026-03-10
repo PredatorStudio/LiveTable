@@ -30,6 +30,12 @@ class LiveTableServiceProvider extends ServiceProvider
             __DIR__.'/../resources/views/tailwind' => resource_path('views/vendor/live-table'),
         ], 'live-table-views-tailwind');
 
+        $this->publishes([
+            __DIR__.'/../database/migrations' => database_path('migrations'),
+        ], 'live-table-migrations');
+
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+
         if ($this->app->runningInConsole()) {
             $this->commands([InstallCommand::class]);
         }

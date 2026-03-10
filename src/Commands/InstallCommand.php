@@ -20,6 +20,7 @@ class InstallCommand extends Command
 
         $this->publishConfig($theme);
         $this->publishViews($theme);
+        $this->publishMigrations();
 
         if ($theme === 'tailwind') {
             $this->showTailwindInstructions();
@@ -56,6 +57,15 @@ class InstallCommand extends Command
         ]);
 
         $this->components->task("Views published ({$theme})");
+    }
+
+    private function publishMigrations(): void
+    {
+        $this->callSilently('vendor:publish', [
+            '--tag' => 'live-table-migrations',
+        ]);
+
+        $this->components->task('Migrations published (run php artisan migrate to create live_table_states)');
     }
 
     private function showTailwindInstructions(): void

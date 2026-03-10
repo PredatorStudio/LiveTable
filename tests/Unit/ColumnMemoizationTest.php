@@ -1,7 +1,14 @@
 <?php
 
-use PredatorStudio\LiveTable\Column;
 use Illuminate\Database\Eloquent\Builder;
+use PredatorStudio\LiveTable\Column;
+use PredatorStudio\LiveTable\LiveTableServiceProvider;
+
+uses(\Orchestra\Testbench\TestCase::class);
+
+beforeEach(function () {
+    $this->app->register(LiveTableServiceProvider::class);
+});
 
 it('initializes column order on mount', function () {
     $table = new class extends \PredatorStudio\LiveTable\BaseTable {

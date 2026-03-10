@@ -7,6 +7,13 @@ use PredatorStudio\LiveTable\BaseTable;
 use PredatorStudio\LiveTable\BulkAction;
 use PredatorStudio\LiveTable\Column;
 use PredatorStudio\LiveTable\Filter;
+use PredatorStudio\LiveTable\LiveTableServiceProvider;
+
+uses(\Orchestra\Testbench\TestCase::class);
+
+beforeEach(function () {
+    $this->app->register(LiveTableServiceProvider::class);
+});
 
 // ---------------------------------------------------------------------------
 // Helper – minimal BaseTable stub (skips Livewire constructor)
