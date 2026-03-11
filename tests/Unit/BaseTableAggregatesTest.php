@@ -146,9 +146,12 @@ it('returns zero count when all page values are null', function () {
 // scope = 'all' – delegates to Builder
 // ---------------------------------------------------------------------------
 
-it('calls sum() on the query builder for scope all', function () {
+it('calls selectRaw() on the query builder for scope all (single sum)', function () {
+    $row = (object) ['__sum_price' => 500];
+
     $query = Mockery::mock(Builder::class);
-    $query->shouldReceive('sum')->with('price')->once()->andReturn(500);
+    $query->shouldReceive('selectRaw')->once()->andReturnSelf();
+    $query->shouldReceive('first')->once()->andReturn($row);
 
     $table = aggregateTable(sumColumns: ['price'], scope: AggregateScope::ALL, mockQuery: $query);
     [$sumData] = callComputeAggregates($table, collect());
@@ -156,10 +159,12 @@ it('calls sum() on the query builder for scope all', function () {
     expect($sumData['price'])->toBe(500);
 });
 
-it('handles multiple sumColumns for scope all', function () {
+it('handles multiple sumColumns for scope all with single selectRaw()', function () {
+    $row = (object) ['__sum_price' => 100, '__sum_qty' => 25];
+
     $query = Mockery::mock(Builder::class);
-    $query->shouldReceive('sum')->with('price')->once()->andReturn(100);
-    $query->shouldReceive('sum')->with('qty')->once()->andReturn(25);
+    $query->shouldReceive('selectRaw')->once()->andReturnSelf();
+    $query->shouldReceive('first')->once()->andReturn($row);
 
     $table = aggregateTable(sumColumns: ['price', 'qty'], scope: AggregateScope::ALL, mockQuery: $query);
     [$sumData] = callComputeAggregates($table, collect());
@@ -168,11 +173,12 @@ it('handles multiple sumColumns for scope all', function () {
     expect($sumData['qty'])->toBe(25);
 });
 
-it('scope all uses the query builder (sum returns builder result)', function () {
+it('scope all uses single selectRaw() with sum and count columns', function () {
+    $row = (object) ['__sum_price' => 999, '__count_name' => 7];
+
     $query = Mockery::mock(Builder::class);
-    $query->shouldReceive('sum')->with('price')->once()->andReturn(999);
-    $query->shouldReceive('whereNotNull')->with('name')->once()->andReturnSelf();
-    $query->shouldReceive('count')->once()->andReturn(7);
+    $query->shouldReceive('selectRaw')->once()->andReturnSelf();
+    $query->shouldReceive('first')->once()->andReturn($row);
 
     $table = aggregateTable(
         sumColumns:   ['price'],
@@ -184,6 +190,17 @@ it('scope all uses the query builder (sum returns builder result)', function () 
 
     expect($sumData['price'])->toBe(999);
     expect($countData['name'])->toBe(7);
+});
+
+it('scope all returns zero when row is null', function () {
+    $query = Mockery::mock(Builder::class);
+    $query->shouldReceive('selectRaw')->once()->andReturnSelf();
+    $query->shouldReceive('first')->once()->andReturn(null);
+
+    $table = aggregateTable(sumColumns: ['price'], scope: AggregateScope::ALL, mockQuery: $query);
+    [$sumData] = callComputeAggregates($table, collect());
+
+    expect($sumData['price'])->toBe(0);
 });
 
 // ---------------------------------------------------------------------------

@@ -18,6 +18,26 @@ services:
       db:
         condition: service_healthy
 
+  serve:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+      - vendor:/app/vendor
+    working_dir: /app
+    command: php vendor/bin/testbench serve --host=0.0.0.0 --port=8000
+    ports:
+      - "8001:8000"
+    environment:
+      APP_KEY: base64:kk6RfQP+3SJhHJCNMJwRrVh9a9bJB3gXVIr4tHdMgNs=
+      APP_DEBUG: "true"
+      APP_ENV: local
+      DB_CONNECTION: sqlite
+      DB_DATABASE: /app/workbench/database/database.sqlite
+      SESSION_DRIVER: cookie
+      SESSION_ENCRYPT: "false"
+
   db:
     image: mysql:8.0
     environment:

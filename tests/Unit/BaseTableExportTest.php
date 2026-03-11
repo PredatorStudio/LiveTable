@@ -53,6 +53,7 @@ function makeExportTable(
             $builder->shouldReceive('offset')->andReturnSelf();
             $builder->shouldReceive('limit')->andReturnSelf();
             $builder->shouldReceive('whereIn')->andReturnSelf();
+            $builder->shouldReceive('cursor')->andReturn(\Illuminate\Support\LazyCollection::make($this->rows));
             $builder->shouldReceive('get')->andReturn(Collection::make($this->rows));
 
             return $builder;
@@ -160,6 +161,7 @@ it('exportCsv respects selected ids when not selectAllQuery', function () {
     $builder->shouldReceive('offset')->andReturnSelf();
     $builder->shouldReceive('limit')->andReturnSelf();
     $builder->shouldReceive('whereIn')->once()->andReturnSelf();
+    $builder->shouldReceive('cursor')->andReturn(\Illuminate\Support\LazyCollection::make($rows));
     $builder->shouldReceive('get')->andReturn(Collection::make($rows));
 
     $table = new class ($builder) extends BaseTable {
@@ -189,6 +191,7 @@ it('exportCsv skips whereIn when selectAllQuery is true', function () {
     $builder->shouldReceive('offset')->andReturnSelf();
     $builder->shouldReceive('limit')->andReturnSelf();
     $builder->shouldReceive('whereIn')->never();
+    $builder->shouldReceive('cursor')->andReturn(\Illuminate\Support\LazyCollection::make($rows));
     $builder->shouldReceive('get')->andReturn(Collection::make($rows));
 
     $table = new class ($builder) extends BaseTable {
@@ -279,4 +282,35 @@ it('generatePdf returns null by default', function () {
     $table = makeExportTable(exportPdf: true);
 
     expect($table->exportPdf())->toBeNull();
+});
+
+// ---------------------------------------------------------------------------
+// exportCsv() – cursor() instead of get() (task 2.3)
+// ---------------------------------------------------------------------------
+
+it('exportCsv uses cursor instead of get for large datasets', function () {
+    $builder = Mockery::mock(Builder::class);
+    $builder->shouldReceive('count')->andReturn(0);
+    $builder->shouldReceive('orderBy')->andReturnSelf();
+    $builder->shouldReceive('offset')->andReturnSelf();
+    $builder->shouldReceive('limit')->andReturnSelf();
+    $builder->shouldReceive('cursor')->once()->andReturn(\Illuminate\Support\LazyCollection::make([]));
+    $builder->shouldReceive('get')->never();
+
+    $table = new class ($builder) extends BaseTable {
+        public function __construct(private readonly Builder $mock)
+        {
+            $this->exportCsv = true;
+        }
+
+        protected function baseQuery(): Builder { return $this->mock; }
+
+        public function columns(): array
+        {
+            return [Column::make('name', 'Nazwa')];
+        }
+    };
+
+    // Trigger the stream closure to ensure cursor() is actually called
+    captureStreamedResponse($table->exportCsv());
 });

@@ -1,6 +1,7 @@
 DOCKER = docker compose run --rm php
+SERVE_ENV = DB_CONNECTION=sqlite DB_DATABASE=/app/workbench/database/database.sqlite
 
-.PHONY: build install test shell
+.PHONY: build install test shell serve demo-build demo-seed
 
 build:
 	docker compose build
@@ -19,3 +20,11 @@ test-filter:
 
 shell:
 	$(DOCKER) bash
+
+demo-build:
+	$(DOCKER) bash -c "$(SERVE_ENV) php vendor/bin/testbench workbench:build"
+	$(DOCKER) bash -c "$(SERVE_ENV) php vendor/bin/testbench db:seed --class='Workbench\Database\Seeders\DatabaseSeeder'"
+	$(DOCKER) bash -c "ln -sf /app/resources/views/bootstrap/base-table.blade.php /app/vendor/orchestra/testbench-core/laravel/resources/views/vendor/live-table/base-table.blade.php"
+
+serve:
+	docker compose up serve

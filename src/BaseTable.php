@@ -6,15 +6,36 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Livewire\Component;
+use PredatorStudio\LiveTable\Concerns\ManagesAggregates;
+use PredatorStudio\LiveTable\Concerns\ManagesBulkActions;
+use PredatorStudio\LiveTable\Concerns\ManagesColumns;
+use PredatorStudio\LiveTable\Concerns\ManagesDefaultCrud;
+use PredatorStudio\LiveTable\Concerns\ManagesExport;
+use PredatorStudio\LiveTable\Concerns\ManagesFilters;
+use PredatorStudio\LiveTable\Concerns\ManagesInfiniteScroll;
+use PredatorStudio\LiveTable\Concerns\ManagesMassActions;
+use PredatorStudio\LiveTable\Concerns\ManagesSelection;
+use PredatorStudio\LiveTable\Concerns\ManagesSorting;
+use PredatorStudio\LiveTable\Concerns\ManagesStatePersistence;
 use PredatorStudio\LiveTable\Enums\AggregateScope;
 use PredatorStudio\LiveTable\Enums\RowActionsMode;
 use PredatorStudio\LiveTable\Enums\SelectMode;
-use PredatorStudio\LiveTable\Models\TableState;
-use PredatorStudio\LiveTable\SubRows;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 abstract class BaseTable extends Component
 {
+    use ManagesInfiniteScroll,
+        ManagesBulkActions,
+        ManagesSelection,
+        ManagesFilters,
+        ManagesSorting,
+        ManagesColumns,
+        ManagesStatePersistence,
+        ManagesAggregates,
+        ManagesExport,
+        ManagesMassActions,
+        ManagesDefaultCrud;
+
     public string $search  = '';
     public int    $perPage = 25;
     public int    $page    = 1;
@@ -28,7 +49,10 @@ abstract class BaseTable extends Component
 
     public array $selected = [];
 
-    private ?array $columnsCache = null;
+    protected ?array $columnsCache = null;
+
+    /** Static schema-type cache (per request). Key: "table.column" → HTML input type. */
+    protected static array $schemaCache = [];
 
     /**
      * Persist table state (search, filters, column order/visibility, sort, per-page) to the database.
@@ -82,6 +106,58 @@ abstract class BaseTable extends Component
     protected bool $exportPdf = false;
 
     /**
+     * FQCN of the Eloquent model managed by this table (e.g. App\Models\User).
+     * Required when $defaultCreating = true.
+     */
+    protected string $model = '';
+
+    /**
+     * When true, a "Dodaj rekord" button appears in the top-right zone.
+     * Requires $model to be set.
+     */
+    protected bool $defaultCreating = false;
+
+    /** Whether the default-creating modal is open. */
+    public bool $showCreatingModal = false;
+
+    /** Form data bound to the creating modal inputs. */
+    public array $creatingData = [];
+
+    /**
+     * Enable default per-row actions (edit and/or delete).
+     * Requires $model to be set for the edit action.
+     */
+    protected bool $defaultActions = false;
+
+    /** Show the default "Edytuj" row action (opens editing modal). Requires $model. */
+    protected bool $defaultActionEdit = true;
+
+    /** Show the default "Usuń" row action (deletes the record with confirmation). */
+    protected bool $defaultActionDelete = true;
+
+    /** Primary key of the record currently open in the editing modal. */
+    public string $editingId = '';
+
+    /** Form data bound to the editing modal inputs. */
+    public array $editingData = [];
+
+    /** Whether the editing modal is open. */
+    public bool $showEditingModal = false;
+
+    /**
+     * When true, a "Edytuj zaznaczone" button appears in the top-left zone.
+     * Requires $selectable = true and $model to be set.
+     * Empty form fields are ignored – only non-empty values are applied.
+     */
+    protected bool $massEdit = false;
+
+    /** Form data bound to the mass-edit modal inputs. */
+    public array $massEditData = [];
+
+    /** Whether the mass-edit modal is open. */
+    public bool $showMassEditModal = false;
+
+    /**
      * When true, a mass delete (trash icon) button appears in the top-left zone.
      * Requires $selectable = true. Calls beforeMassDelete() / afterMassDelete() hooks.
      */
@@ -95,6 +171,33 @@ abstract class BaseTable extends Component
 
     /** Enable per-row checkboxes and bulk actions zone. */
     protected bool $selectable = false;
+
+    /**
+     * Maximum number of rows that can be selected at once.
+     * Prevents DoS via oversized $selected payload in Livewire state.
+     */
+    protected int $maxSelected = 10_000;
+
+    /**
+     * Whitelist of fillable field keys exposed in the creating modal.
+     * When empty – all $fillable fields are used (default behaviour).
+     *
+     * ⚠️ Use this to prevent sensitive fields (is_admin, stripe_id …) from
+     * being exposed and mass-assigned through the default creating form.
+     */
+    protected array $creatableFields = [];
+
+    /**
+     * Whitelist of fillable field keys exposed in the editing modal.
+     * When empty – falls back to $creatableFields, then all $fillable.
+     */
+    protected array $editableFields = [];
+
+    /**
+     * When true, fields whose name matches 'password' or '*_password' are
+     * automatically hashed with Hash::make() before being persisted.
+     */
+    protected bool $autoHashPasswords = true;
 
     /**
      * How rows are selected when $selectable is true.
@@ -141,15 +244,6 @@ abstract class BaseTable extends Component
     /**
      * Column definitions.
      *
-     * Example:
-     *   return [
-     *       Column::make('name', 'Firstname')->sortable(),
-     *       Column::make('email', 'E-mail')->sortable(),
-     *       Column::make('created_at', 'Date')->sortable()->format(
-     *           fn($row, $v) => e($v->format('d.m.Y'))
-     *       ),
-     *   ];
-     *
      * @return Column[]
      */
     abstract public function columns(): array;
@@ -160,7 +254,6 @@ abstract class BaseTable extends Component
 
     /**
      * Filter definitions rendered in the filters modal.
-     * Apply them to the query inside applyFilters().
      *
      * @return Filter[]
      */
@@ -191,13 +284,6 @@ abstract class BaseTable extends Component
 
     /**
      * Per-row action buttons rendered in the last column.
-     * Display mode is controlled by $rowActionsMode (DROPDOWN or ICONS).
-     *
-     * Example:
-     *   return [
-     *       RowAction::make('Edytuj')->href(fn($row) => route('users.edit', $row->id))->icon('<svg>…</svg>'),
-     *       RowAction::make('Usuń')->method('deleteRow')->icon('<svg>…</svg>')->confirm('Na pewno usunąć?'),
-     *   ];
      *
      * @return RowAction[]
      */
@@ -209,12 +295,6 @@ abstract class BaseTable extends Component
     /**
      * Return sub-rows for the given main row.
      * Override in your table class and set $expandable = true.
-     *
-     * Example:
-     *   protected function subRows(mixed $row): ?SubRows
-     *   {
-     *       return SubRows::fromCollection($row->projects);
-     *   }
      */
     protected function subRows(mixed $row): ?SubRows
     {
@@ -222,155 +302,21 @@ abstract class BaseTable extends Component
     }
 
     // -------------------------------------------------------------------------
-    // Select all from query
-    // -------------------------------------------------------------------------
-
-    public function selectAllFromQuery(): void
-    {
-        $this->selectAllQuery = true;
-    }
-
-    public function clearSelectAllQuery(): void
-    {
-        $this->selectAllQuery = false;
-        $this->selected       = [];
-    }
-
-    // -------------------------------------------------------------------------
-    // Mass delete
+    // Authorization hook
     // -------------------------------------------------------------------------
 
     /**
-     * Delete selected rows (or all filtered rows when $selectAllQuery is true).
-     * Calls beforeMassDelete() before and afterMassDelete() after a successful deletion.
-     * Throwing an exception inside beforeMassDelete() aborts the operation.
+     * Override to add authorization checks before any destructive action.
+     * Throw \Illuminate\Auth\Access\AuthorizationException (or any exception) to abort.
+     *
+     * @param  string  $action  'create' | 'update' | 'delete' | 'massEdit' | 'massDelete'
+     * @param  mixed   $record  Eloquent model instance, or null for mass operations
      */
-    public function massDelete(): void
-    {
-        if (! $this->selectable || (! $this->selectAllQuery && empty($this->selected))) {
-            return;
-        }
-
-        $query = $this->buildQuery();
-
-        if (! $this->selectAllQuery) {
-            $query->whereIn($this->primaryKey, $this->selected);
-        }
-
-        // IDs: for $selected already in memory; for selectAllQuery – one lightweight pluck()
-        $ids = $this->selectAllQuery
-            ? $query->pluck($this->primaryKey)->all()
-            : $this->selected;
-
-        $this->beforeMassDelete($ids);
-
-        $query->delete();
-
-        $this->afterMassDelete($ids);
-
-        $this->selected       = [];
-        $this->selectAllQuery = false;
-        $this->page           = 1;
-    }
-
-    /**
-     * Called before mass deletion. Throw an exception to abort the operation.
-     * Useful for: authorization checks, logging the intent.
-     *
-     * If you need full model instances:
-     *   $records = $this->baseQuery()->whereIn($this->primaryKey, $ids)->get();
-     *
-     * @param  array<int|string>  $ids
-     */
-    protected function beforeMassDelete(array $ids): void {}
-
-    /**
-     * Called only after a successful mass deletion.
-     * Useful for: audit logs, dispatching jobs, sending notifications.
-     *
-     * Note: records no longer exist in the DB at this point.
-     * Pass $ids to a queued job if you need async processing.
-     *
-     * @param  array<int|string>  $ids
-     */
-    protected function afterMassDelete(array $ids): void {}
+    protected function authorizeAction(string $action, mixed $record = null): void {}
 
     // -------------------------------------------------------------------------
-    // Export
+    // Search / Filter hooks
     // -------------------------------------------------------------------------
-
-    public function exportCsv(): StreamedResponse
-    {
-        $columns  = $this->visibleColumns();
-        $rows     = $this->getExportRows();
-        $filename = class_basename(static::class) . '_' . now()->format('Y-m-d_His') . '.csv';
-
-        return response()->streamDownload(function () use ($rows, $columns) {
-            $output = fopen('php://output', 'w');
-            fputs($output, "\xEF\xBB\xBF");
-
-            fputcsv($output, array_map(fn(Column $col) => $col->label, $columns));
-
-            foreach ($rows as $row) {
-                fputcsv($output, $this->rowToCsvArray($row, $columns));
-
-                if ($this->expandable) {
-                    $sub = $this->subRows($row);
-                    foreach ($sub?->getItems() ?? [] as $subRow) {
-                        fputcsv($output, $this->rowToCsvArray($subRow, $columns));
-                    }
-                }
-            }
-
-            fclose($output);
-        }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
-    }
-
-    private function rowToCsvArray(mixed $row, array $columns): array
-    {
-        return array_map(
-            fn(Column $col) => strip_tags(html_entity_decode($col->renderCell($row))),
-            $columns,
-        );
-    }
-
-    /**
-     * Override to implement PDF export with your preferred library.
-     *
-     * Example with dompdf:
-     *   $html = view('your-pdf-view', compact('rows', 'columns'))->render();
-     *   return response($pdf->loadHtml($html)->output(), 200, [
-     *       'Content-Type'        => 'application/pdf',
-     *       'Content-Disposition' => 'attachment; filename="export.pdf"',
-     *   ]);
-     *
-     * @param  Collection  $rows
-     * @param  Column[]    $columns
-     */
-    protected function generatePdf(Collection $rows, array $columns): mixed
-    {
-        return null;
-    }
-
-    public function exportPdf(): mixed
-    {
-        if (! $this->exportPdf) {
-            return null;
-        }
-
-        return $this->generatePdf($this->getExportRows(), $this->visibleColumns());
-    }
-
-    private function getExportRows(): Collection
-    {
-        $query = $this->buildQuery();
-
-        if (! $this->selectAllQuery && ! empty($this->selected)) {
-            $query->whereIn($this->primaryKey, $this->selected);
-        }
-
-        return $query->get();
-    }
 
     /**
      * Apply full-text search to the query. Called only when $search is non-empty.
@@ -389,78 +335,44 @@ abstract class BaseTable extends Component
     }
 
     // -------------------------------------------------------------------------
-    // State persistence
+    // Core query pipeline
     // -------------------------------------------------------------------------
 
-    private function getTableIdentifier(): string
+    protected function buildQuery(): Builder
     {
-        return $this->tableId !== '' ? $this->tableId : static::class;
+        $query = $this->baseQuery();
+
+        if ($this->search !== '') {
+            $query = $this->applySearch($query, trim($this->search));
+        }
+
+        return $this->applyFilters($query);
     }
 
-    private function resolveClientIdentifier(): array
+    // -------------------------------------------------------------------------
+    // Password hashing helper (used by ManagesDefaultCrud and ManagesMassActions)
+    // -------------------------------------------------------------------------
+
+    /**
+     * Hash fields whose key matches 'password' or '*_password' before persistence.
+     * Skips empty values and respects the $autoHashPasswords flag.
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    private function hashPasswordFields(array $data): array
     {
-        if (auth()->check()) {
-            return ['user_id' => auth()->id(), 'client_id' => null];
+        if (! $this->autoHashPasswords) {
+            return $data;
         }
 
-        $clientId = session('live_table_client_id');
-
-        if (! $clientId) {
-            $clientId = (string) Str::uuid();
-            session(['live_table_client_id' => $clientId]);
+        foreach (array_keys($data) as $key) {
+            if ($data[$key] !== '' && $data[$key] !== null && Str::is(['password', '*_password'], $key)) {
+                $data[$key] = \Illuminate\Support\Facades\Hash::make((string) $data[$key]);
+            }
         }
 
-        return ['user_id' => null, 'client_id' => $clientId];
-    }
-
-    public function saveState(): void
-    {
-        if (! $this->persistState) {
-            return;
-        }
-
-        $identifier = $this->resolveClientIdentifier();
-
-        TableState::updateOrCreate(
-            array_merge(['table_id' => $this->getTableIdentifier()], $identifier),
-            ['state' => [
-                'search'         => $this->search,
-                'active_filters' => $this->activeFilters,
-                'column_order'   => $this->columnOrder,
-                'hidden_columns' => $this->hiddenColumns,
-                'per_page'       => $this->perPage,
-                'sort_by'        => $this->sortBy,
-                'sort_dir'       => $this->sortDir,
-            ]],
-        );
-    }
-
-    private function loadState(): void
-    {
-        if (! $this->persistState) {
-            return;
-        }
-
-        $identifier = $this->resolveClientIdentifier();
-
-        $record = TableState::where('table_id', $this->getTableIdentifier())
-            ->where('user_id', $identifier['user_id'])
-            ->where('client_id', $identifier['client_id'])
-            ->first();
-
-        if ($record === null) {
-            return;
-        }
-
-        $data = $record->state;
-
-        $this->search        = $data['search'] ?? $this->search;
-        $this->activeFilters = $data['active_filters'] ?? $this->activeFilters;
-        $this->columnOrder   = $data['column_order'] ?? $this->columnOrder;
-        $this->hiddenColumns = $data['hidden_columns'] ?? $this->hiddenColumns;
-        $this->perPage       = $data['per_page'] ?? $this->perPage;
-        $this->sortBy        = $data['sort_by'] ?? $this->sortBy;
-        $this->sortDir       = $data['sort_dir'] ?? $this->sortDir;
+        return $data;
     }
 
     // -------------------------------------------------------------------------
@@ -495,11 +407,6 @@ abstract class BaseTable extends Component
         }
     }
 
-    private function cachedColumns(): array
-    {
-        return $this->columnsCache ??= $this->columns();
-    }
-
     public function updatedSearch(): void
     {
         $this->page           = 1;
@@ -521,114 +428,9 @@ abstract class BaseTable extends Component
         $this->saveState();
     }
 
-    public function sort(string $column): void
-    {
-        $this->selectAllQuery = false;
-
-        $sortable = array_column(
-            array_filter($this->cachedColumns(), fn(Column $c) => $c->sortable),
-            'key',
-        );
-
-        if (! in_array($column, $sortable, true)) {
-            return;
-        }
-
-        if ($this->sortBy === $column) {
-            $this->sortDir = $this->sortDir === 'asc' ? 'desc' : 'asc';
-        } else {
-            $this->sortBy  = $column;
-            $this->sortDir = 'asc';
-        }
-
-        $this->page = 1;
-        $this->resetInfiniteScroll();
-        $this->saveState();
-    }
-
     public function setPage(int $page): void
     {
         $this->page = max(1, $page);
-    }
-
-    public function toggleColumn(string $key): void
-    {
-        $valid = array_column($this->cachedColumns(), 'key');
-
-        if (! in_array($key, $valid, true)) {
-            return;
-        }
-
-        if (in_array($key, $this->hiddenColumns, true)) {
-            $this->hiddenColumns = array_values(
-                array_filter($this->hiddenColumns, fn($k) => $k !== $key),
-            );
-        } else {
-            $this->hiddenColumns[] = $key;
-        }
-
-        $this->saveState();
-    }
-
-    public function reorderColumns(array $order): void
-    {
-        $allowed   = array_column($this->cachedColumns(), 'key');
-        $sanitized = array_values(array_intersect($order, $allowed));
-
-        foreach ($allowed as $key) {
-            if (! in_array($key, $sanitized, true)) {
-                $sanitized[] = $key;
-            }
-        }
-
-        $this->columnOrder = $sanitized;
-        $this->saveState();
-    }
-
-    public function applyActiveFilters(): void
-    {
-        $this->showFiltersModal = false;
-        $this->page             = 1;
-        $this->selectAllQuery   = false;
-        $this->resetInfiniteScroll();
-        $this->saveState();
-    }
-
-    public function clearFilters(): void
-    {
-        $this->activeFilters    = [];
-        $this->showFiltersModal = false;
-        $this->page             = 1;
-        $this->selectAllQuery   = false;
-        $this->resetInfiniteScroll();
-        $this->saveState();
-    }
-
-    public function removeFilter(string $key): void
-    {
-        $filters = $this->activeFilters;
-        unset($filters[$key]);
-        $this->activeFilters  = $filters;
-        $this->page           = 1;
-        $this->selectAllQuery = false;
-        $this->resetInfiniteScroll();
-        $this->saveState();
-    }
-
-    public function loadMore(): void
-    {
-        if ($this->perPage !== 0) {
-            return;
-        }
-
-        $this->loadedRows += $this->infiniteChunkSize;
-    }
-
-    private function resetInfiniteScroll(): void
-    {
-        if ($this->perPage === 0) {
-            $this->loadedRows = $this->infiniteChunkSize;
-        }
     }
 
     public function updateCell(string $rowId, string $columnKey, mixed $value): void
@@ -651,71 +453,9 @@ abstract class BaseTable extends Component
         $cell->update($row, $value);
     }
 
-    public function toggleSelectRow(string $id): void
-    {
-        if (in_array($id, $this->selected, true)) {
-            $this->selected = array_values(
-                array_filter($this->selected, fn($s) => $s !== $id),
-            );
-        } else {
-            $this->selected[] = $id;
-        }
-    }
-
-    public function selectRows(array $ids): void
-    {
-        $this->selected = array_values(array_unique(array_merge(
-            $this->selected,
-            array_map('strval', $ids),
-        )));
-    }
-
-    public function deselectRows(array $ids): void
-    {
-        $ids            = array_map('strval', $ids);
-        $this->selected = array_values(
-            array_filter($this->selected, fn($id) => ! in_array($id, $ids, true)),
-        );
-    }
-
-    private function resolvedColumns(): array
-    {
-        $cols    = collect($this->cachedColumns())->keyBy('key');
-        $ordered = [];
-
-        foreach ($this->columnOrder as $key) {
-            if ($cols->has($key)) {
-                $ordered[] = $cols[$key];
-            }
-        }
-
-        foreach ($cols as $key => $col) {
-            if (! in_array($key, $this->columnOrder, true)) {
-                $ordered[] = $col;
-            }
-        }
-
-        return $ordered;
-    }
-
-    private function visibleColumns(): array
-    {
-        return array_values(array_filter(
-            $this->resolvedColumns(),
-            fn(Column $c) => ! in_array($c->key, $this->hiddenColumns, true),
-        ));
-    }
-
-    private function buildQuery(): Builder
-    {
-        $query = $this->baseQuery();
-
-        if ($this->search !== '') {
-            $query = $this->applySearch($query, trim($this->search));
-        }
-
-        return $this->applyFilters($query);
-    }
+    // -------------------------------------------------------------------------
+    // Pagination helper
+    // -------------------------------------------------------------------------
 
     private function buildPageLinks(int $lastPage): array
     {
@@ -748,41 +488,9 @@ abstract class BaseTable extends Component
         return $result;
     }
 
-    /**
-     * Compute footer aggregates (sums and counts) based on $aggregateScope.
-     *
-     * @param  \Illuminate\Support\Collection  $pageItems  Already fetched current-page rows.
-     * @return array{0: array<string,mixed>, 1: array<string,int>}  [sumData, countData]
-     */
-    private function computeAggregates(\Illuminate\Support\Collection $pageItems): array
-    {
-        $sumData   = [];
-        $countData = [];
-
-        if (empty($this->sumColumns) && empty($this->countColumns)) {
-            return [$sumData, $countData];
-        }
-
-        if ($this->aggregateScope === AggregateScope::PAGE) {
-            foreach ($this->sumColumns as $col) {
-                $sumData[$col] = $pageItems->sum($col);
-            }
-            foreach ($this->countColumns as $col) {
-                $countData[$col] = $pageItems->whereNotNull($col)->count();
-            }
-        } else {
-            $aggQuery = $this->buildQuery();
-
-            foreach ($this->sumColumns as $col) {
-                $sumData[$col] = $aggQuery->sum($col);
-            }
-            foreach ($this->countColumns as $col) {
-                $countData[$col] = $this->buildQuery()->whereNotNull($col)->count();
-            }
-        }
-
-        return [$sumData, $countData];
-    }
+    // -------------------------------------------------------------------------
+    // Render
+    // -------------------------------------------------------------------------
 
     /** @codeCoverageIgnore – requires full Livewire + Blade view stack */
     public function render(): mixed
@@ -790,8 +498,9 @@ abstract class BaseTable extends Component
         $query = $this->buildQuery();
         $total = $query->count();
 
-        if (! empty($this->sortBy)) {
-            $query->orderBy($this->sortBy, $this->sortDir);
+        $safeSortBy = $this->safeSortBy();
+        if ($safeSortBy !== '') {
+            $query->orderBy($safeSortBy, $this->safeSortDir());
         }
 
         $infiniteMode = $this->perPage === 0;
@@ -844,14 +553,33 @@ abstract class BaseTable extends Component
             }
         }
 
+        $canEdit   = $this->defaultActions && $this->defaultActionEdit
+                        && $this->model !== '' && class_exists($this->model);
+        $canDelete = $this->defaultActions && $this->defaultActionDelete;
+
         $hasRowActions = false;
         $rowActionsMap = [];
         foreach ($items as $item) {
             $key     = (string) data_get($item, $this->primaryKey);
             $actions = $this->rowActions($item);
+
+            if ($canEdit) {
+                $actions[] = RowAction::make('Edytuj')
+                    ->method('openEditingModal')
+                    ->icon('<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>');
+            }
+
+            if ($canDelete) {
+                $actions[] = RowAction::make('Usuń')
+                    ->method('deleteRow')
+                    ->icon('<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>')
+                    ->confirm('Czy na pewno chcesz usunąć ten rekord?');
+            }
+
             if (! empty($actions)) {
                 $hasRowActions = true;
             }
+
             $rowActionsMap[$key] = array_map(
                 fn (RowAction $a) => (object) [
                     'label'   => $a->label,
@@ -869,6 +597,14 @@ abstract class BaseTable extends Component
         $currentPageIds  = $items->pluck($this->primaryKey)->map('strval')->all();
         $allPageSelected = ! empty($currentPageIds)
             && count(array_diff($currentPageIds, $this->selected)) === 0;
+
+        $canCreate      = $this->defaultCreating && $this->model !== '' && class_exists($this->model);
+        $creatingFields = $canCreate ? $this->creatingFields() : [];
+
+        // Editing modal shares the same field definitions as creating modal
+        $editingFields = ($canEdit && ! empty($creatingFields)) ? $creatingFields : (
+            $canEdit ? $this->creatingFields() : []
+        );
 
         return view('live-table::base-table', [
             'items'               => $items,
@@ -905,6 +641,17 @@ abstract class BaseTable extends Component
             'hasRowActions'       => $hasRowActions,
             'rowActionsMap'       => $rowActionsMap,
             'rowActionsMode'      => $this->rowActionsMode,
+            'massEditEnabled'     => $this->massEdit && $this->selectable
+                                        && $this->model !== '' && class_exists($this->model)
+                                        && ! empty($creatingFields ?: $this->creatingFields()),
+            'showMassEditModal'   => $this->showMassEditModal,
+            'massEditFields'      => $this->massEdit ? ($creatingFields ?: $this->creatingFields()) : [],
+            'canCreate'           => $canCreate && ! empty($creatingFields),
+            'creatingFields'      => $creatingFields,
+            'showCreatingModal'   => $this->showCreatingModal,
+            'canEdit'             => $canEdit,
+            'editingFields'       => $editingFields,
+            'showEditingModal'    => $this->showEditingModal,
         ]);
     }
 }
