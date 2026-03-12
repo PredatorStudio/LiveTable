@@ -20,7 +20,22 @@ it('sets icon via fluent icon()', function () {
 
 it('icon() returns new instance', function () {
     $original = BulkAction::make('delete', 'Usuń');
-    $modified  = $original->icon('<svg/>');
+    $modified = $original->icon('<svg/>');
 
+    expect($modified)->not->toBe($original);
+});
+
+it('tooltip defaults to empty string', function () {
+    $action = BulkAction::make('delete', 'Usuń');
+
+    expect($action->tooltip)->toBe('');
+});
+
+it('tooltip() sets tooltip and returns new instance', function () {
+    $original = BulkAction::make('delete', 'Usuń');
+    $modified = $original->tooltip('Usuń zaznaczone rekordy');
+
+    expect($modified->tooltip)->toBe('Usuń zaznaczone rekordy');
+    expect($original->tooltip)->toBe(''); // immutable
     expect($modified)->not->toBe($original);
 });

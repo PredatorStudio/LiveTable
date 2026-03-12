@@ -3,7 +3,7 @@
 namespace PredatorStudio\LiveTable\Concerns;
 
 use Illuminate\Support\Str;
-use PredatorStudio\LiveTable\Models\TableState;
+use PredatorStudio\LiveTable\Contracts\TableStateRepositoryInterface;
 
 trait ManagesStatePersistence
 {
@@ -15,9 +15,10 @@ trait ManagesStatePersistence
 
         $identifier = $this->resolveClientIdentifier();
 
-        TableState::updateOrCreate(
-            array_merge(['table_id' => $this->getTableIdentifier()], $identifier),
-            ['state' => [
+        app(TableStateRepositoryInterface::class)->save(
+            $this->getTableIdentifier(),
+            $identifier,
+            [
                 'search'         => $this->search,
                 'active_filters' => $this->activeFilters,
                 'column_order'   => $this->columnOrder,
@@ -25,7 +26,7 @@ trait ManagesStatePersistence
                 'per_page'       => $this->perPage,
                 'sort_by'        => $this->sortBy,
                 'sort_dir'       => $this->sortDir,
-            ]],
+            ],
         );
     }
 
@@ -58,16 +59,14 @@ trait ManagesStatePersistence
 
         $identifier = $this->resolveClientIdentifier();
 
-        $record = TableState::where('table_id', $this->getTableIdentifier())
-            ->where('user_id', $identifier['user_id'])
-            ->where('client_id', $identifier['client_id'])
-            ->first();
+        $data = app(TableStateRepositoryInterface::class)->load(
+            $this->getTableIdentifier(),
+            $identifier,
+        );
 
-        if ($record === null) {
+        if ($data === null) {
             return;
         }
-
-        $data = $record->state;
 
         $this->search        = $data['search'] ?? $this->search;
         $this->activeFilters = $data['active_filters'] ?? $this->activeFilters;

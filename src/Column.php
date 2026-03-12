@@ -23,16 +23,18 @@ use PredatorStudio\LiveTable\Enums\TimeFormat;
 class Column
 {
     public bool $sortable = false;
-    public bool $visible  = true;
+
+    public bool $visible = true;
 
     private ?Closure $formatter = null;
-    private Cell     $cell;
+
+    private Cell $cell;
 
     public function __construct(
         public readonly string $key,
         public readonly string $label,
     ) {
-        $this->cell = new TextCell();
+        $this->cell = new TextCell;
     }
 
     // -------------------------------------------------------------------------
@@ -104,7 +106,7 @@ class Column
 
     public static function checkbox(string $key, string $label): static
     {
-        return static::make($key, $label)->cell(new CheckboxCell());
+        return static::make($key, $label)->cell(new CheckboxCell);
     }
 
     // -------------------------------------------------------------------------
@@ -159,8 +161,22 @@ class Column
     // -------------------------------------------------------------------------
 
     /**
-     * @param  mixed  $row        The current data row.
-     * @param  string $primaryKey The primary key field name (needed for editable cells).
+     * Render a plain-text value for CSV export (no HTML tags, no editable widgets).
+     */
+    public function renderCellPlain(mixed $row): string
+    {
+        $value = data_get($row, $this->key);
+
+        if ($this->formatter !== null) {
+            return strip_tags(html_entity_decode((string) ($this->formatter)($row, $value), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+        }
+
+        return $this->cell->renderPlain($row, $value);
+    }
+
+    /**
+     * @param  mixed  $row  The current data row.
+     * @param  string  $primaryKey  The primary key field name (needed for editable cells).
      */
     public function renderCell(mixed $row, string $primaryKey = ''): string
     {

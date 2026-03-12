@@ -36,8 +36,7 @@
     @if ($massDeleteEnabled && $selectable)
         <button
             type="button"
-            wire:click="massDelete"
-            wire:confirm="Czy na pewno chcesz usunąć zaznaczone wiersze?"
+            @click.prevent="$dispatch('live-table-ask-confirm', { message: 'Czy na pewno chcesz usunąć zaznaczone wiersze?', action: () => $wire.massDelete() })"
             class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-md border border-red-300 bg-white text-red-700 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors"
             title="Usuń zaznaczone"
         >

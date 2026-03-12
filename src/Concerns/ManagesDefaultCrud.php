@@ -2,7 +2,11 @@
 
 namespace PredatorStudio\LiveTable\Concerns;
 
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use PredatorStudio\LiveTable\Cells\CheckboxCell;
+use PredatorStudio\LiveTable\Cells\SelectCell;
 
 trait ManagesDefaultCrud
 {
@@ -25,10 +29,10 @@ trait ManagesDefaultCrud
         $allowedKeys = array_column($this->creatingFields(), 'key');
 
         $this->editingData = collect($allowedKeys)
-            ->mapWithKeys(fn(string $key) => [$key => data_get($record, $key) ?? ''])
+            ->mapWithKeys(fn (string $key) => [$key => data_get($record, $key) ?? ''])
             ->all();
 
-        $this->editingId        = $id;
+        $this->editingId = $id;
         $this->showEditingModal = true;
     }
 
@@ -40,22 +44,19 @@ trait ManagesDefaultCrud
     public function editingRules(): array
     {
         return collect($this->creatingFields())
-            ->mapWithKeys(fn(array $f) => ["editingData.{$f['key']}" => 'required'])
+            ->mapWithKeys(fn (array $f) => ["editingData.{$f['key']}" => 'required'])
             ->all();
     }
 
     /**
      * Called before the record is updated.
      *
-     * @param  mixed                 $record
      * @param  array<string, mixed>  $data
      */
     protected function beforeUpdate(mixed $record, array &$data): void {}
 
     /**
      * Called after the record has been successfully updated.
-     *
-     * @param  mixed  $record
      */
     protected function afterUpdate(mixed $record): void {}
 
@@ -75,7 +76,7 @@ trait ManagesDefaultCrud
         $this->authorizeAction('update', $record);
 
         $allowedKeys = array_column($this->creatingFields(), 'key');
-        $data        = array_intersect_key($this->editingData, array_flip($allowedKeys));
+        $data = array_intersect_key($this->editingData, array_flip($allowedKeys));
 
         $data = $this->hashPasswordFields($data);
 
@@ -84,8 +85,8 @@ trait ManagesDefaultCrud
         $this->afterUpdate($record);
 
         $this->showEditingModal = false;
-        $this->editingData      = [];
-        $this->editingId        = '';
+        $this->editingData = [];
+        $this->editingId = '';
 
         $this->dispatch('live-table-notify', message: 'Rekord zaktualizowany.', type: 'success');
     }
@@ -108,7 +109,7 @@ trait ManagesDefaultCrud
         $this->afterDelete($id);
 
         $this->selected = array_values(
-            array_filter($this->selected, fn(string $s) => $s !== $id),
+            array_filter($this->selected, fn (string $s) => $s !== $id),
         );
 
         $this->dispatch('live-table-notify', message: 'Rekord usunięty.', type: 'success');
@@ -116,15 +117,11 @@ trait ManagesDefaultCrud
 
     /**
      * Called before the record is deleted. Throw an exception to abort.
-     *
-     * @param  mixed  $record
      */
     protected function beforeDelete(mixed $record): void {}
 
     /**
      * Called after the record has been successfully deleted.
-     *
-     * @param  string  $id
      */
     protected function afterDelete(string $id): void {}
 
@@ -138,7 +135,7 @@ trait ManagesDefaultCrud
         }
 
         $this->creatingData = collect($this->creatingFields())
-            ->mapWithKeys(fn(array $field) => [$field['key'] => ''])
+            ->mapWithKeys(fn (array $field) => [$field['key'] => ''])
             ->all();
 
         $this->showCreatingModal = true;
@@ -155,7 +152,7 @@ trait ManagesDefaultCrud
             return [];
         }
 
-        /** @var \Illuminate\Database\Eloquent\Model $instance */
+        /** @var Model $instance */
         $instance = new $this->model;
         $fillable = $instance->getFillable();
 
@@ -175,14 +172,32 @@ trait ManagesDefaultCrud
         $casts = $instance->getCasts();
         $table = $instance->getTable();
 
-        return array_map(
-            fn(string $key) => [
-                'key'   => $key,
+        // Build key → cell map from column definitions for type overrides
+        $columnCells = collect($this->columns())
+            ->keyBy(fn ($col) => $col->key)
+            ->map(fn ($col) => $col->getCell())
+            ->all();
+
+        return array_map(function (string $key) use ($casts, $table, $columnCells) {
+            $type = $this->resolveFieldType($key, $casts, $table);
+            $options = [];
+
+            $cell = $columnCells[$key] ?? null;
+
+            if ($cell instanceof SelectCell) {
+                $type = 'select';
+                $options = $cell->getOptions();
+            } elseif ($cell instanceof CheckboxCell) {
+                $type = 'checkbox';
+            }
+
+            return [
+                'key' => $key,
                 'label' => Str::headline($key),
-                'type'  => $this->resolveFieldType($key, $casts, $table),
-            ],
-            $fillable,
-        );
+                'type' => $type,
+                'options' => $options,
+            ];
+        }, $fillable);
     }
 
     /**
@@ -193,7 +208,7 @@ trait ManagesDefaultCrud
     public function creatingRules(): array
     {
         return collect($this->creatingFields())
-            ->mapWithKeys(fn(array $f) => ["creatingData.{$f['key']}" => 'required'])
+            ->mapWithKeys(fn (array $f) => ["creatingData.{$f['key']}" => 'required'])
             ->all();
     }
 
@@ -206,8 +221,6 @@ trait ManagesDefaultCrud
 
     /**
      * Called after the model has been successfully created.
-     *
-     * @param  mixed  $record
      */
     protected function afterCreate(mixed $record): void {}
 
@@ -223,7 +236,7 @@ trait ManagesDefaultCrud
         $this->validate($this->creatingRules());
 
         $allowedKeys = array_column($this->creatingFields(), 'key');
-        $data        = array_intersect_key($this->creatingData, array_flip($allowedKeys));
+        $data = array_intersect_key($this->creatingData, array_flip($allowedKeys));
 
         $this->authorizeAction('create');
 
@@ -236,8 +249,8 @@ trait ManagesDefaultCrud
         $this->afterCreate($record);
 
         $this->showCreatingModal = false;
-        $this->creatingData      = [];
-        $this->page              = 1;
+        $this->creatingData = [];
+        $this->page = 1;
 
         $this->dispatch('live-table-notify', message: 'Rekord dodany.', type: 'success');
     }
@@ -261,10 +274,10 @@ trait ManagesDefaultCrud
             $castBase = strtolower(explode(':', (string) $casts[$key])[0]);
             $fromCast = match (true) {
                 in_array($castBase, ['int', 'integer', 'float', 'double', 'decimal']) => 'number',
-                in_array($castBase, ['bool', 'boolean'])                              => 'checkbox',
-                $castBase === 'date'                                                  => 'date',
-                in_array($castBase, ['datetime', 'timestamp'])                        => 'datetime-local',
-                default                                                               => null,
+                in_array($castBase, ['bool', 'boolean']) => 'checkbox',
+                $castBase === 'date' => 'date',
+                in_array($castBase, ['datetime', 'timestamp']) => 'datetime-local',
+                default => null,
             };
             if ($fromCast !== null) {
                 $type = $fromCast;
@@ -303,19 +316,19 @@ trait ManagesDefaultCrud
         }
 
         try {
-            $dbType = \Illuminate\Support\Facades\Schema::getColumnType($table, $column);
+            $dbType = Schema::getColumnType($table, $column);
         } catch (\Throwable) {
             return self::$schemaCache[$cacheKey] = 'text';
         }
 
         $type = match (true) {
             in_array($dbType, ['integer', 'bigint', 'smallint', 'tinyint', 'int',
-                               'float', 'double', 'decimal'])                => 'number',
-            $dbType === 'boolean'                                            => 'checkbox',
-            $dbType === 'date'                                               => 'date',
-            in_array($dbType, ['datetime', 'timestamp'])                     => 'datetime-local',
-            in_array($dbType, ['text', 'longtext', 'mediumtext'])            => 'textarea',
-            default                                                          => 'text',
+                'float', 'double', 'decimal']) => 'number',
+            $dbType === 'boolean' => 'checkbox',
+            $dbType === 'date' => 'date',
+            in_array($dbType, ['datetime', 'timestamp']) => 'datetime-local',
+            in_array($dbType, ['text', 'longtext', 'mediumtext']) => 'textarea',
+            default => 'text',
         };
 
         return self::$schemaCache[$cacheKey] = $type;

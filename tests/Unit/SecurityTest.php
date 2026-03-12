@@ -2,11 +2,13 @@
 
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Hash;
+use Orchestra\Testbench\TestCase;
 use PredatorStudio\LiveTable\BaseTable;
 use PredatorStudio\LiveTable\Column;
 use PredatorStudio\LiveTable\LiveTableServiceProvider;
 
-uses(\Orchestra\Testbench\TestCase::class);
+uses(TestCase::class);
 
 beforeEach(function () {
     $this->app->register(LiveTableServiceProvider::class);
@@ -25,7 +27,8 @@ function securityStub(array $extraCols = []): BaseTable
         Column::make('email', 'Email'),
     ], $extraCols);
 
-    return new class ($cols) extends BaseTable {
+    return new class($cols) extends BaseTable
+    {
         public function __construct(private readonly array $cols)
         {
             // Skip Livewire constructor
@@ -92,7 +95,7 @@ it('safeSortBy returns empty string when sortBy is empty', function () {
 // ===========================================================================
 
 it('safeSortDir returns asc for invalid value', function () {
-    $table          = securityStub();
+    $table = securityStub();
     $table->sortDir = 'INVALID; DROP TABLE';
 
     $result = (new ReflectionMethod($table, 'safeSortDir'))->invoke($table);
@@ -101,7 +104,7 @@ it('safeSortDir returns asc for invalid value', function () {
 });
 
 it('safeSortDir returns asc when sortDir is asc', function () {
-    $table          = securityStub();
+    $table = securityStub();
     $table->sortDir = 'asc';
 
     $result = (new ReflectionMethod($table, 'safeSortDir'))->invoke($table);
@@ -110,7 +113,7 @@ it('safeSortDir returns asc when sortDir is asc', function () {
 });
 
 it('safeSortDir returns desc when sortDir is desc', function () {
-    $table          = securityStub();
+    $table = securityStub();
     $table->sortDir = 'desc';
 
     $result = (new ReflectionMethod($table, 'safeSortDir'))->invoke($table);
@@ -119,7 +122,7 @@ it('safeSortDir returns desc when sortDir is desc', function () {
 });
 
 it('safeSortDir returns asc for empty string', function () {
-    $table          = securityStub();
+    $table = securityStub();
     $table->sortDir = '';
 
     $result = (new ReflectionMethod($table, 'safeSortDir'))->invoke($table);
@@ -128,7 +131,7 @@ it('safeSortDir returns asc for empty string', function () {
 });
 
 it('safeSortDir returns asc for ASC (uppercase not accepted)', function () {
-    $table          = securityStub();
+    $table = securityStub();
     $table->sortDir = 'ASC';
 
     $result = (new ReflectionMethod($table, 'safeSortDir'))->invoke($table);
@@ -141,7 +144,7 @@ it('safeSortDir returns asc for ASC (uppercase not accepted)', function () {
 // ===========================================================================
 
 it('authorizeAction is a protected method returning void by default', function () {
-    $table  = securityStub();
+    $table = securityStub();
     $method = new ReflectionMethod($table, 'authorizeAction');
 
     expect($method->isProtected())->toBeTrue();
@@ -150,23 +153,30 @@ it('authorizeAction is a protected method returning void by default', function (
     $method->invoke($table, 'delete', null);
     $method->invoke($table, 'massDelete');
     $method->invoke($table, 'create');
-    $method->invoke($table, 'update', new stdClass());
+    $method->invoke($table, 'update', new stdClass);
 
     expect(true)->toBeTrue();
 });
 
 it('deleteRow aborts when authorizeAction throws', function () {
-    $mockRecord = new stdClass();
+    $mockRecord = new stdClass;
     $mockBuilder = Mockery::mock(Builder::class);
     $mockBuilder->shouldReceive('where')->andReturnSelf();
     $mockBuilder->shouldReceive('firstOrFail')->andReturn($mockRecord);
 
-    $table = new class ($mockBuilder) extends BaseTable {
+    $table = new class($mockBuilder) extends BaseTable
+    {
         public function __construct(private readonly mixed $builder) {}
 
-        protected function baseQuery(): Builder { return $this->builder; }
+        protected function baseQuery(): Builder
+        {
+            return $this->builder;
+        }
 
-        public function columns(): array { return [Column::make('id', 'ID')]; }
+        public function columns(): array
+        {
+            return [Column::make('id', 'ID')];
+        }
 
         protected function authorizeAction(string $action, mixed $record = null): void
         {
@@ -182,12 +192,19 @@ it('deleteRow aborts when authorizeAction throws', function () {
 });
 
 it('massDelete aborts when authorizeAction throws', function () {
-    $table = new class extends BaseTable {
+    $table = new class extends BaseTable
+    {
         public function __construct() {}
 
-        protected function baseQuery(): Builder { return Mockery::mock(Builder::class); }
+        protected function baseQuery(): Builder
+        {
+            return Mockery::mock(Builder::class);
+        }
 
-        public function columns(): array { return [Column::make('id', 'ID')]; }
+        public function columns(): array
+        {
+            return [Column::make('id', 'ID')];
+        }
 
         protected function authorizeAction(string $action, mixed $record = null): void
         {
@@ -203,19 +220,29 @@ it('massDelete aborts when authorizeAction throws', function () {
 });
 
 it('massEditUpdate aborts when authorizeAction throws', function () {
-    $table = new class extends BaseTable {
+    $table = new class extends BaseTable
+    {
         public function __construct() {}
 
-        protected function baseQuery(): Builder { return Mockery::mock(Builder::class); }
+        protected function baseQuery(): Builder
+        {
+            return Mockery::mock(Builder::class);
+        }
 
-        public function columns(): array { return [Column::make('id', 'ID')]; }
+        public function columns(): array
+        {
+            return [Column::make('id', 'ID')];
+        }
 
         public function creatingFields(): array
         {
             return [['key' => 'name', 'label' => 'Nazwa', 'type' => 'text']];
         }
 
-        public function validate($rules = null, $messages = [], $attributes = []): array { return []; }
+        public function validate($rules = null, $messages = [], $attributes = []): array
+        {
+            return [];
+        }
 
         protected function authorizeAction(string $action, mixed $record = null): void
         {
@@ -225,33 +252,43 @@ it('massEditUpdate aborts when authorizeAction throws', function () {
 
     (new ReflectionProperty($table, 'massEdit'))->setValue($table, true);
     $table->massEditData = ['name' => 'Jan'];
-    $table->selected     = ['1'];
+    $table->selected = ['1'];
 
     expect(fn () => $table->massEditUpdate())
         ->toThrow(AuthorizationException::class);
 });
 
 it('updateRecord aborts when authorizeAction throws', function () {
-    $mockRecord  = new stdClass();
+    $mockRecord = new stdClass;
     $mockBuilder = Mockery::mock(Builder::class);
     $mockBuilder->shouldReceive('where')->andReturnSelf();
     $mockBuilder->shouldReceive('firstOrFail')->andReturn($mockRecord);
 
-    $table = new class ($mockBuilder) extends BaseTable {
+    $table = new class($mockBuilder) extends BaseTable
+    {
         public string $editingId = '1';
 
         public function __construct(private readonly mixed $builder) {}
 
-        protected function baseQuery(): Builder { return $this->builder; }
+        protected function baseQuery(): Builder
+        {
+            return $this->builder;
+        }
 
-        public function columns(): array { return [Column::make('id', 'ID')]; }
+        public function columns(): array
+        {
+            return [Column::make('id', 'ID')];
+        }
 
         public function creatingFields(): array
         {
             return [['key' => 'name', 'label' => 'Nazwa', 'type' => 'text']];
         }
 
-        public function validate($rules = null, $messages = [], $attributes = []): array { return []; }
+        public function validate($rules = null, $messages = [], $attributes = []): array
+        {
+            return [];
+        }
 
         protected function authorizeAction(string $action, mixed $record = null): void
         {
@@ -271,24 +308,24 @@ it('updateRecord aborts when authorizeAction throws', function () {
 // ===========================================================================
 
 it('hashPasswordFields hashes values matching password pattern', function () {
-    $table  = securityStub();
+    $table = securityStub();
     $method = new ReflectionMethod($table, 'hashPasswordFields');
 
-    $data   = ['name' => 'Jan', 'password' => 'secret123'];
+    $data = ['name' => 'Jan', 'password' => 'secret123'];
     $result = $method->invoke($table, $data);
 
     expect($result['name'])->toBe('Jan');
-    expect(\Illuminate\Support\Facades\Hash::check('secret123', $result['password']))->toBeTrue();
+    expect(Hash::check('secret123', $result['password']))->toBeTrue();
 });
 
 it('hashPasswordFields hashes fields matching *_password pattern', function () {
-    $table  = securityStub();
+    $table = securityStub();
     $method = new ReflectionMethod($table, 'hashPasswordFields');
 
-    $data   = ['api_password' => 'mytoken'];
+    $data = ['api_password' => 'mytoken'];
     $result = $method->invoke($table, $data);
 
-    expect(\Illuminate\Support\Facades\Hash::check('mytoken', $result['api_password']))->toBeTrue();
+    expect(Hash::check('mytoken', $result['api_password']))->toBeTrue();
 });
 
 it('hashPasswordFields does nothing when autoHashPasswords is false', function () {
@@ -296,17 +333,17 @@ it('hashPasswordFields does nothing when autoHashPasswords is false', function (
     (new ReflectionProperty($table, 'autoHashPasswords'))->setValue($table, false);
 
     $method = new ReflectionMethod($table, 'hashPasswordFields');
-    $data   = ['password' => 'secret123'];
+    $data = ['password' => 'secret123'];
     $result = $method->invoke($table, $data);
 
     expect($result['password'])->toBe('secret123'); // niezmienione
 });
 
 it('hashPasswordFields skips empty password values', function () {
-    $table  = securityStub();
+    $table = securityStub();
     $method = new ReflectionMethod($table, 'hashPasswordFields');
 
-    $data   = ['password' => ''];
+    $data = ['password' => ''];
     $result = $method->invoke($table, $data);
 
     expect($result['password'])->toBe(''); // puste zostawione bez zmian
@@ -318,14 +355,14 @@ it('hashPasswordFields skips empty password values', function () {
 
 it('creatableFields defaults to empty array', function () {
     $table = securityStub();
-    $prop  = new ReflectionProperty($table, 'creatableFields');
+    $prop = new ReflectionProperty($table, 'creatableFields');
 
     expect($prop->getValue($table))->toBe([]);
 });
 
 it('editableFields defaults to empty array', function () {
     $table = securityStub();
-    $prop  = new ReflectionProperty($table, 'editableFields');
+    $prop = new ReflectionProperty($table, 'editableFields');
 
     expect($prop->getValue($table))->toBe([]);
 });
@@ -379,7 +416,7 @@ it('selectRows adds nothing when already at maxSelected limit', function () {
 
 it('maxSelected defaults to 10000', function () {
     $table = securityStub();
-    $prop  = new ReflectionProperty($table, 'maxSelected');
+    $prop = new ReflectionProperty($table, 'maxSelected');
 
     expect($prop->getValue($table))->toBe(10_000);
 });

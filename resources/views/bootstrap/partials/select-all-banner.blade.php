@@ -1,5 +1,5 @@
 @if ($selectAllQuery)
-    <div class="d-flex align-items-center justify-content-between gap-2 rounded py-2 px-3 border border-primary" style="background: rgba(13,110,253,0.07);">
+    <div class="d-flex align-items-center justify-content-between gap-2 rounded py-2 px-3 border border-primary" style="background: rgba(99,102,241,0.07);">
         <span class="small text-primary">Zaznaczono wszystkie <strong>{{ $total }}</strong> wiersze z wyników.</span>
         <button
             type="button"
@@ -10,7 +10,7 @@
         </button>
     </div>
 @elseif ($selectable && count($selected) > 0)
-    <div class="d-flex align-items-center justify-content-between gap-2 rounded py-2 px-3 border border-primary" style="background: rgba(13,110,253,0.07);">
+    <div class="d-flex align-items-center justify-content-between gap-2 rounded py-2 px-3 border border-primary" style="background: rgba(99,102,241,0.07);">
         <span class="small text-primary"><strong>{{ count($selected) }}</strong> zaznaczonych</span>
         <div class="d-flex align-items-center gap-2">
             <button

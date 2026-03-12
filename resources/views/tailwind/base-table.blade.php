@@ -3,6 +3,7 @@
         showColumnPanel: false,
         draggingCol: null,
         dragOverCol: null,
+        confirm: { open: false, message: '', action: null },
         startDrag(key) {
             this.draggingCol = key;
         },
@@ -23,6 +24,7 @@
             this.dragOverCol = null;
         }
     }"
+    @live-table-ask-confirm.window="confirm.message = $event.detail.message; confirm.action = $event.detail.action; confirm.open = true"
     class="flex flex-col gap-3"
 >
 
@@ -49,6 +51,7 @@
     @include('live-table::partials.modal-editing')
     @include('live-table::partials.modal-mass-edit')
     @include('live-table::partials.modal-filters')
+    @include('live-table::partials.modal-confirm')
 
     {{-- Toast notifications --}}
     @include('live-table::partials.toasts')

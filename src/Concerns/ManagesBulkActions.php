@@ -12,6 +12,6 @@ trait ManagesBulkActions
     public function clearSelectAllQuery(): void
     {
         $this->selectAllQuery = false;
-        $this->selected       = [];
+        $this->selected = [];
     }
 }

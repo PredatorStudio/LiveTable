@@ -11,7 +11,7 @@ trait ManagesSorting
         $this->selectAllQuery = false;
 
         $sortable = array_column(
-            array_filter($this->cachedColumns(), fn(Column $c) => $c->sortable),
+            array_filter($this->cachedColumns(), fn (Column $c) => $c->sortable),
             'key',
         );
 
@@ -22,7 +22,7 @@ trait ManagesSorting
         if ($this->sortBy === $column) {
             $this->sortDir = $this->sortDir === 'asc' ? 'desc' : 'asc';
         } else {
-            $this->sortBy  = $column;
+            $this->sortBy = $column;
             $this->sortDir = 'asc';
         }
 
@@ -38,7 +38,7 @@ trait ManagesSorting
         }
 
         $sortable = array_column(
-            array_filter($this->cachedColumns(), fn(Column $c) => $c->sortable),
+            array_filter($this->cachedColumns(), fn (Column $c) => $c->sortable),
             'key',
         );
 

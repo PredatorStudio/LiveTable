@@ -10,20 +10,21 @@ use PredatorStudio\LiveTable\Enums\AggregateScope;
  * Creates a minimal BaseTable stub with configurable sum/count columns and scope.
  */
 function aggregateTable(
-    array $sumColumns            = [],
-    array $countColumns          = [],
-    AggregateScope $scope        = AggregateScope::ALL,
-    ?Builder $mockQuery          = null,
+    array $sumColumns = [],
+    array $countColumns = [],
+    AggregateScope $scope = AggregateScope::ALL,
+    ?Builder $mockQuery = null,
 ): BaseTable {
-    return new class ($sumColumns, $countColumns, $scope, $mockQuery) extends BaseTable {
+    return new class($sumColumns, $countColumns, $scope, $mockQuery) extends BaseTable
+    {
         public function __construct(
             array $sum,
             array $count,
             AggregateScope $scope,
             private readonly ?Builder $mockQuery,
         ) {
-            $this->sumColumns     = $sum;
-            $this->countColumns   = $count;
+            $this->sumColumns = $sum;
+            $this->countColumns = $count;
             $this->aggregateScope = $scope;
         }
 
@@ -181,10 +182,10 @@ it('scope all uses single selectRaw() with sum and count columns', function () {
     $query->shouldReceive('first')->once()->andReturn($row);
 
     $table = aggregateTable(
-        sumColumns:   ['price'],
+        sumColumns: ['price'],
         countColumns: ['name'],
-        scope:        AggregateScope::ALL,
-        mockQuery:    $query,
+        scope: AggregateScope::ALL,
+        mockQuery: $query,
     );
     [$sumData, $countData] = callComputeAggregates($table, collect());
 
@@ -214,9 +215,9 @@ it('can have both sumColumns and countColumns simultaneously on page scope', fun
     ]);
 
     $table = aggregateTable(
-        sumColumns:   ['price'],
+        sumColumns: ['price'],
         countColumns: ['name'],
-        scope:        AggregateScope::PAGE,
+        scope: AggregateScope::PAGE,
     );
     [$sumData, $countData] = callComputeAggregates($table, $items);
 

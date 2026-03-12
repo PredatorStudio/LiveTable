@@ -1,12 +1,14 @@
 <?php
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Mockery;
+use Orchestra\Testbench\TestCase;
 use PredatorStudio\LiveTable\BaseTable;
 use PredatorStudio\LiveTable\Column;
 use PredatorStudio\LiveTable\LiveTableServiceProvider;
 
-uses(\Orchestra\Testbench\TestCase::class);
+uses(TestCase::class);
 
 beforeEach(function () {
     $this->app->register(LiveTableServiceProvider::class);
@@ -19,12 +21,14 @@ afterEach(fn () => Mockery::close());
 // ---------------------------------------------------------------------------
 
 if (! class_exists('FakeCreatingModel')) {
-    class FakeCreatingModel extends \Illuminate\Database\Eloquent\Model
+    class FakeCreatingModel extends Model
     {
-        protected $table    = 'fake_creating_models';
+        protected $table = 'fake_creating_models';
+
         protected $fillable = ['name', 'email', 'age', 'active', 'bio', 'password'];
-        protected $casts    = [
-            'age'    => 'integer',
+
+        protected $casts = [
+            'age' => 'integer',
             'active' => 'boolean',
         ];
 
@@ -37,9 +41,10 @@ if (! class_exists('FakeCreatingModel')) {
 }
 
 if (! class_exists('FakeEmptyFillableModel')) {
-    class FakeEmptyFillableModel extends \Illuminate\Database\Eloquent\Model
+    class FakeEmptyFillableModel extends Model
     {
-        protected $table    = 'fake_empty';
+        protected $table = 'fake_empty';
+
         protected $fillable = [];
 
         public static function create(array $attributes = []): static
@@ -58,10 +63,14 @@ function makeCreatingTable(
     bool $defaultCreating = true,
     array $extraCreatingData = [],
 ): BaseTable {
-    return new class ($model, $defaultCreating, $extraCreatingData) extends BaseTable {
+    return new class($model, $defaultCreating, $extraCreatingData) extends BaseTable
+    {
         public bool $beforeCalled = false;
-        public bool $afterCalled  = false;
-        public array $receivedData  = [];
+
+        public bool $afterCalled = false;
+
+        public array $receivedData = [];
+
         public mixed $receivedRecord = null;
 
         public function __construct(
@@ -69,7 +78,7 @@ function makeCreatingTable(
             bool $dc,
             private array $extraCreatingData,
         ) {
-            $this->model           = $modelClass;
+            $this->model = $modelClass;
             $this->defaultCreating = $dc;
         }
 
@@ -100,8 +109,8 @@ function makeCreatingTable(
 
         protected function afterCreate(mixed $record): void
         {
-            $this->afterCalled     = true;
-            $this->receivedRecord  = $record;
+            $this->afterCalled = true;
+            $this->receivedRecord = $record;
         }
     };
 }
@@ -111,10 +120,19 @@ function makeCreatingTable(
 // ---------------------------------------------------------------------------
 
 it('defaultCreating defaults to false', function () {
-    $table = new class extends BaseTable {
+    $table = new class extends BaseTable
+    {
         public function __construct() {}
-        protected function baseQuery(): Builder { return Mockery::mock(Builder::class); }
-        public function columns(): array { return [Column::make('id', 'ID')]; }
+
+        protected function baseQuery(): Builder
+        {
+            return Mockery::mock(Builder::class);
+        }
+
+        public function columns(): array
+        {
+            return [Column::make('id', 'ID')];
+        }
     };
     $prop = new ReflectionProperty($table, 'defaultCreating');
     expect($prop->getValue($table))->toBeFalse();
@@ -122,7 +140,7 @@ it('defaultCreating defaults to false', function () {
 
 it('model defaults to empty string', function () {
     $table = makeCreatingTable();
-    $prop  = new ReflectionProperty($table, 'model');
+    $prop = new ReflectionProperty($table, 'model');
     expect($prop->getValue($table))->toBe('');
 });
 
@@ -156,9 +174,9 @@ it('creatingFields returns empty when fillable is empty', function () {
 });
 
 it('creatingFields returns one entry per fillable field', function () {
-    $table  = makeCreatingTable(model: FakeCreatingModel::class);
+    $table = makeCreatingTable(model: FakeCreatingModel::class);
     $fields = $table->creatingFields();
-    $keys   = array_column($fields, 'key');
+    $keys = array_column($fields, 'key');
 
     expect($keys)->toContain('name')
         ->and($keys)->toContain('email')
@@ -167,14 +185,14 @@ it('creatingFields returns one entry per fillable field', function () {
 });
 
 it('creatingFields entries have key, label and type', function () {
-    $table  = makeCreatingTable(model: FakeCreatingModel::class);
+    $table = makeCreatingTable(model: FakeCreatingModel::class);
     $fields = $table->creatingFields();
 
     expect($fields[0])->toHaveKeys(['key', 'label', 'type']);
 });
 
 it('creatingFields generates headline label from key', function () {
-    $table  = makeCreatingTable(model: FakeCreatingModel::class);
+    $table = makeCreatingTable(model: FakeCreatingModel::class);
     $fields = collect($table->creatingFields())->keyBy('key');
 
     // 'name' → 'Name'
@@ -186,7 +204,7 @@ it('creatingFields generates headline label from key', function () {
 // ---------------------------------------------------------------------------
 
 it('detects number type for integer cast', function () {
-    $table  = makeCreatingTable(model: FakeCreatingModel::class);
+    $table = makeCreatingTable(model: FakeCreatingModel::class);
     $fields = collect($table->creatingFields())->keyBy('key');
 
     // 'age' cast to 'integer' → 'number'
@@ -194,7 +212,7 @@ it('detects number type for integer cast', function () {
 });
 
 it('detects checkbox type for boolean cast', function () {
-    $table  = makeCreatingTable(model: FakeCreatingModel::class);
+    $table = makeCreatingTable(model: FakeCreatingModel::class);
     $fields = collect($table->creatingFields())->keyBy('key');
 
     // 'active' cast to 'boolean' → 'checkbox'
@@ -206,14 +224,14 @@ it('detects checkbox type for boolean cast', function () {
 // ---------------------------------------------------------------------------
 
 it('detects email type for field named email', function () {
-    $table  = makeCreatingTable(model: FakeCreatingModel::class);
+    $table = makeCreatingTable(model: FakeCreatingModel::class);
     $fields = collect($table->creatingFields())->keyBy('key');
 
     expect($fields['email']['type'])->toBe('email');
 });
 
 it('detects password type for field named password', function () {
-    $table  = makeCreatingTable(model: FakeCreatingModel::class);
+    $table = makeCreatingTable(model: FakeCreatingModel::class);
     $fields = collect($table->creatingFields())->keyBy('key');
 
     expect($fields['password']['type'])->toBe('password');
@@ -226,7 +244,7 @@ it('detects password type for field named password', function () {
 it('config creating_field_types overrides built-in heuristic', function () {
     config(['live-table.creating_field_types' => ['email' => 'text']]);
 
-    $table  = makeCreatingTable(model: FakeCreatingModel::class);
+    $table = makeCreatingTable(model: FakeCreatingModel::class);
     $fields = collect($table->creatingFields())->keyBy('key');
 
     // config says email → text, overrides built-in email heuristic
@@ -246,7 +264,7 @@ it('config creating_field_types supports wildcard patterns', function () {
         ');
     }
 
-    $table  = makeCreatingTable(model: 'FakeColorModel');
+    $table = makeCreatingTable(model: 'FakeColorModel');
     $fields = collect($table->creatingFields())->keyBy('key');
 
     expect($fields['bg_color']['type'])->toBe('color')
@@ -258,7 +276,7 @@ it('config creating_field_types supports wildcard patterns', function () {
 // ---------------------------------------------------------------------------
 
 it('openCreatingModal does nothing when defaultCreating is false', function () {
-    $table                  = makeCreatingTable(defaultCreating: false, model: FakeCreatingModel::class);
+    $table = makeCreatingTable(defaultCreating: false, model: FakeCreatingModel::class);
     $table->openCreatingModal();
 
     expect($table->showCreatingModal)->toBeFalse();
@@ -302,8 +320,8 @@ it('openCreatingModal initializes creatingData values as empty strings', functio
 // ---------------------------------------------------------------------------
 
 it('createRecord does nothing when defaultCreating is false', function () {
-    $table                 = makeCreatingTable(defaultCreating: false, model: FakeCreatingModel::class);
-    $table->creatingData   = ['name' => 'Jan'];
+    $table = makeCreatingTable(defaultCreating: false, model: FakeCreatingModel::class);
+    $table->creatingData = ['name' => 'Jan'];
     $table->showCreatingModal = true;
 
     $table->createRecord();
@@ -313,7 +331,7 @@ it('createRecord does nothing when defaultCreating is false', function () {
 });
 
 it('createRecord does nothing when model is not set', function () {
-    $table                 = makeCreatingTable(model: '');
+    $table = makeCreatingTable(model: '');
     $table->showCreatingModal = true;
 
     $table->createRecord();
@@ -322,7 +340,7 @@ it('createRecord does nothing when model is not set', function () {
 });
 
 it('createRecord calls beforeCreate hook', function () {
-    $table               = makeCreatingTable(model: FakeCreatingModel::class);
+    $table = makeCreatingTable(model: FakeCreatingModel::class);
     $table->creatingData = ['name' => 'Anna', 'email' => 'a@example.com'];
 
     $table->createRecord();
@@ -331,7 +349,7 @@ it('createRecord calls beforeCreate hook', function () {
 });
 
 it('createRecord calls afterCreate hook', function () {
-    $table               = makeCreatingTable(model: FakeCreatingModel::class);
+    $table = makeCreatingTable(model: FakeCreatingModel::class);
     $table->creatingData = ['name' => 'Anna', 'email' => 'a@example.com'];
 
     $table->createRecord();
@@ -340,7 +358,7 @@ it('createRecord calls afterCreate hook', function () {
 });
 
 it('createRecord afterCreate receives created model instance', function () {
-    $table               = makeCreatingTable(model: FakeCreatingModel::class);
+    $table = makeCreatingTable(model: FakeCreatingModel::class);
     $table->creatingData = ['name' => 'Anna', 'email' => 'a@example.com'];
 
     $table->createRecord();
@@ -349,8 +367,8 @@ it('createRecord afterCreate receives created model instance', function () {
 });
 
 it('createRecord closes modal after creation', function () {
-    $table                    = makeCreatingTable(model: FakeCreatingModel::class);
-    $table->creatingData      = ['name' => 'Anna', 'email' => 'a@example.com'];
+    $table = makeCreatingTable(model: FakeCreatingModel::class);
+    $table->creatingData = ['name' => 'Anna', 'email' => 'a@example.com'];
     $table->showCreatingModal = true;
 
     $table->createRecord();
@@ -359,7 +377,7 @@ it('createRecord closes modal after creation', function () {
 });
 
 it('createRecord resets creatingData after creation', function () {
-    $table               = makeCreatingTable(model: FakeCreatingModel::class);
+    $table = makeCreatingTable(model: FakeCreatingModel::class);
     $table->creatingData = ['name' => 'Anna', 'email' => 'a@example.com'];
 
     $table->createRecord();
@@ -368,9 +386,9 @@ it('createRecord resets creatingData after creation', function () {
 });
 
 it('createRecord resets page to 1', function () {
-    $table               = makeCreatingTable(model: FakeCreatingModel::class);
+    $table = makeCreatingTable(model: FakeCreatingModel::class);
     $table->creatingData = ['name' => 'Anna', 'email' => 'a@example.com'];
-    $table->page         = 5;
+    $table->page = 5;
 
     $table->createRecord();
 

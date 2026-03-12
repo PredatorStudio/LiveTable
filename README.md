@@ -310,6 +310,63 @@ resources/views/
 
 ---
 
+## Bezpieczeństwo
+
+### Scopowanie zapytań do użytkownika
+
+`baseQuery()` **musi** zawężać wyniki do zasobów bieżącego użytkownika, aby uniknąć nieautoryzowanego dostępu do cudzych danych:
+
+```php
+protected function baseQuery(): Builder
+{
+    return Order::where('user_id', auth()->id());
+}
+```
+
+### Hasła i wrażliwe pola
+
+LiveTable automatycznie haszuje pola pasujące do wzorca `password` lub `*_password` przed zapisem do bazy (przez `Hash::make()`). Możesz wyłączyć to zachowanie przez `protected bool $autoHashPasswords = false;` i obsłużyć haszowanie ręcznie w `beforeCreate()` / `beforeUpdate()`:
+
+```php
+protected function beforeCreate(array &$data): void
+{
+    if (isset($data['password'])) {
+        $data['password'] = Hash::make($data['password']);
+    }
+}
+```
+
+### Autoryzacja akcji destruktywnych
+
+Przesłoń `authorizeAction()` aby dodać kontrolę dostępu do operacji edycji i usuwania:
+
+```php
+protected function authorizeAction(string $action, mixed $record = null): void
+{
+    $this->authorize($action, $record ?? $this->model);
+}
+```
+
+Metoda jest wywoływana automatycznie w `deleteRow()`, `updateRecord()`, `createRecord()`, `massDelete()` i `massEditUpdate()`.
+
+### Ograniczenie pól w formularzach
+
+Użyj `$creatableFields`, aby określić które pola są dostępne w modalu tworzenia/edycji. Pola spoza listy (np. `is_admin`, `stripe_id`) nie będą eksponowane ani zapisywalne:
+
+```php
+protected array $creatableFields = ['name', 'email', 'role'];
+```
+
+### Limit zaznaczonych wierszy
+
+Domyślnie użytkownik może zaznaczyć maksymalnie 10 000 wierszy (`$maxSelected`). Możesz zmienić limit w subklasie:
+
+```php
+protected int $maxSelected = 500;
+```
+
+---
+
 ## Testy
 
 ```bash

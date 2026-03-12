@@ -34,7 +34,7 @@ class InstallCommand extends Command
     private function publishConfig(string $theme): void
     {
         $this->callSilently('vendor:publish', [
-            '--tag'   => 'live-table-config',
+            '--tag' => 'live-table-config',
             '--force' => true,
         ]);
 
@@ -61,6 +61,15 @@ class InstallCommand extends Command
 
     private function publishMigrations(): void
     {
+        $migrationExists = collect(glob(database_path('migrations/*.php')))
+            ->contains(fn (string $path) => str_contains($path, 'create_live_table_states_table'));
+
+        if ($migrationExists) {
+            $this->components->task('Migrations already exist – skipping');
+
+            return;
+        }
+
         $this->callSilently('vendor:publish', [
             '--tag' => 'live-table-migrations',
         ]);
@@ -73,10 +82,10 @@ class InstallCommand extends Command
         $this->newLine();
         $this->components->warn('Tailwind CSS – add the package path to your tailwind.config.js:');
         $this->newLine();
-        $this->line("  content: [");
-        $this->line("      // ... your existing paths");
+        $this->line('  content: [');
+        $this->line('      // ... your existing paths');
         $this->line("      <fg=green>'./vendor/predatorstudio/live-table/resources/views/**/*.blade.php'</>,");
-        $this->line("  ],");
+        $this->line('  ],');
         $this->newLine();
     }
 }

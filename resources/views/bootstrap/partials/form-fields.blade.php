@@ -30,6 +30,17 @@
                     class="form-check-input @error($dataKey . '.' . $field['key']) is-invalid @enderror"
                 >
             </div>
+        @elseif ($field['type'] === 'select')
+            <select
+                id="{{ $dataKey }}_{{ $field['key'] }}"
+                wire:model="{{ $dataKey }}.{{ $field['key'] }}"
+                class="form-select @error($dataKey . '.' . $field['key']) is-invalid @enderror"
+            >
+                <option value="">— wybierz —</option>
+                @foreach ($field['options'] ?? [] as $optVal => $optLabel)
+                    <option value="{{ $optVal }}">{{ $optLabel }}</option>
+                @endforeach
+            </select>
         @else
             <input
                 type="{{ $field['type'] }}"

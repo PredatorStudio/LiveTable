@@ -15,15 +15,15 @@ trait ManagesExport
      */
     public function exportCsv(): StreamedResponse
     {
-        $columns  = $this->visibleColumns();
-        $query    = $this->buildExportQuery();
-        $filename = class_basename(static::class) . '_' . now()->format('Y-m-d_His') . '.csv';
+        $columns = $this->visibleColumns();
+        $query = $this->buildExportQuery();
+        $filename = class_basename(static::class).'_'.now()->format('Y-m-d_His').'.csv';
 
         return response()->streamDownload(function () use ($query, $columns) {
             $output = fopen('php://output', 'w');
-            fputs($output, "\xEF\xBB\xBF");
+            fwrite($output, "\xEF\xBB\xBF");
 
-            fputcsv($output, array_map(fn(Column $col) => $col->label, $columns));
+            fputcsv($output, array_map(fn (Column $col) => $col->label, $columns));
 
             foreach ($query->cursor() as $row) {
                 fputcsv($output, $this->rowToCsvArray($row, $columns));
@@ -50,21 +50,28 @@ trait ManagesExport
      *       'Content-Disposition' => 'attachment; filename="export.pdf"',
      *   ]);
      *
-     * @param  Collection  $rows
-     * @param  Column[]    $columns
+     * @param  Column[]  $columns
      */
     protected function generatePdf(Collection $rows, array $columns): mixed
     {
         return null;
     }
 
-    public function exportPdf(): mixed
+    public function exportPdf(): \Symfony\Component\HttpFoundation\Response
     {
         if (! $this->exportPdf) {
-            return null;
+            abort(404);
         }
 
-        return $this->generatePdf($this->buildExportQuery()->get(), $this->visibleColumns());
+        $result = $this->generatePdf($this->buildExportQuery()->get(), $this->visibleColumns());
+
+        if ($result === null) {
+            throw new \BadMethodCallException(
+                'LiveTable: implement generatePdf() in '.static::class.' to enable PDF export.',
+            );
+        }
+
+        return $result;
     }
 
     private function buildExportQuery(): Builder
@@ -81,7 +88,7 @@ trait ManagesExport
     private function rowToCsvArray(mixed $row, array $columns): array
     {
         return array_map(
-            fn(Column $col) => strip_tags(html_entity_decode($col->renderCell($row))),
+            fn (Column $col) => $col->renderCellPlain($row),
             $columns,
         );
     }

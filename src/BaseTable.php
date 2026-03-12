@@ -3,9 +3,10 @@
 namespace PredatorStudio\LiveTable;
 
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Livewire\Component;
+use PredatorStudio\LiveTable\Cells\EditableCell;
 use PredatorStudio\LiveTable\Concerns\ManagesAggregates;
 use PredatorStudio\LiveTable\Concerns\ManagesBulkActions;
 use PredatorStudio\LiveTable\Concerns\ManagesColumns;
@@ -20,32 +21,38 @@ use PredatorStudio\LiveTable\Concerns\ManagesStatePersistence;
 use PredatorStudio\LiveTable\Enums\AggregateScope;
 use PredatorStudio\LiveTable\Enums\RowActionsMode;
 use PredatorStudio\LiveTable\Enums\SelectMode;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 abstract class BaseTable extends Component
 {
-    use ManagesInfiniteScroll,
+    use ManagesAggregates,
         ManagesBulkActions,
-        ManagesSelection,
-        ManagesFilters,
-        ManagesSorting,
         ManagesColumns,
-        ManagesStatePersistence,
-        ManagesAggregates,
+        ManagesDefaultCrud,
         ManagesExport,
+        ManagesFilters,
+        ManagesInfiniteScroll,
         ManagesMassActions,
-        ManagesDefaultCrud;
+        ManagesSelection,
+        ManagesSorting,
+        ManagesStatePersistence;
 
-    public string $search  = '';
-    public int    $perPage = 25;
-    public int    $page    = 1;
-    public string $sortBy  = '';
+    public string $search = '';
+
+    public int $perPage = 25;
+
+    public int $page = 1;
+
+    public string $sortBy = '';
+
     public string $sortDir = 'asc';
 
-    public array $hiddenColumns    = [];
-    public array $columnOrder      = [];
-    public array $activeFilters    = [];
-    public bool  $showFiltersModal = false;
+    public array $hiddenColumns = [];
+
+    public array $columnOrder = [];
+
+    public array $activeFilters = [];
+
+    public bool $showFiltersModal = false;
 
     public array $selected = [];
 
@@ -58,7 +65,7 @@ abstract class BaseTable extends Component
      * Persist table state (search, filters, column order/visibility, sort, per-page) to the database.
      * Requires running the live-table migrations. Disabled by default – DB is completely optional.
      */
-    public bool $persistState = false;
+    protected bool $persistState = false;
 
     /**
      * Table identifier used as the key in live_table_states.
@@ -91,6 +98,24 @@ abstract class BaseTable extends Component
      * ⚠️ N+1 warning: eager-load relations in baseQuery() when using Eloquent relations.
      */
     protected bool $expandable = false;
+
+    /**
+     * When true, each sub-row gets a checkbox for individual selection.
+     * Sub-row selections are tracked in $selectedSubRows.
+     */
+    protected bool $subRowsSelectable = false;
+
+    /** Primary key field used to identify sub-row items. */
+    protected string $subRowPrimaryKey = 'id';
+
+    /** Currently selected sub-row IDs (string primary key values). */
+    public array $selectedSubRows = [];
+
+    /**
+     * When true, sub-rows get a 3-dot actions dropdown.
+     * Override subRowActions() to define the actions per sub-row.
+     */
+    protected bool $subRowsHasActions = false;
 
     /**
      * Display mode for per-row actions column.
@@ -301,6 +326,31 @@ abstract class BaseTable extends Component
         return null;
     }
 
+    /**
+     * Per-sub-row action buttons rendered in the sub-row actions column.
+     * Requires $subRowsHasActions = true.
+     *
+     * @return RowAction[]
+     */
+    public function subRowActions(mixed $subRow): array
+    {
+        return [];
+    }
+
+    /**
+     * Toggle selection of a sub-row by its primary key.
+     */
+    public function toggleSelectSubRow(string $subRowId): void
+    {
+        if (in_array($subRowId, $this->selectedSubRows, true)) {
+            $this->selectedSubRows = array_values(
+                array_filter($this->selectedSubRows, fn (string $s) => $s !== $subRowId),
+            );
+        } else {
+            $this->selectedSubRows[] = $subRowId;
+        }
+    }
+
     // -------------------------------------------------------------------------
     // Authorization hook
     // -------------------------------------------------------------------------
@@ -310,7 +360,7 @@ abstract class BaseTable extends Component
      * Throw \Illuminate\Auth\Access\AuthorizationException (or any exception) to abort.
      *
      * @param  string  $action  'create' | 'update' | 'delete' | 'massEdit' | 'massDelete'
-     * @param  mixed   $record  Eloquent model instance, or null for mass operations
+     * @param  mixed  $record  Eloquent model instance, or null for mass operations
      */
     protected function authorizeAction(string $action, mixed $record = null): void {}
 
@@ -368,7 +418,7 @@ abstract class BaseTable extends Component
 
         foreach (array_keys($data) as $key) {
             if ($data[$key] !== '' && $data[$key] !== null && Str::is(['password', '*_password'], $key)) {
-                $data[$key] = \Illuminate\Support\Facades\Hash::make((string) $data[$key]);
+                $data[$key] = Hash::make((string) $data[$key]);
             }
         }
 
@@ -393,7 +443,7 @@ abstract class BaseTable extends Component
         $this->columnOrder = array_column($cols, 'key');
 
         $this->hiddenColumns = array_values(array_column(
-            array_filter($cols, fn(Column $c) => ! $c->visible),
+            array_filter($cols, fn (Column $c) => ! $c->visible),
             'key',
         ));
 
@@ -402,14 +452,14 @@ abstract class BaseTable extends Component
         if ($this->perPage === 0 && $this->allowInfiniteScroll) {
             $this->loadedRows = $this->infiniteChunkSize;
         } elseif ($this->perPage === 0 && ! $this->allowInfiniteScroll) {
-            $this->perPage    = 25;
+            $this->perPage = 25;
             $this->loadedRows = 0;
         }
     }
 
     public function updatedSearch(): void
     {
-        $this->page           = 1;
+        $this->page = 1;
         $this->selectAllQuery = false;
         $this->resetInfiniteScroll();
         $this->saveState();
@@ -443,7 +493,7 @@ abstract class BaseTable extends Component
 
         $cell = $col->getCell();
 
-        if (! ($cell instanceof \PredatorStudio\LiveTable\Cells\EditableCell)) {
+        if (! ($cell instanceof EditableCell)) {
             return;
         }
 
@@ -464,7 +514,7 @@ abstract class BaseTable extends Component
         }
 
         $current = $this->page;
-        $keep    = [1, $lastPage];
+        $keep = [1, $lastPage];
 
         for ($i = max(2, $current - 2); $i <= min($lastPage - 1, $current + 2); $i++) {
             $keep[] = $i;
@@ -474,7 +524,7 @@ abstract class BaseTable extends Component
         $keep = array_unique($keep);
 
         $result = [];
-        $prev   = null;
+        $prev = null;
 
         foreach ($keep as $p) {
             if ($prev !== null && $p - $prev > 1) {
@@ -482,7 +532,7 @@ abstract class BaseTable extends Component
             }
 
             $result[] = $p;
-            $prev     = $p;
+            $prev = $p;
         }
 
         return $result;
@@ -507,12 +557,12 @@ abstract class BaseTable extends Component
 
         if ($infiniteMode) {
             $loadedRows = max($this->loadedRows, $this->infiniteChunkSize);
-            $items      = $query->limit($loadedRows)->get();
-            $allLoaded  = $loadedRows >= $total;
-            $lastPage   = 1;
-            $from       = $total > 0 ? 1 : 0;
-            $to         = $items->count();
-            $pages      = [];
+            $items = $query->limit($loadedRows)->get();
+            $allLoaded = $loadedRows >= $total;
+            $lastPage = 1;
+            $from = $total > 0 ? 1 : 0;
+            $to = $items->count();
+            $pages = [];
         } else {
             $lastPage = max(1, (int) ceil($total / $this->perPage));
 
@@ -520,47 +570,66 @@ abstract class BaseTable extends Component
                 $this->page = $lastPage;
             }
 
-            $items     = $query
+            $items = $query
                 ->offset(($this->page - 1) * $this->perPage)
                 ->limit($this->perPage)
                 ->get();
             $allLoaded = false;
-            $from      = $total > 0 ? ($this->page - 1) * $this->perPage + 1 : 0;
-            $to        = min($total, $this->page * $this->perPage);
-            $pages     = $this->buildPageLinks($lastPage);
+            $from = $total > 0 ? ($this->page - 1) * $this->perPage + 1 : 0;
+            $to = min($total, $this->page * $this->perPage);
+            $pages = $this->buildPageLinks($lastPage);
         }
 
         [$rawSumData, $countData] = $this->computeAggregates($items);
 
         $sumData = array_map(
-            static fn(mixed $v) => is_float($v)
+            static fn (mixed $v) => is_float($v)
                 ? number_format($v, 2, ',', ' ')
                 : number_format((int) $v, 0, ',', ' '),
             $rawSumData,
         );
 
-        $selectMode      = $this->selectMode ?? SelectMode::CHECKBOX;
-        $hasCheckboxCol  = $this->selectable && $selectMode === SelectMode::CHECKBOX;
+        $selectMode = $this->selectMode ?? SelectMode::CHECKBOX;
+        $hasCheckboxCol = $this->selectable && $selectMode === SelectMode::CHECKBOX;
         $isRowSelectMode = $this->selectable && $selectMode === SelectMode::ROW;
-        $visibleColumns  = $this->visibleColumns();
+        $visibleColumns = $this->visibleColumns();
 
         $subRowsMap = [];
+        $subRowActionsMap = [];
+
         if ($this->expandable) {
             foreach ($items as $item) {
-                $key              = (string) data_get($item, $this->primaryKey);
-                $sub              = $this->subRows($item);
-                $subRowsMap[$key] = $sub ? $sub->getItems() : [];
+                $key = (string) data_get($item, $this->primaryKey);
+                $sub = $this->subRows($item);
+                $subItems = $sub ? $sub->getItems() : [];
+                $subRowsMap[$key] = $subItems;
+
+                if ($this->subRowsHasActions) {
+                    foreach ($subItems as $subRow) {
+                        $subKey = (string) data_get($subRow, $this->subRowPrimaryKey);
+                        $subRowActionsMap[$key][$subKey] = array_map(
+                            fn (RowAction $a) => (object) [
+                                'label' => $a->label,
+                                'icon' => $a->icon,
+                                'href' => $a->resolveHref($subRow),
+                                'method' => $a->method,
+                                'confirm' => $a->confirm,
+                            ],
+                            $this->subRowActions($subRow),
+                        );
+                    }
+                }
             }
         }
 
-        $canEdit   = $this->defaultActions && $this->defaultActionEdit
+        $canEdit = $this->defaultActions && $this->defaultActionEdit
                         && $this->model !== '' && class_exists($this->model);
         $canDelete = $this->defaultActions && $this->defaultActionDelete;
 
         $hasRowActions = false;
         $rowActionsMap = [];
         foreach ($items as $item) {
-            $key     = (string) data_get($item, $this->primaryKey);
+            $key = (string) data_get($item, $this->primaryKey);
             $actions = $this->rowActions($item);
 
             if ($canEdit) {
@@ -582,10 +651,10 @@ abstract class BaseTable extends Component
 
             $rowActionsMap[$key] = array_map(
                 fn (RowAction $a) => (object) [
-                    'label'   => $a->label,
-                    'icon'    => $a->icon,
-                    'href'    => $a->resolveHref($item),
-                    'method'  => $a->method,
+                    'label' => $a->label,
+                    'icon' => $a->icon,
+                    'href' => $a->resolveHref($item),
+                    'method' => $a->method,
                     'confirm' => $a->confirm,
                 ],
                 $actions,
@@ -594,11 +663,11 @@ abstract class BaseTable extends Component
 
         $colspan = count($visibleColumns) + ($hasCheckboxCol ? 1 : 0) + ($this->expandable ? 1 : 0) + ($hasRowActions ? 1 : 0);
 
-        $currentPageIds  = $items->pluck($this->primaryKey)->map('strval')->all();
+        $currentPageIds = $items->pluck($this->primaryKey)->map('strval')->all();
         $allPageSelected = ! empty($currentPageIds)
             && count(array_diff($currentPageIds, $this->selected)) === 0;
 
-        $canCreate      = $this->defaultCreating && $this->model !== '' && class_exists($this->model);
+        $canCreate = $this->defaultCreating && $this->model !== '' && class_exists($this->model);
         $creatingFields = $canCreate ? $this->creatingFields() : [];
 
         // Editing modal shares the same field definitions as creating modal
@@ -607,51 +676,54 @@ abstract class BaseTable extends Component
         );
 
         return view('live-table::base-table', [
-            'items'               => $items,
-            'total'               => $total,
-            'lastPage'            => $lastPage,
-            'from'                => $from,
-            'to'                  => $to,
-            'pages'               => $pages,
-            'visibleColumns'      => $visibleColumns,
-            'allColumns'          => $this->resolvedColumns(),
-            'filterDefs'          => $this->filters(),
-            'bulkActionDefs'      => $this->bulkActions(),
-            'headerActionDefs'    => $this->headerActions(),
-            'selectable'          => $this->selectable,
-            'hasCheckboxCol'      => $hasCheckboxCol,
-            'isRowSelectMode'     => $isRowSelectMode,
-            'primaryKey'          => $this->primaryKey,
-            'currentPageIds'      => $currentPageIds,
-            'displaySearch'       => $this->displaySearch,
-            'displayColumnList'   => $this->displayColumnList,
-            'sumData'             => $sumData,
-            'countData'           => $countData,
-            'infiniteMode'        => $infiniteMode,
-            'allLoaded'           => $allLoaded,
+            'items' => $items,
+            'total' => $total,
+            'lastPage' => $lastPage,
+            'from' => $from,
+            'to' => $to,
+            'pages' => $pages,
+            'visibleColumns' => $visibleColumns,
+            'allColumns' => $this->resolvedColumns(),
+            'filterDefs' => $this->filters(),
+            'bulkActionDefs' => $this->bulkActions(),
+            'headerActionDefs' => $this->headerActions(),
+            'selectable' => $this->selectable,
+            'hasCheckboxCol' => $hasCheckboxCol,
+            'isRowSelectMode' => $isRowSelectMode,
+            'primaryKey' => $this->primaryKey,
+            'currentPageIds' => $currentPageIds,
+            'displaySearch' => $this->displaySearch,
+            'displayColumnList' => $this->displayColumnList,
+            'sumData' => $sumData,
+            'countData' => $countData,
+            'infiniteMode' => $infiniteMode,
+            'allLoaded' => $allLoaded,
             'allowInfiniteScroll' => $this->allowInfiniteScroll,
-            'colspan'             => $colspan,
-            'expandable'          => $this->expandable,
-            'subRowsMap'          => $subRowsMap,
-            'allPageSelected'     => $allPageSelected,
-            'selectAllQuery'      => $this->selectAllQuery,
-            'exportCsv'           => $this->exportCsv,
-            'exportPdf'           => $this->exportPdf,
-            'massDeleteEnabled'   => $this->massDelete,
-            'hasRowActions'       => $hasRowActions,
-            'rowActionsMap'       => $rowActionsMap,
-            'rowActionsMode'      => $this->rowActionsMode,
-            'massEditEnabled'     => $this->massEdit && $this->selectable
+            'colspan' => $colspan,
+            'expandable' => $this->expandable,
+            'subRowsMap' => $subRowsMap,
+            'subRowsSelectable' => $this->subRowsSelectable,
+            'subRowPrimaryKey' => $this->subRowPrimaryKey,
+            'subRowActionsMap' => $subRowActionsMap,
+            'allPageSelected' => $allPageSelected,
+            'selectAllQuery' => $this->selectAllQuery,
+            'exportCsv' => $this->exportCsv,
+            'exportPdf' => $this->exportPdf,
+            'massDeleteEnabled' => $this->massDelete,
+            'hasRowActions' => $hasRowActions,
+            'rowActionsMap' => $rowActionsMap,
+            'rowActionsMode' => $this->rowActionsMode,
+            'massEditEnabled' => $this->massEdit && $this->selectable
                                         && $this->model !== '' && class_exists($this->model)
                                         && ! empty($creatingFields ?: $this->creatingFields()),
-            'showMassEditModal'   => $this->showMassEditModal,
-            'massEditFields'      => $this->massEdit ? ($creatingFields ?: $this->creatingFields()) : [],
-            'canCreate'           => $canCreate && ! empty($creatingFields),
-            'creatingFields'      => $creatingFields,
-            'showCreatingModal'   => $this->showCreatingModal,
-            'canEdit'             => $canEdit,
-            'editingFields'       => $editingFields,
-            'showEditingModal'    => $this->showEditingModal,
+            'showMassEditModal' => $this->showMassEditModal,
+            'massEditFields' => $this->massEdit ? ($creatingFields ?: $this->creatingFields()) : [],
+            'canCreate' => $canCreate && ! empty($creatingFields),
+            'creatingFields' => $creatingFields,
+            'showCreatingModal' => $this->showCreatingModal,
+            'canEdit' => $canEdit,
+            'editingFields' => $editingFields,
+            'showEditingModal' => $this->showEditingModal,
         ]);
     }
 }

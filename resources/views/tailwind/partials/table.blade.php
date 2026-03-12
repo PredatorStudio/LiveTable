@@ -10,7 +10,7 @@
                     <th class="px-3 py-2" style="width: 2.5rem;">
                         <input
                             type="checkbox"
-                            class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 cursor-pointer"
+                            class="h-4 w-4 rounded border-gray-300 text-indigo-500 focus:ring-indigo-500 cursor-pointer"
                             :checked="{{ json_encode($currentPageIds) }}.length > 0
                                 && {{ json_encode($currentPageIds) }}.every(id => $wire.selected.includes(id))"
                             @change="$event.target.checked
@@ -88,7 +88,7 @@
                         <td class="px-3 py-2" style="width: 2.5rem;">
                             <input
                                 type="checkbox"
-                                class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 cursor-pointer"
+                                class="h-4 w-4 rounded border-gray-300 text-indigo-500 focus:ring-indigo-500 cursor-pointer"
                                 :checked="$wire.selected.includes('{{ $rowId }}')"
                                 @change="$wire.toggleSelectRow('{{ $rowId }}')"
                             >
@@ -132,9 +132,12 @@
                                                 @else
                                                     <button
                                                         type="button"
-                                                        wire:click="{{ $rowAction->method }}('{{ $rowId }}')"
-                                                        @if ($rowAction->confirm) wire:confirm="{{ $rowAction->confirm }}" @endif
-                                                        @click.stop="openRowActions = false"
+                                                        @if ($rowAction->confirm)
+                                                            @click.prevent="$dispatch('live-table-ask-confirm', { message: '{{ $rowAction->confirm }}', action: () => $wire.{{ $rowAction->method }}('{{ $rowId }}') }); openRowActions = false"
+                                                        @else
+                                                            wire:click="{{ $rowAction->method }}('{{ $rowId }}')"
+                                                            @click.stop="openRowActions = false"
+                                                        @endif
                                                         class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 w-full text-left"
                                                     >
                                                         @if ($rowAction->icon){!! $rowAction->icon !!}@endif
@@ -158,8 +161,11 @@
                                             @else
                                                 <button
                                                     type="button"
-                                                    wire:click="{{ $rowAction->method }}('{{ $rowId }}')"
-                                                    @if ($rowAction->confirm) wire:confirm="{{ $rowAction->confirm }}" @endif
+                                                    @if ($rowAction->confirm)
+                                                        @click.prevent="$dispatch('live-table-ask-confirm', { message: '{{ $rowAction->confirm }}', action: () => $wire.{{ $rowAction->method }}('{{ $rowId }}') })"
+                                                    @else
+                                                        wire:click="{{ $rowAction->method }}('{{ $rowId }}')"
+                                                    @endif
                                                     class="inline-flex items-center justify-center w-7 h-7 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
                                                     title="{{ $rowAction->label }}"
                                                 >

@@ -16,7 +16,7 @@ trait ManagesColumns
 
         if (in_array($key, $this->hiddenColumns, true)) {
             $this->hiddenColumns = array_values(
-                array_filter($this->hiddenColumns, fn($k) => $k !== $key),
+                array_filter($this->hiddenColumns, fn ($k) => $k !== $key),
             );
         } else {
             $this->hiddenColumns[] = $key;
@@ -27,7 +27,7 @@ trait ManagesColumns
 
     public function reorderColumns(array $order): void
     {
-        $allowed   = array_column($this->cachedColumns(), 'key');
+        $allowed = array_column($this->cachedColumns(), 'key');
         $sanitized = array_values(array_intersect($order, $allowed));
 
         foreach ($allowed as $key) {
@@ -42,7 +42,7 @@ trait ManagesColumns
 
     private function resolvedColumns(): array
     {
-        $cols    = collect($this->cachedColumns())->keyBy('key');
+        $cols = collect($this->cachedColumns())->keyBy('key');
         $ordered = [];
 
         foreach ($this->columnOrder as $key) {
@@ -64,7 +64,7 @@ trait ManagesColumns
     {
         return array_values(array_filter(
             $this->resolvedColumns(),
-            fn(Column $c) => ! in_array($c->key, $this->hiddenColumns, true),
+            fn (Column $c) => ! in_array($c->key, $this->hiddenColumns, true),
         ));
     }
 

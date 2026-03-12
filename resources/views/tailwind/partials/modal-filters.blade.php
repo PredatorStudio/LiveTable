@@ -26,7 +26,7 @@
                         @if ($filter->type === 'select')
                             <select
                                 wire:model="activeFilters.{{ $filter->key }}"
-                                class="block w-full rounded-md border-0 py-1 pl-3 pr-8 text-sm text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600"
+                                class="block w-full rounded-md border-0 py-1 pl-3 pr-8 text-sm text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-500"
                             >
                                 <option value="">— Wszystkie —</option>
                                 @foreach ($filter->options as $value => $label)
@@ -37,14 +37,14 @@
                             <input
                                 type="date"
                                 wire:model="activeFilters.{{ $filter->key }}"
-                                class="block w-full rounded-md border-0 py-1.5 px-3 text-sm text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600"
+                                class="block w-full rounded-md border-0 py-1.5 px-3 text-sm text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-500"
                             >
                         @else
                             <input
                                 type="text"
                                 wire:model="activeFilters.{{ $filter->key }}"
                                 placeholder="Filtruj po {{ strtolower($filter->label) }}..."
-                                class="block w-full rounded-md border-0 py-1.5 px-3 text-sm text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600"
+                                class="block w-full rounded-md border-0 py-1.5 px-3 text-sm text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-500"
                             >
                         @endif
                     </div>
@@ -57,7 +57,7 @@
                     Wyczyść filtry
                 </button>
                 <button type="button" wire:click="applyActiveFilters"
-                    class="inline-flex items-center gap-1 px-4 py-1.5 text-xs font-medium rounded-md bg-indigo-600 text-white hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors">
+                    class="inline-flex items-center gap-1 px-4 py-1.5 text-xs font-medium rounded-md bg-indigo-500 text-white hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors">
                     Zastosuj
                 </button>
             </div>

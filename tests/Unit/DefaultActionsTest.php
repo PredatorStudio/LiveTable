@@ -1,14 +1,16 @@
 <?php
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Mockery;
+use Orchestra\Testbench\TestCase;
 use PredatorStudio\LiveTable\BaseTable;
 use PredatorStudio\LiveTable\Column;
 use PredatorStudio\LiveTable\LiveTableServiceProvider;
 use PredatorStudio\LiveTable\RowAction;
 
-uses(\Orchestra\Testbench\TestCase::class);
+uses(TestCase::class);
 
 beforeEach(function () {
     $this->app->register(LiveTableServiceProvider::class);
@@ -21,9 +23,10 @@ afterEach(fn () => Mockery::close());
 // ---------------------------------------------------------------------------
 
 if (! class_exists('FakeActionsModel')) {
-    class FakeActionsModel extends \Illuminate\Database\Eloquent\Model
+    class FakeActionsModel extends Model
     {
-        protected $table    = 'fake_actions_models';
+        protected $table = 'fake_actions_models';
+
         protected $fillable = ['name', 'email'];
 
         public static function create(array $attributes = []): static
@@ -45,34 +48,35 @@ function makeActionsTable(
     bool $defaultActionDelete = true,
     ?Builder $queryOverride = null,
 ): BaseTable {
-    return new class (
-        $rows,
-        $model,
-        $defaultActions,
-        $defaultActionEdit,
-        $defaultActionDelete,
-        $queryOverride,
-    ) extends BaseTable {
-        public bool  $beforeDeleteCalled = false;
-        public bool  $afterDeleteCalled  = false;
-        public bool  $beforeUpdateCalled = false;
-        public bool  $afterUpdateCalled  = false;
-        public mixed $deletedRecord      = null;
-        public string $deletedId         = '';
-        public mixed $updatedRecord      = null;
+    return new class($rows, $model, $defaultActions, $defaultActionEdit, $defaultActionDelete, $queryOverride) extends BaseTable
+    {
+        public bool $beforeDeleteCalled = false;
+
+        public bool $afterDeleteCalled = false;
+
+        public bool $beforeUpdateCalled = false;
+
+        public bool $afterUpdateCalled = false;
+
+        public mixed $deletedRecord = null;
+
+        public string $deletedId = '';
+
+        public mixed $updatedRecord = null;
+
         public array $receivedUpdateData = [];
 
         public function __construct(
-            private array    $rows,
-            string           $modelClass,
-            bool             $da,
-            bool             $daEdit,
-            bool             $daDelete,
+            private array $rows,
+            string $modelClass,
+            bool $da,
+            bool $daEdit,
+            bool $daDelete,
             private ?Builder $queryOverride,
         ) {
-            $this->model               = $modelClass;
-            $this->defaultActions      = $da;
-            $this->defaultActionEdit   = $daEdit;
+            $this->model = $modelClass;
+            $this->defaultActions = $da;
+            $this->defaultActionEdit = $daEdit;
             $this->defaultActionDelete = $daDelete;
         }
 
@@ -105,26 +109,26 @@ function makeActionsTable(
         protected function beforeDelete(mixed $record): void
         {
             $this->beforeDeleteCalled = true;
-            $this->deletedRecord      = $record;
+            $this->deletedRecord = $record;
         }
 
         protected function afterDelete(string $id): void
         {
             $this->afterDeleteCalled = true;
-            $this->deletedId         = $id;
+            $this->deletedId = $id;
         }
 
         protected function beforeUpdate(mixed $record, array &$data): void
         {
-            $this->beforeUpdateCalled  = true;
-            $this->updatedRecord       = $record;
-            $this->receivedUpdateData  = $data;
+            $this->beforeUpdateCalled = true;
+            $this->updatedRecord = $record;
+            $this->receivedUpdateData = $data;
         }
 
         protected function afterUpdate(mixed $record): void
         {
             $this->afterUpdateCalled = true;
-            $this->updatedRecord     = $record;
+            $this->updatedRecord = $record;
         }
     };
 }
@@ -134,10 +138,19 @@ function makeActionsTable(
 // ---------------------------------------------------------------------------
 
 it('defaultActions defaults to false', function () {
-    $table = new class extends BaseTable {
+    $table = new class extends BaseTable
+    {
         public function __construct() {}
-        protected function baseQuery(): Builder { return Mockery::mock(Builder::class); }
-        public function columns(): array { return [Column::make('id', 'ID')]; }
+
+        protected function baseQuery(): Builder
+        {
+            return Mockery::mock(Builder::class);
+        }
+
+        public function columns(): array
+        {
+            return [Column::make('id', 'ID')];
+        }
     };
 
     $prop = new ReflectionProperty($table, 'defaultActions');
@@ -145,10 +158,19 @@ it('defaultActions defaults to false', function () {
 });
 
 it('defaultActionEdit defaults to true', function () {
-    $table = new class extends BaseTable {
+    $table = new class extends BaseTable
+    {
         public function __construct() {}
-        protected function baseQuery(): Builder { return Mockery::mock(Builder::class); }
-        public function columns(): array { return [Column::make('id', 'ID')]; }
+
+        protected function baseQuery(): Builder
+        {
+            return Mockery::mock(Builder::class);
+        }
+
+        public function columns(): array
+        {
+            return [Column::make('id', 'ID')];
+        }
     };
 
     $prop = new ReflectionProperty($table, 'defaultActionEdit');
@@ -156,10 +178,19 @@ it('defaultActionEdit defaults to true', function () {
 });
 
 it('defaultActionDelete defaults to true', function () {
-    $table = new class extends BaseTable {
+    $table = new class extends BaseTable
+    {
         public function __construct() {}
-        protected function baseQuery(): Builder { return Mockery::mock(Builder::class); }
-        public function columns(): array { return [Column::make('id', 'ID')]; }
+
+        protected function baseQuery(): Builder
+        {
+            return Mockery::mock(Builder::class);
+        }
+
+        public function columns(): array
+        {
+            return [Column::make('id', 'ID')];
+        }
     };
 
     $prop = new ReflectionProperty($table, 'defaultActionDelete');
@@ -186,7 +217,7 @@ it('editingData defaults to empty array', function () {
 // ---------------------------------------------------------------------------
 
 it('deleteRow does nothing when defaultActions is false', function () {
-    $record  = new \stdClass;
+    $record = new stdClass;
     $builder = Mockery::mock(Builder::class);
     $builder->shouldReceive('where')->never();
 
@@ -240,7 +271,7 @@ it('deleteRow removes id from selected', function () {
     $builder->shouldReceive('where')->andReturnSelf();
     $builder->shouldReceive('firstOrFail')->andReturn($record);
 
-    $table           = makeActionsTable(queryOverride: $builder);
+    $table = makeActionsTable(queryOverride: $builder);
     $table->selected = ['3', '5', '7'];
     $table->deleteRow('3');
 
@@ -250,29 +281,37 @@ it('deleteRow removes id from selected', function () {
 });
 
 it('deleteRow aborts when beforeDelete throws', function () {
-    $record  = (object) ['id' => 1];
+    $record = (object) ['id' => 1];
     $builder = Mockery::mock(Builder::class);
     $builder->shouldReceive('where')->andReturnSelf();
     $builder->shouldReceive('firstOrFail')->andReturn($record);
     $builder->shouldReceive('delete')->never();
 
-    $table = new class ($builder) extends BaseTable {
+    $table = new class($builder) extends BaseTable
+    {
         public function __construct(private Builder $mock)
         {
-            $this->defaultActions      = true;
+            $this->defaultActions = true;
             $this->defaultActionDelete = true;
         }
 
-        protected function baseQuery(): Builder { return $this->mock; }
-        public function columns(): array { return [Column::make('id', 'ID')]; }
+        protected function baseQuery(): Builder
+        {
+            return $this->mock;
+        }
+
+        public function columns(): array
+        {
+            return [Column::make('id', 'ID')];
+        }
 
         protected function beforeDelete(mixed $record): void
         {
-            throw new \RuntimeException('Not allowed');
+            throw new RuntimeException('Not allowed');
         }
     };
 
-    expect(fn () => $table->deleteRow('1'))->toThrow(\RuntimeException::class, 'Not allowed');
+    expect(fn () => $table->deleteRow('1'))->toThrow(RuntimeException::class, 'Not allowed');
 });
 
 // ---------------------------------------------------------------------------
@@ -301,7 +340,7 @@ it('openEditingModal does nothing when model is not set', function () {
 });
 
 it('openEditingModal sets showEditingModal to true', function () {
-    $record  = (object) ['id' => 1, 'name' => 'Jan', 'email' => 'j@example.com'];
+    $record = (object) ['id' => 1, 'name' => 'Jan', 'email' => 'j@example.com'];
     $builder = Mockery::mock(Builder::class);
     $builder->shouldReceive('where')->andReturnSelf();
     $builder->shouldReceive('firstOrFail')->andReturn($record);
@@ -313,7 +352,7 @@ it('openEditingModal sets showEditingModal to true', function () {
 });
 
 it('openEditingModal sets editingId', function () {
-    $record  = (object) ['id' => 42, 'name' => 'Test', 'email' => 't@example.com'];
+    $record = (object) ['id' => 42, 'name' => 'Test', 'email' => 't@example.com'];
     $builder = Mockery::mock(Builder::class);
     $builder->shouldReceive('where')->andReturnSelf();
     $builder->shouldReceive('firstOrFail')->andReturn($record);
@@ -325,7 +364,7 @@ it('openEditingModal sets editingId', function () {
 });
 
 it('openEditingModal populates editingData from record', function () {
-    $record  = (object) ['id' => 1, 'name' => 'Anna', 'email' => 'a@example.com'];
+    $record = (object) ['id' => 1, 'name' => 'Anna', 'email' => 'a@example.com'];
     $builder = Mockery::mock(Builder::class);
     $builder->shouldReceive('where')->andReturnSelf();
     $builder->shouldReceive('firstOrFail')->andReturn($record);
@@ -367,8 +406,8 @@ it('updateRecord does nothing when defaultActions is false', function () {
     $builder = Mockery::mock(Builder::class);
     $builder->shouldReceive('where')->never();
 
-    $table           = makeActionsTable(defaultActions: false, model: FakeActionsModel::class, queryOverride: $builder);
-    $table->editingId   = '5';
+    $table = makeActionsTable(defaultActions: false, model: FakeActionsModel::class, queryOverride: $builder);
+    $table->editingId = '5';
     $table->updateRecord();
 });
 
@@ -380,9 +419,9 @@ it('updateRecord calls beforeUpdate hook', function () {
     $builder->shouldReceive('where')->andReturnSelf();
     $builder->shouldReceive('firstOrFail')->andReturn($record);
 
-    $table               = makeActionsTable(model: FakeActionsModel::class, queryOverride: $builder);
-    $table->editingId    = '1';
-    $table->editingData  = ['name' => 'Jan', 'email' => 'j@b.com'];
+    $table = makeActionsTable(model: FakeActionsModel::class, queryOverride: $builder);
+    $table->editingId = '1';
+    $table->editingData = ['name' => 'Jan', 'email' => 'j@b.com'];
     $table->updateRecord();
 
     expect($table->beforeUpdateCalled)->toBeTrue();
@@ -396,9 +435,9 @@ it('updateRecord calls afterUpdate hook', function () {
     $builder->shouldReceive('where')->andReturnSelf();
     $builder->shouldReceive('firstOrFail')->andReturn($record);
 
-    $table               = makeActionsTable(model: FakeActionsModel::class, queryOverride: $builder);
-    $table->editingId    = '1';
-    $table->editingData  = ['name' => 'Jan', 'email' => 'j@b.com'];
+    $table = makeActionsTable(model: FakeActionsModel::class, queryOverride: $builder);
+    $table->editingId = '1';
+    $table->editingData = ['name' => 'Jan', 'email' => 'j@b.com'];
     $table->updateRecord();
 
     expect($table->afterUpdateCalled)->toBeTrue();
@@ -412,9 +451,9 @@ it('updateRecord closes modal and resets state', function () {
     $builder->shouldReceive('where')->andReturnSelf();
     $builder->shouldReceive('firstOrFail')->andReturn($record);
 
-    $table                   = makeActionsTable(model: FakeActionsModel::class, queryOverride: $builder);
-    $table->editingId        = '1';
-    $table->editingData      = ['name' => 'Jan', 'email' => 'j@b.com'];
+    $table = makeActionsTable(model: FakeActionsModel::class, queryOverride: $builder);
+    $table->editingId = '1';
+    $table->editingData = ['name' => 'Jan', 'email' => 'j@b.com'];
     $table->showEditingModal = true;
     $table->updateRecord();
 
@@ -425,9 +464,10 @@ it('updateRecord closes modal and resets state', function () {
 
 it('beforeUpdate can modify data by reference', function () {
     $captured = [];
-    $record   = Mockery::mock();
+    $record = Mockery::mock();
     $record->shouldReceive('update')->with(Mockery::on(function ($data) use (&$captured) {
         $captured = $data;
+
         return true;
     }))->andReturn(true);
 
@@ -435,19 +475,31 @@ it('beforeUpdate can modify data by reference', function () {
     $builder->shouldReceive('where')->andReturnSelf();
     $builder->shouldReceive('firstOrFail')->andReturn($record);
 
-    $table = new class ($builder) extends BaseTable {
+    $table = new class($builder) extends BaseTable
+    {
         public function __construct(private Builder $mock)
         {
-            $this->model               = FakeActionsModel::class;
-            $this->defaultActions      = true;
-            $this->defaultActionEdit   = true;
-            $this->editingId           = '1';
-            $this->editingData         = ['name' => 'Original', 'email' => 'o@b.com'];
+            $this->model = FakeActionsModel::class;
+            $this->defaultActions = true;
+            $this->defaultActionEdit = true;
+            $this->editingId = '1';
+            $this->editingData = ['name' => 'Original', 'email' => 'o@b.com'];
         }
 
-        protected function baseQuery(): Builder { return $this->mock; }
-        public function columns(): array { return [Column::make('id', 'ID')]; }
-        public function validate($rules = null, $messages = [], $attributes = []): array { return []; }
+        protected function baseQuery(): Builder
+        {
+            return $this->mock;
+        }
+
+        public function columns(): array
+        {
+            return [Column::make('id', 'ID')];
+        }
+
+        public function validate($rules = null, $messages = [], $attributes = []): array
+        {
+            return [];
+        }
 
         protected function beforeUpdate(mixed $record, array &$data): void
         {
@@ -462,9 +514,10 @@ it('beforeUpdate can modify data by reference', function () {
 
 it('updateRecord only passes fillable keys to update()', function () {
     $captured = [];
-    $record   = Mockery::mock();
+    $record = Mockery::mock();
     $record->shouldReceive('update')->with(Mockery::on(function ($data) use (&$captured) {
         $captured = $data;
+
         return true;
     }))->andReturn(true);
 
@@ -472,10 +525,10 @@ it('updateRecord only passes fillable keys to update()', function () {
     $builder->shouldReceive('where')->andReturnSelf();
     $builder->shouldReceive('firstOrFail')->andReturn($record);
 
-    $table               = makeActionsTable(model: FakeActionsModel::class, queryOverride: $builder);
-    $table->editingId    = '1';
+    $table = makeActionsTable(model: FakeActionsModel::class, queryOverride: $builder);
+    $table->editingId = '1';
     // Inject extra key not in fillable
-    $table->editingData  = ['name' => 'Jan', 'email' => 'j@b.com', '__injected' => 'evil'];
+    $table->editingData = ['name' => 'Jan', 'email' => 'j@b.com', '__injected' => 'evil'];
     $table->updateRecord();
 
     expect($captured)->not->toHaveKey('__injected');
@@ -505,12 +558,13 @@ it('editingRules returns empty array when no model set', function () {
 it('default edit and delete actions appear in rowActionsMap when defaultActions is true', function () {
     $rows = [(object) ['id' => 1, 'name' => 'Jan']];
 
-    $table = new class ($rows) extends BaseTable {
+    $table = new class($rows) extends BaseTable
+    {
         public function __construct(private array $rows)
         {
-            $this->model               = FakeActionsModel::class;
-            $this->defaultActions      = true;
-            $this->defaultActionEdit   = true;
+            $this->model = FakeActionsModel::class;
+            $this->defaultActions = true;
+            $this->defaultActionEdit = true;
             $this->defaultActionDelete = true;
         }
 
@@ -522,16 +576,20 @@ it('default edit and delete actions appear in rowActionsMap when defaultActions 
             $builder->shouldReceive('offset')->andReturnSelf();
             $builder->shouldReceive('limit')->andReturnSelf();
             $builder->shouldReceive('get')->andReturn(Collection::make($this->rows));
+
             return $builder;
         }
 
-        public function columns(): array { return [Column::make('id', 'ID')]; }
+        public function columns(): array
+        {
+            return [Column::make('id', 'ID')];
+        }
     };
 
     $table->mount();
     $viewData = $table->render()->getData();
-    $actions  = $viewData['rowActionsMap']['1'];
-    $methods  = array_column($actions, 'method');
+    $actions = $viewData['rowActionsMap']['1'];
+    $methods = array_column($actions, 'method');
 
     expect($methods)->toContain('openEditingModal')
         ->and($methods)->toContain('deleteRow');
@@ -540,12 +598,13 @@ it('default edit and delete actions appear in rowActionsMap when defaultActions 
 it('only delete action appears when defaultActionEdit is false', function () {
     $rows = [(object) ['id' => 1, 'name' => 'Jan']];
 
-    $table = new class ($rows) extends BaseTable {
+    $table = new class($rows) extends BaseTable
+    {
         public function __construct(private array $rows)
         {
-            $this->model               = FakeActionsModel::class;
-            $this->defaultActions      = true;
-            $this->defaultActionEdit   = false;
+            $this->model = FakeActionsModel::class;
+            $this->defaultActions = true;
+            $this->defaultActionEdit = false;
             $this->defaultActionDelete = true;
         }
 
@@ -557,15 +616,19 @@ it('only delete action appears when defaultActionEdit is false', function () {
             $builder->shouldReceive('offset')->andReturnSelf();
             $builder->shouldReceive('limit')->andReturnSelf();
             $builder->shouldReceive('get')->andReturn(Collection::make($this->rows));
+
             return $builder;
         }
 
-        public function columns(): array { return [Column::make('id', 'ID')]; }
+        public function columns(): array
+        {
+            return [Column::make('id', 'ID')];
+        }
     };
 
     $table->mount();
     $viewData = $table->render()->getData();
-    $methods  = array_column($viewData['rowActionsMap']['1'], 'method');
+    $methods = array_column($viewData['rowActionsMap']['1'], 'method');
 
     expect($methods)->not->toContain('openEditingModal')
         ->and($methods)->toContain('deleteRow');
@@ -574,12 +637,13 @@ it('only delete action appears when defaultActionEdit is false', function () {
 it('only edit action appears when defaultActionDelete is false', function () {
     $rows = [(object) ['id' => 1, 'name' => 'Jan']];
 
-    $table = new class ($rows) extends BaseTable {
+    $table = new class($rows) extends BaseTable
+    {
         public function __construct(private array $rows)
         {
-            $this->model               = FakeActionsModel::class;
-            $this->defaultActions      = true;
-            $this->defaultActionEdit   = true;
+            $this->model = FakeActionsModel::class;
+            $this->defaultActions = true;
+            $this->defaultActionEdit = true;
             $this->defaultActionDelete = false;
         }
 
@@ -591,15 +655,19 @@ it('only edit action appears when defaultActionDelete is false', function () {
             $builder->shouldReceive('offset')->andReturnSelf();
             $builder->shouldReceive('limit')->andReturnSelf();
             $builder->shouldReceive('get')->andReturn(Collection::make($this->rows));
+
             return $builder;
         }
 
-        public function columns(): array { return [Column::make('id', 'ID')]; }
+        public function columns(): array
+        {
+            return [Column::make('id', 'ID')];
+        }
     };
 
     $table->mount();
     $viewData = $table->render()->getData();
-    $methods  = array_column($viewData['rowActionsMap']['1'], 'method');
+    $methods = array_column($viewData['rowActionsMap']['1'], 'method');
 
     expect($methods)->toContain('openEditingModal')
         ->and($methods)->not->toContain('deleteRow');
@@ -608,10 +676,11 @@ it('only edit action appears when defaultActionDelete is false', function () {
 it('no default actions appear when defaultActions is false', function () {
     $rows = [(object) ['id' => 1, 'name' => 'Jan']];
 
-    $table = new class ($rows) extends BaseTable {
+    $table = new class($rows) extends BaseTable
+    {
         public function __construct(private array $rows)
         {
-            $this->model          = FakeActionsModel::class;
+            $this->model = FakeActionsModel::class;
             $this->defaultActions = false;
         }
 
@@ -623,15 +692,19 @@ it('no default actions appear when defaultActions is false', function () {
             $builder->shouldReceive('offset')->andReturnSelf();
             $builder->shouldReceive('limit')->andReturnSelf();
             $builder->shouldReceive('get')->andReturn(Collection::make($this->rows));
+
             return $builder;
         }
 
-        public function columns(): array { return [Column::make('id', 'ID')]; }
+        public function columns(): array
+        {
+            return [Column::make('id', 'ID')];
+        }
     };
 
     $table->mount();
     $viewData = $table->render()->getData();
-    $methods  = array_column($viewData['rowActionsMap']['1'] ?? [], 'method');
+    $methods = array_column($viewData['rowActionsMap']['1'] ?? [], 'method');
 
     expect($methods)->not->toContain('openEditingModal')
         ->and($methods)->not->toContain('deleteRow');
@@ -640,12 +713,13 @@ it('no default actions appear when defaultActions is false', function () {
 it('default actions are appended after custom rowActions', function () {
     $rows = [(object) ['id' => 1, 'name' => 'Jan']];
 
-    $table = new class ($rows) extends BaseTable {
+    $table = new class($rows) extends BaseTable
+    {
         public function __construct(private array $rows)
         {
-            $this->model               = FakeActionsModel::class;
-            $this->defaultActions      = true;
-            $this->defaultActionEdit   = true;
+            $this->model = FakeActionsModel::class;
+            $this->defaultActions = true;
+            $this->defaultActionEdit = true;
             $this->defaultActionDelete = true;
         }
 
@@ -657,10 +731,14 @@ it('default actions are appended after custom rowActions', function () {
             $builder->shouldReceive('offset')->andReturnSelf();
             $builder->shouldReceive('limit')->andReturnSelf();
             $builder->shouldReceive('get')->andReturn(Collection::make($this->rows));
+
             return $builder;
         }
 
-        public function columns(): array { return [Column::make('id', 'ID')]; }
+        public function columns(): array
+        {
+            return [Column::make('id', 'ID')];
+        }
 
         public function rowActions(mixed $row): array
         {
@@ -670,7 +748,7 @@ it('default actions are appended after custom rowActions', function () {
 
     $table->mount();
     $viewData = $table->render()->getData();
-    $methods  = array_column($viewData['rowActionsMap']['1'], 'method');
+    $methods = array_column($viewData['rowActionsMap']['1'], 'method');
 
     // Custom first, then defaults
     expect($methods[0])->toBe('customMethod')
@@ -681,13 +759,14 @@ it('default actions are appended after custom rowActions', function () {
 it('delete action has wire:confirm text', function () {
     $rows = [(object) ['id' => 1, 'name' => 'Jan']];
 
-    $table = new class ($rows) extends BaseTable {
+    $table = new class($rows) extends BaseTable
+    {
         public function __construct(private array $rows)
         {
-            $this->model               = FakeActionsModel::class;
-            $this->defaultActions      = true;
+            $this->model = FakeActionsModel::class;
+            $this->defaultActions = true;
             $this->defaultActionDelete = true;
-            $this->defaultActionEdit   = false;
+            $this->defaultActionEdit = false;
         }
 
         protected function baseQuery(): Builder
@@ -698,10 +777,14 @@ it('delete action has wire:confirm text', function () {
             $builder->shouldReceive('offset')->andReturnSelf();
             $builder->shouldReceive('limit')->andReturnSelf();
             $builder->shouldReceive('get')->andReturn(Collection::make($this->rows));
+
             return $builder;
         }
 
-        public function columns(): array { return [Column::make('id', 'ID')]; }
+        public function columns(): array
+        {
+            return [Column::make('id', 'ID')];
+        }
     };
 
     $table->mount();

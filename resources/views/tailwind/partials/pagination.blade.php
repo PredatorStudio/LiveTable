@@ -8,14 +8,14 @@
                 <button
                     type="button"
                     wire:click="$set('perPage', {{ $option }})"
-                    class="inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors {{ $perPage === $option ? 'bg-indigo-600 text-white hover:bg-indigo-500 border border-indigo-600' : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50' }}"
+                    class="inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors {{ $perPage === $option ? 'bg-indigo-500 text-white hover:bg-indigo-600 border border-indigo-500' : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50' }}"
                 >{{ $option }}</button>
             @endforeach
             @if ($allowInfiniteScroll)
                 <button
                     type="button"
                     wire:click="$set('perPage', 0)"
-                    class="inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors {{ $perPage === 0 ? 'bg-indigo-600 text-white hover:bg-indigo-500 border border-indigo-600' : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50' }}"
+                    class="inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors {{ $perPage === 0 ? 'bg-indigo-500 text-white hover:bg-indigo-600 border border-indigo-500' : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50' }}"
                 >Wszystkie</button>
             @endif
         </div>
@@ -37,7 +37,7 @@
                         <button
                             type="button"
                             wire:click="setPage({{ $p }})"
-                            class="relative inline-flex items-center px-3 py-1.5 text-sm rounded-md border transition-colors {{ $page === $p ? 'bg-indigo-600 text-white border-indigo-600 hover:bg-indigo-500' : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50' }}"
+                            class="relative inline-flex items-center px-3 py-1.5 text-sm rounded-md border transition-colors {{ $page === $p ? 'bg-indigo-500 text-white border-indigo-500 hover:bg-indigo-600' : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50' }}"
                         >{{ $p }}</button>
                     @endif
                 @endforeach

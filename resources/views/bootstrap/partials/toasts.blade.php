@@ -11,14 +11,14 @@
         }
     }"
     @live-table-notify.window="add($event.detail.message, $event.detail.type ?? 'success')"
-    class="position-fixed bottom-0 end-0 p-3"
+    class="position-fixed top-0 end-0 p-3"
     style="z-index: 1100;"
 >
     <template x-for="toast in toasts" :key="toast.id">
         <div
             x-show="true"
             x-transition:enter="transition ease-out duration-200"
-            x-transition:enter-start="opacity-0 translate-y-2"
+            x-transition:enter-start="opacity-0 -translate-y-2"
             x-transition:enter-end="opacity-100 translate-y-0"
             x-transition:leave="transition ease-in duration-150"
             x-transition:leave-start="opacity-100"

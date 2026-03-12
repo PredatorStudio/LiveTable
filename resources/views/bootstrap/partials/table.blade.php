@@ -3,11 +3,11 @@
         <thead class="table-light sticky-top">
             <tr>
                 @if ($expandable)
-                    <th style="width: 28px; min-width: 28px;"></th>
+                    <th style="width: 28px; min-width: 28px; background: #6366f1;"></th>
                 @endif
 
                 @if ($hasCheckboxCol)
-                    <th style="width: 2.5rem;">
+                    <th style="width: 2.5rem; background: #6366f1;">
                         <input
                             type="checkbox"
                             class="form-check-input"
@@ -24,7 +24,7 @@
                     <th
                         class="text-muted small fw-semibold user-select-none"
                         :class="dragOverCol === '{{ $col->key }}' ? 'bg-primary bg-opacity-10' : ''"
-                        style="cursor: {{ $col->sortable ? 'pointer' : 'grab' }}; white-space: nowrap;"
+                        style="cursor: {{ $col->sortable ? 'pointer' : 'grab' }}; white-space: nowrap; background: #6366f1;"
                         draggable="true"
                         @dragstart="startDrag('{{ $col->key }}')"
                         @dragover.prevent="onDragOver('{{ $col->key }}')"
@@ -50,7 +50,7 @@
                 @endforeach
 
                 @if ($hasRowActions)
-                    <th style="width: 60px; min-width: 60px;"></th>
+                    <th style="width: 60px; min-width: 60px; background: #6366f1;"></th>
                 @endif
             </tr>
         </thead>
@@ -134,9 +134,12 @@
                                                 @else
                                                     <button
                                                         type="button"
-                                                        wire:click="{{ $rowAction->method }}('{{ $rowId }}')"
-                                                        @if ($rowAction->confirm) wire:confirm="{{ $rowAction->confirm }}" @endif
-                                                        @click.stop="openRowActions = false"
+                                                        @if ($rowAction->confirm)
+                                                            @click.prevent="$dispatch('live-table-ask-confirm', { message: '{{ $rowAction->confirm }}', action: () => $wire.{{ $rowAction->method }}('{{ $rowId }}') }); openRowActions = false"
+                                                        @else
+                                                            wire:click="{{ $rowAction->method }}('{{ $rowId }}')"
+                                                            @click.stop="openRowActions = false"
+                                                        @endif
                                                         class="dropdown-item d-flex align-items-center gap-2 small px-3 py-2 w-100 text-start border-0 bg-transparent"
                                                     >
                                                         @if ($rowAction->icon){!! $rowAction->icon !!}@endif
@@ -161,8 +164,11 @@
                                             @else
                                                 <button
                                                     type="button"
-                                                    wire:click="{{ $rowAction->method }}('{{ $rowId }}')"
-                                                    @if ($rowAction->confirm) wire:confirm="{{ $rowAction->confirm }}" @endif
+                                                    @if ($rowAction->confirm)
+                                                        @click.prevent="$dispatch('live-table-ask-confirm', { message: '{{ $rowAction->confirm }}', action: () => $wire.{{ $rowAction->method }}('{{ $rowId }}') })"
+                                                    @else
+                                                        wire:click="{{ $rowAction->method }}('{{ $rowId }}')"
+                                                    @endif
                                                     class="btn btn-sm btn-outline-secondary border-0 p-0 d-inline-flex align-items-center justify-content-center"
                                                     style="width: 1.75rem; height: 1.75rem;"
                                                     title="{{ $rowAction->label }}"
@@ -179,13 +185,78 @@
                 </tr>
 
                 @foreach ($subRowsMap[$rowId] ?? [] as $subRow)
+                    @php $subRowId = (string) data_get($subRow, $subRowPrimaryKey); @endphp
                     <tr x-show="open" style="display:none;" class="table-secondary">
                         @if ($expandable)<td></td>@endif
-                        @if ($hasCheckboxCol)<td></td>@endif
+
+                        @if ($hasCheckboxCol)
+                            <td style="width: 2.5rem;">
+                                @if ($subRowsSelectable)
+                                    <input
+                                        type="checkbox"
+                                        class="form-check-input"
+                                        :checked="$wire.selectedSubRows.includes('{{ $subRowId }}')"
+                                        @change="$wire.toggleSelectSubRow('{{ $subRowId }}')"
+                                    >
+                                @endif
+                            </td>
+                        @endif
+
                         @foreach ($visibleColumns as $col)
                             <td class="text-muted">{!! $col->renderCell($subRow) !!}</td>
                         @endforeach
-                        @if ($hasRowActions)<td></td>@endif
+
+                        @if ($hasRowActions)
+                            @php $subRowActionList = $subRowActionsMap[$rowId][$subRowId] ?? []; @endphp
+                            <td class="text-end align-middle" style="white-space: nowrap;">
+                                @if (!empty($subRowActionList))
+                                    <div class="position-relative d-inline-block" x-data="{ openSubRowActions: false }">
+                                        <button
+                                            type="button"
+                                            @click.stop="openSubRowActions = !openSubRowActions"
+                                            @click.outside="openSubRowActions = false"
+                                            class="btn btn-sm btn-outline-secondary border-0 p-0 d-inline-flex align-items-center justify-content-center"
+                                            style="width: 1.75rem; height: 1.75rem;"
+                                            title="Akcje"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><circle cx="8" cy="2" r="1.5"/><circle cx="8" cy="8" r="1.5"/><circle cx="8" cy="14" r="1.5"/></svg>
+                                        </button>
+                                        <div
+                                            x-show="openSubRowActions"
+                                            x-transition
+                                            class="position-absolute end-0 mt-1 bg-white border rounded shadow-sm"
+                                            style="min-width: 10rem; z-index: 50;"
+                                        >
+                                            @foreach ($subRowActionList as $subRowAction)
+                                                @if ($subRowAction->href)
+                                                    <a
+                                                        href="{{ $subRowAction->href }}"
+                                                        class="dropdown-item d-flex align-items-center gap-2 small px-3 py-2"
+                                                    >
+                                                        @if ($subRowAction->icon){!! $subRowAction->icon !!}@endif
+                                                        {{ $subRowAction->label }}
+                                                    </a>
+                                                @else
+                                                    <button
+                                                        type="button"
+                                                        @if ($subRowAction->confirm)
+                                                            @click.prevent="$dispatch('live-table-ask-confirm', { message: '{{ $subRowAction->confirm }}', action: () => $wire.{{ $subRowAction->method }}('{{ $subRowId }}') }); openSubRowActions = false"
+                                                        @else
+                                                            wire:click="{{ $subRowAction->method }}('{{ $subRowId }}')"
+                                                            @click.stop="openSubRowActions = false"
+                                                        @endif
+                                                        class="dropdown-item d-flex align-items-center gap-2 small px-3 py-2 w-100 text-start border-0 bg-transparent"
+                                                    >
+                                                        @if ($subRowAction->icon){!! $subRowAction->icon !!}@endif
+                                                        {{ $subRowAction->label }}
+                                                    </button>
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endif
+                            </td>
+                        @endif
                     </tr>
                 @endforeach
             </tbody>

@@ -23,7 +23,7 @@ trait ManagesMassActions
         }
 
         $this->massEditData = collect($this->creatingFields())
-            ->mapWithKeys(fn(array $f) => [$f['key'] => ''])
+            ->mapWithKeys(fn (array $f) => [$f['key'] => ''])
             ->all();
 
         $this->showMassEditModal = true;
@@ -46,7 +46,7 @@ trait ManagesMassActions
      * Modify $data by reference to change what gets persisted.
      * Throw an exception to abort.
      *
-     * @param  array<int|string>     $ids
+     * @param  array<int|string>  $ids
      * @param  array<string, mixed>  $data  Non-empty field values to apply.
      */
     protected function beforeMassEdit(array $ids, array &$data): void {}
@@ -72,15 +72,16 @@ trait ManagesMassActions
 
         // Only fillable keys, only non-empty values
         $allowedKeys = array_column($this->creatingFields(), 'key');
-        $data        = array_filter(
+        $data = array_filter(
             array_intersect_key($this->massEditData, array_flip($allowedKeys)),
-            fn($v) => $v !== '' && $v !== null,
+            fn ($v) => $v !== '' && $v !== null,
         );
 
         // Nothing to change – close modal and bail
         if (empty($data)) {
             $this->showMassEditModal = false;
-            $this->massEditData      = [];
+            $this->massEditData = [];
+
             return;
         }
 
@@ -100,10 +101,10 @@ trait ManagesMassActions
         $this->afterMassEdit($ids);
 
         $this->showMassEditModal = false;
-        $this->massEditData      = [];
-        $this->selected          = [];
-        $this->selectAllQuery    = false;
-        $this->page              = 1;
+        $this->massEditData = [];
+        $this->selected = [];
+        $this->selectAllQuery = false;
+        $this->page = 1;
 
         $this->dispatch('live-table-notify', message: 'Wiersze zaktualizowane.', type: 'success');
     }
@@ -135,9 +136,9 @@ trait ManagesMassActions
 
         $this->afterMassDelete($ids);
 
-        $this->selected       = [];
+        $this->selected = [];
         $this->selectAllQuery = false;
-        $this->page           = 1;
+        $this->page = 1;
 
         $this->dispatch('live-table-notify', message: 'Wiersze usunięte.', type: 'success');
     }

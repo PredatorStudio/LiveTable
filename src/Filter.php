@@ -7,8 +7,8 @@ class Filter
     public function __construct(
         public readonly string $key,
         public readonly string $label,
-        public readonly string $type    = 'text',   // text | select | date
-        public readonly array  $options = [],        // for type=select: ['value' => 'label']
+        public readonly string $type = 'text',   // text | select | date
+        public readonly array $options = [],        // for type=select: ['value' => 'label']
     ) {}
 
     public static function text(string $key, string $label): static

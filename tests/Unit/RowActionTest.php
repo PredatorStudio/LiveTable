@@ -34,7 +34,7 @@ it('sets string href via fluent href()', function () {
 });
 
 it('sets closure href via fluent href()', function () {
-    $fn     = fn ($row) => '/users/' . $row->id . '/edit';
+    $fn = fn ($row) => '/users/'.$row->id.'/edit';
     $action = RowAction::make('Edytuj')->href($fn);
 
     expect($action->href)->toBe($fn);
@@ -81,21 +81,21 @@ it('fluent setters preserve other properties', function () {
 
 it('resolveHref returns string href as-is', function () {
     $action = RowAction::make('Edytuj')->href('/users/42');
-    $row    = (object) ['id' => 42];
+    $row = (object) ['id' => 42];
 
     expect($action->resolveHref($row))->toBe('/users/42');
 });
 
 it('resolveHref calls closure with row and returns string', function () {
-    $action = RowAction::make('Edytuj')->href(fn ($row) => '/users/' . $row->id . '/edit');
-    $row    = (object) ['id' => 7];
+    $action = RowAction::make('Edytuj')->href(fn ($row) => '/users/'.$row->id.'/edit');
+    $row = (object) ['id' => 7];
 
     expect($action->resolveHref($row))->toBe('/users/7/edit');
 });
 
 it('resolveHref returns empty string when no href set', function () {
     $action = RowAction::make('Usuń')->method('deleteRow');
-    $row    = (object) ['id' => 1];
+    $row = (object) ['id' => 1];
 
     expect($action->resolveHref($row))->toBe('');
 });

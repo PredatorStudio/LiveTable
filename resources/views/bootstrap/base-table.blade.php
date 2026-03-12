@@ -1,8 +1,38 @@
+<style>
+    :root, [data-bs-theme] {
+        --bs-primary: #6366f1;
+        --bs-primary-rgb: 99, 102, 241;
+        --bs-link-color: #6366f1;
+        --bs-link-hover-color: #4f46e5;
+    }
+    .btn-primary {
+        --bs-btn-bg: #6366f1;
+        --bs-btn-border-color: #6366f1;
+        --bs-btn-hover-bg: #4f46e5;
+        --bs-btn-hover-border-color: #4338ca;
+        --bs-btn-active-bg: #4338ca;
+        --bs-btn-active-border-color: #3730a3;
+        --bs-btn-disabled-bg: #6366f1;
+        --bs-btn-disabled-border-color: #6366f1;
+        --bs-btn-focus-shadow-rgb: 99, 102, 241;
+    }
+    .btn-outline-primary {
+        --bs-btn-color: #6366f1;
+        --bs-btn-border-color: #6366f1;
+        --bs-btn-hover-bg: #6366f1;
+        --bs-btn-hover-border-color: #6366f1;
+        --bs-btn-active-bg: #6366f1;
+        --bs-btn-active-border-color: #6366f1;
+        --bs-btn-focus-shadow-rgb: 99, 102, 241;
+    }
+</style>
+
 <div
     x-data="{
         showColumnPanel: false,
         draggingCol: null,
         dragOverCol: null,
+        confirm: { open: false, message: '', action: null },
         startDrag(key) {
             this.draggingCol = key;
         },
@@ -23,6 +53,7 @@
             this.dragOverCol = null;
         }
     }"
+    @live-table-ask-confirm.window="confirm.message = $event.detail.message; confirm.action = $event.detail.action; confirm.open = true"
     class="d-flex flex-column gap-3"
 >
 
@@ -49,6 +80,7 @@
     @include('live-table::partials.modal-editing')
     @include('live-table::partials.modal-mass-edit')
     @include('live-table::partials.modal-filters')
+    @include('live-table::partials.modal-confirm')
 
     {{-- Toast notifications --}}
     @include('live-table::partials.toasts')

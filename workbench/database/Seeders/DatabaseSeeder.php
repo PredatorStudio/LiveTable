@@ -42,17 +42,17 @@ class DatabaseSeeder extends Seeder
         $records = [];
 
         for ($i = 0; $i < 100; $i++) {
-            $imie    = $imiona[$i % count($imiona)];
-            $suffix  = (int) ($i / count($imiona)) > 0 ? ' ' . (string) ((int) ($i / count($imiona)) + 1) : '';
-            $miasto  = $miasta[$i % count($miasta)];
-            $nrDomu  = ($i % 50) + 1;
-            $nrKodu  = str_pad((string) (($i % 99) + 1), 3, '0', STR_PAD_LEFT);
+            $imie = $imiona[$i % count($imiona)];
+            $suffix = (int) ($i / count($imiona)) > 0 ? ' '.(string) ((int) ($i / count($imiona)) + 1) : '';
+            $miasto = $miasta[$i % count($miasta)];
+            $nrDomu = ($i % 50) + 1;
+            $nrKodu = str_pad((string) (($i % 99) + 1), 3, '0', STR_PAD_LEFT);
 
             $records[] = [
-                'imie'     => $imie . $suffix,
+                'imie' => $imie.$suffix,
                 'nazwisko' => $nazwiska[$i % count($nazwiska)],
-                'adres'    => 'ul. ' . $ulice[$i % count($ulice)] . ' ' . $nrDomu . ', ' . $miasto['kod'] . '-' . $nrKodu . ' ' . $miasto['nazwa'],
-                'status'   => $i % 3 === 0 ? 'inactive' : 'active',
+                'adres' => 'ul. '.$ulice[$i % count($ulice)].' '.$nrDomu.', '.$miasto['kod'].'-'.$nrKodu.' '.$miasto['nazwa'],
+                'status' => $i % 3 === 0 ? 'inactive' : 'active',
             ];
         }
 

@@ -13,7 +13,7 @@ it('creates text filter', function () {
 
 it('creates select filter with options', function () {
     $options = ['active' => 'Aktywny', 'banned' => 'Zbanowany'];
-    $filter  = Filter::select('status', 'Status', $options);
+    $filter = Filter::select('status', 'Status', $options);
 
     expect($filter->key)->toBe('status');
     expect($filter->label)->toBe('Status');

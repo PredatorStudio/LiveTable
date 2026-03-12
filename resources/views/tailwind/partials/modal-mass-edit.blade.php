@@ -26,7 +26,7 @@
                     Anuluj
                 </button>
                 <button type="button" wire:click="massEditUpdate"
-                    class="inline-flex items-center px-4 py-1.5 text-xs font-medium rounded-md bg-indigo-600 text-white hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors">
+                    class="inline-flex items-center px-4 py-1.5 text-xs font-medium rounded-md bg-indigo-500 text-white hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors">
                     Zapisz zmiany
                 </button>
             </div>

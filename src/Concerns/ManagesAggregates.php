@@ -12,11 +12,11 @@ trait ManagesAggregates
      * For scope ALL: executes a single selectRaw() query instead of N separate queries.
      *
      * @param  Collection  $pageItems  Already fetched current-page rows.
-     * @return array{0: array<string,mixed>, 1: array<string,int>}  [sumData, countData]
+     * @return array{0: array<string,mixed>, 1: array<string,int>} [sumData, countData]
      */
     private function computeAggregates(Collection $pageItems): array
     {
-        $sumData   = [];
+        $sumData = [];
         $countData = [];
 
         if (empty($this->sumColumns) && empty($this->countColumns)) {
@@ -37,19 +37,19 @@ trait ManagesAggregates
         // ALL scope – single query via selectRaw()
         $selects = [];
         foreach ($this->sumColumns as $col) {
-            $selects[] = 'SUM(' . $this->quoteColumn($col) . ') as __sum_' . $col;
+            $selects[] = 'SUM('.$this->quoteColumn($col).') as __sum_'.$col;
         }
         foreach ($this->countColumns as $col) {
-            $selects[] = 'COUNT(' . $this->quoteColumn($col) . ') as __count_' . $col;
+            $selects[] = 'COUNT('.$this->quoteColumn($col).') as __count_'.$col;
         }
 
         $row = $this->buildQuery()->selectRaw(implode(', ', $selects))->first();
 
         foreach ($this->sumColumns as $col) {
-            $sumData[$col] = $row ? ($row->{'__sum_' . $col} ?? 0) : 0;
+            $sumData[$col] = $row ? ($row->{'__sum_'.$col} ?? 0) : 0;
         }
         foreach ($this->countColumns as $col) {
-            $countData[$col] = $row ? ($row->{'__count_' . $col} ?? 0) : 0;
+            $countData[$col] = $row ? ($row->{'__count_'.$col} ?? 0) : 0;
         }
 
         return [$sumData, $countData];
@@ -65,6 +65,6 @@ trait ManagesAggregates
             throw new \InvalidArgumentException("Nieprawidłowa nazwa kolumny: {$col}");
         }
 
-        return '`' . str_replace('`', '', $col) . '`';
+        return '`'.str_replace('`', '', $col).'`';
     }
 }

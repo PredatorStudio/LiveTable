@@ -18,7 +18,7 @@
             <textarea
                 id="{{ $dataKey }}_{{ $field['key'] }}"
                 wire:model="{{ $dataKey }}.{{ $field['key'] }}"
-                class="block w-full rounded-md border-0 py-1.5 px-3 text-sm text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 @error($dataKey . '.' . $field['key']) ring-red-500 @enderror"
+                class="block w-full rounded-md border-0 py-1.5 px-3 text-sm text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-500 @error($dataKey . '.' . $field['key']) ring-red-500 @enderror"
                 rows="3"
             ></textarea>
         @elseif ($field['type'] === 'checkbox')
@@ -27,7 +27,7 @@
                     type="checkbox"
                     id="{{ $dataKey }}_{{ $field['key'] }}"
                     wire:model="{{ $dataKey }}.{{ $field['key'] }}"
-                    class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600 @error($dataKey . '.' . $field['key']) border-red-500 @enderror"
+                    class="h-4 w-4 rounded border-gray-300 text-indigo-500 focus:ring-indigo-500 @error($dataKey . '.' . $field['key']) border-red-500 @enderror"
                 >
             </div>
         @else
@@ -35,7 +35,7 @@
                 type="{{ $field['type'] }}"
                 id="{{ $dataKey }}_{{ $field['key'] }}"
                 wire:model="{{ $dataKey }}.{{ $field['key'] }}"
-                class="block w-full rounded-md border-0 py-1.5 px-3 text-sm text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 @error($dataKey . '.' . $field['key']) ring-red-500 @enderror"
+                class="block w-full rounded-md border-0 py-1.5 px-3 text-sm text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-500 @error($dataKey . '.' . $field['key']) ring-red-500 @enderror"
                 @if (!empty($placeholder)) placeholder="{{ $placeholder }}" @endif
             >
         @endif

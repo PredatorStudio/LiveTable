@@ -1,12 +1,13 @@
 <?php
 
 use Illuminate\Database\Eloquent\Builder;
+use Orchestra\Testbench\TestCase;
 use PredatorStudio\LiveTable\BaseTable;
 use PredatorStudio\LiveTable\Column;
 use PredatorStudio\LiveTable\Enums\SelectMode;
 use PredatorStudio\LiveTable\LiveTableServiceProvider;
 
-uses(\Orchestra\Testbench\TestCase::class);
+uses(TestCase::class);
 
 beforeEach(function () {
     $this->app->register(LiveTableServiceProvider::class);
@@ -18,7 +19,8 @@ beforeEach(function () {
 
 function selectModeTable(?SelectMode $selectMode = null): BaseTable
 {
-    return new class ($selectMode) extends BaseTable {
+    return new class($selectMode) extends BaseTable
+    {
         public function __construct(?SelectMode $mode)
         {
             $this->selectMode = $mode;

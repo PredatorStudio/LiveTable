@@ -13,7 +13,7 @@ seeders:
 
 workbench:
   start: '/demo'
-  install: true
+  install: false
   discovers:
     web: true
     api: false

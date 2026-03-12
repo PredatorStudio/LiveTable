@@ -15,7 +15,7 @@ it('sortable() accepts explicit false', function () {
 });
 
 it('sortable() returns same instance for chaining', function () {
-    $col      = Column::make('name', 'Nazwa');
+    $col = Column::make('name', 'Nazwa');
     $returned = $col->sortable();
 
     expect($returned)->toBe($col);
@@ -28,7 +28,7 @@ it('hidden() sets visible flag to false', function () {
 });
 
 it('hidden() returns same instance for chaining', function () {
-    $col      = Column::make('name', 'Nazwa');
+    $col = Column::make('name', 'Nazwa');
     $returned = $col->hidden();
 
     expect($returned)->toBe($col);

@@ -3,12 +3,13 @@
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Validation\ValidationException;
 use Mockery;
+use Orchestra\Testbench\TestCase;
 use PredatorStudio\LiveTable\BaseTable;
 use PredatorStudio\LiveTable\Cells\CheckboxCell;
 use PredatorStudio\LiveTable\Cells\EditableCell;
 use PredatorStudio\LiveTable\Column;
 
-uses(\Orchestra\Testbench\TestCase::class);
+uses(TestCase::class);
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -27,7 +28,8 @@ function makeBaseTable(array $columns, mixed $mockRow = null): BaseTable
         $mockBuilder->shouldReceive('firstOrFail')->andReturn($mockRow);
     }
 
-    return new class ($columns, $mockBuilder) extends BaseTable {
+    return new class($columns, $mockBuilder) extends BaseTable
+    {
         public function __construct(
             private readonly array $cols,
             private readonly mixed $builder,
@@ -73,7 +75,8 @@ it('does nothing when cell is not editable', function () {
 it('calls update on editable cell when validation passes', function () {
     $updated = false;
 
-    $customCell = new class ($updated) extends EditableCell {
+    $customCell = new class($updated) extends EditableCell
+    {
         public function __construct(private bool &$updated) {}
 
         public function renderEditable(mixed $row, mixed $value, string $rowId): string
@@ -88,7 +91,7 @@ it('calls update on editable cell when validation passes', function () {
     };
 
     $mockRow = (object) ['id' => '1'];
-    $table   = makeBaseTable(
+    $table = makeBaseTable(
         [Column::custom('status', 'Status', $customCell)],
         $mockRow,
     );
@@ -101,7 +104,7 @@ it('calls update on editable cell when validation passes', function () {
 it('throws ValidationException when rules fail and does not call update', function () {
     $updated = false;
 
-    $cell = (new CheckboxCell())
+    $cell = (new CheckboxCell)
         ->validation(['accepted']);
 
     $cell->setColumnKey('active');
@@ -118,7 +121,7 @@ it('throws ValidationException when rules fail and does not call update', functi
 });
 
 it('sets column key on editable cell when assigned via factory', function () {
-    $col  = Column::checkbox('is_active', 'Aktywny');
+    $col = Column::checkbox('is_active', 'Aktywny');
     $cell = $col->getCell();
 
     // Render to verify columnKey was injected (appears in wire:change HTML)

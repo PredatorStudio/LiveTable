@@ -1,11 +1,12 @@
 <?php
 
 use Illuminate\Validation\ValidationException;
+use Orchestra\Testbench\TestCase;
 use PredatorStudio\LiveTable\Cells\CheckboxCell;
 use PredatorStudio\LiveTable\Cells\EditableCell;
 use PredatorStudio\LiveTable\Cells\SelectCell;
 
-uses(\Orchestra\Testbench\TestCase::class);
+uses(TestCase::class);
 
 // ---------------------------------------------------------------------------
 // EditableCell::validation() + validate()
@@ -40,7 +41,7 @@ it('throws ValidationException when value breaks rules', function () {
 })->throws(ValidationException::class);
 
 it('throws ValidationException for required rule on empty value', function () {
-    $cell = (new CheckboxCell())->validation(['accepted']);
+    $cell = (new CheckboxCell)->validation(['accepted']);
     $cell->setColumnKey('active');
 
     $cell->validate(false);

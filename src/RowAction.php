@@ -4,13 +4,16 @@ namespace PredatorStudio\LiveTable;
 
 class RowAction
 {
-    public function __construct(
-        public readonly string $label,
-        public readonly string $method  = '', // Livewire method called as method(primaryKey)
-        public readonly mixed  $href    = '', // string or Closure($row): string
-        public readonly string $icon    = '', // raw SVG string
-        public readonly string $confirm = '', // wire:confirm text
-    ) {}
+    public string $label;
+    public string $method  = ''; // Livewire method called as method(primaryKey)
+    public mixed  $href    = ''; // string or Closure($row): string
+    public string $icon    = ''; // raw SVG string
+    public string $confirm = ''; // wire:confirm text
+
+    private function __construct(string $label)
+    {
+        $this->label = $label;
+    }
 
     public static function make(string $label): static
     {
@@ -19,23 +22,35 @@ class RowAction
 
     public function method(string $method): static
     {
-        return new static($this->label, $method, $this->href, $this->icon, $this->confirm);
+        $clone         = clone $this;
+        $clone->method = $method;
+
+        return $clone;
     }
 
     /** @param  string|\Closure(mixed $row): string  $href */
     public function href(string|\Closure $href): static
     {
-        return new static($this->label, $this->method, $href, $this->icon, $this->confirm);
+        $clone       = clone $this;
+        $clone->href = $href;
+
+        return $clone;
     }
 
     public function icon(string $icon): static
     {
-        return new static($this->label, $this->method, $this->href, $icon, $this->confirm);
+        $clone       = clone $this;
+        $clone->icon = $icon;
+
+        return $clone;
     }
 
     public function confirm(string $confirm): static
     {
-        return new static($this->label, $this->method, $this->href, $this->icon, $confirm);
+        $clone          = clone $this;
+        $clone->confirm = $confirm;
+
+        return $clone;
     }
 
     /**

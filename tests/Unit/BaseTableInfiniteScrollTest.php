@@ -1,11 +1,12 @@
 <?php
 
 use Illuminate\Database\Eloquent\Builder;
+use Orchestra\Testbench\TestCase;
 use PredatorStudio\LiveTable\BaseTable;
 use PredatorStudio\LiveTable\Column;
 use PredatorStudio\LiveTable\LiveTableServiceProvider;
 
-uses(\Orchestra\Testbench\TestCase::class);
+uses(TestCase::class);
 
 beforeEach(function () {
     $this->app->register(LiveTableServiceProvider::class);
@@ -19,12 +20,13 @@ afterEach(fn () => Mockery::close());
 
 function makeInfiniteTable(int $perPage = 0, bool $allow = true, int $chunkSize = 50): BaseTable
 {
-    return new class ($perPage, $allow, $chunkSize) extends BaseTable {
+    return new class($perPage, $allow, $chunkSize) extends BaseTable
+    {
         public function __construct(int $pp, bool $allow, int $chunk)
         {
-            $this->perPage             = $pp;
+            $this->perPage = $pp;
             $this->allowInfiniteScroll = $allow;
-            $this->infiniteChunkSize   = $chunk;
+            $this->infiniteChunkSize = $chunk;
         }
 
         protected function baseQuery(): Builder
@@ -70,8 +72,8 @@ it('falls back to default perPage when infinite not allowed and state is zero', 
 // ---------------------------------------------------------------------------
 
 it('loadMore increases loadedRows by chunkSize', function () {
-    $table              = makeInfiniteTable(perPage: 0, chunkSize: 50);
-    $table->loadedRows  = 50;
+    $table = makeInfiniteTable(perPage: 0, chunkSize: 50);
+    $table->loadedRows = 50;
 
     $table->loadMore();
 
@@ -79,8 +81,8 @@ it('loadMore increases loadedRows by chunkSize', function () {
 });
 
 it('loadMore does nothing when perPage is not zero', function () {
-    $table              = makeInfiniteTable(perPage: 25);
-    $table->loadedRows  = 0;
+    $table = makeInfiniteTable(perPage: 25);
+    $table->loadedRows = 0;
 
     $table->loadMore();
 
@@ -88,7 +90,7 @@ it('loadMore does nothing when perPage is not zero', function () {
 });
 
 it('loadMore can be called multiple times', function () {
-    $table             = makeInfiniteTable(perPage: 0, chunkSize: 50);
+    $table = makeInfiniteTable(perPage: 0, chunkSize: 50);
     $table->loadedRows = 50;
 
     $table->loadMore();
@@ -103,7 +105,7 @@ it('loadMore can be called multiple times', function () {
 // ---------------------------------------------------------------------------
 
 it('resets loadedRows on sort when in infinite mode', function () {
-    $table             = makeInfiniteTable(perPage: 0, chunkSize: 50);
+    $table = makeInfiniteTable(perPage: 0, chunkSize: 50);
     $table->loadedRows = 200;
     $table->mount();
 
@@ -113,7 +115,7 @@ it('resets loadedRows on sort when in infinite mode', function () {
 });
 
 it('does not reset loadedRows on sort when not in infinite mode', function () {
-    $table             = makeInfiniteTable(perPage: 25);
+    $table = makeInfiniteTable(perPage: 25);
     $table->loadedRows = 0;
 
     $table->sort('name');
@@ -122,7 +124,7 @@ it('does not reset loadedRows on sort when not in infinite mode', function () {
 });
 
 it('resets loadedRows on updatedSearch when in infinite mode', function () {
-    $table             = makeInfiniteTable(perPage: 0, chunkSize: 50);
+    $table = makeInfiniteTable(perPage: 0, chunkSize: 50);
     $table->loadedRows = 200;
 
     $table->updatedSearch();
@@ -131,7 +133,7 @@ it('resets loadedRows on updatedSearch when in infinite mode', function () {
 });
 
 it('resets loadedRows on applyActiveFilters when in infinite mode', function () {
-    $table             = makeInfiniteTable(perPage: 0, chunkSize: 50);
+    $table = makeInfiniteTable(perPage: 0, chunkSize: 50);
     $table->loadedRows = 150;
 
     $table->applyActiveFilters();
@@ -140,7 +142,7 @@ it('resets loadedRows on applyActiveFilters when in infinite mode', function () 
 });
 
 it('resets loadedRows on clearFilters when in infinite mode', function () {
-    $table             = makeInfiniteTable(perPage: 0, chunkSize: 50);
+    $table = makeInfiniteTable(perPage: 0, chunkSize: 50);
     $table->loadedRows = 150;
 
     $table->clearFilters();
@@ -149,9 +151,9 @@ it('resets loadedRows on clearFilters when in infinite mode', function () {
 });
 
 it('resets loadedRows on removeFilter when in infinite mode', function () {
-    $table                = makeInfiniteTable(perPage: 0, chunkSize: 50);
+    $table = makeInfiniteTable(perPage: 0, chunkSize: 50);
     $table->activeFilters = ['status' => 'active'];
-    $table->loadedRows    = 150;
+    $table->loadedRows = 150;
 
     $table->removeFilter('status');
 
@@ -163,7 +165,7 @@ it('resets loadedRows on removeFilter when in infinite mode', function () {
 // ---------------------------------------------------------------------------
 
 it('sets loadedRows when switching to infinite mode via updatedPerPage', function () {
-    $table          = makeInfiniteTable(perPage: 0, chunkSize: 50);
+    $table = makeInfiniteTable(perPage: 0, chunkSize: 50);
     $table->perPage = 0;
 
     $table->updatedPerPage();
@@ -172,7 +174,7 @@ it('sets loadedRows when switching to infinite mode via updatedPerPage', functio
 });
 
 it('clears loadedRows when switching away from infinite mode via updatedPerPage', function () {
-    $table             = makeInfiniteTable(perPage: 25);
+    $table = makeInfiniteTable(perPage: 25);
     $table->loadedRows = 150;
 
     $table->updatedPerPage();

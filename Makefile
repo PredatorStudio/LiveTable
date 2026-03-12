@@ -24,7 +24,17 @@ shell:
 demo-build:
 	$(DOCKER) bash -c "$(SERVE_ENV) php vendor/bin/testbench workbench:build"
 	$(DOCKER) bash -c "$(SERVE_ENV) php vendor/bin/testbench db:seed --class='Workbench\Database\Seeders\DatabaseSeeder'"
-	$(DOCKER) bash -c "ln -sf /app/resources/views/bootstrap/base-table.blade.php /app/vendor/orchestra/testbench-core/laravel/resources/views/vendor/live-table/base-table.blade.php"
+	$(DOCKER) bash -c "VIEWS=/app/vendor/orchestra/testbench-core/laravel/resources/views/vendor/live-table && ln -sf /app/resources/views/bootstrap/base-table.blade.php \$$VIEWS/base-table.blade.php && rm -rf \$$VIEWS/partials && ln -s /app/resources/views/bootstrap/partials \$$VIEWS/partials"
+
+demo-link:
+	docker compose exec serve bash -c "VIEWS=/app/vendor/orchestra/testbench-core/laravel/resources/views/vendor/live-table && ln -sf /app/resources/views/bootstrap/base-table.blade.php \$$VIEWS/base-table.blade.php && rm -rf \$$VIEWS/partials && ln -s /app/resources/views/bootstrap/partials \$$VIEWS/partials && echo 'OK'"
 
 serve:
 	docker compose up serve
+
+optimize:
+	docker compose exec serve php vendor/bin/testbench cache:clear
+	docker compose exec serve php vendor/bin/testbench config:clear
+	docker compose exec serve php vendor/bin/testbench route:clear
+	docker compose exec serve php vendor/bin/testbench view:clear
+	docker compose exec serve php vendor/bin/testbench optimize

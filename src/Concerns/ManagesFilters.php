@@ -7,18 +7,18 @@ trait ManagesFilters
     public function applyActiveFilters(): void
     {
         $this->showFiltersModal = false;
-        $this->page             = 1;
-        $this->selectAllQuery   = false;
+        $this->page = 1;
+        $this->selectAllQuery = false;
         $this->resetInfiniteScroll();
         $this->saveState();
     }
 
     public function clearFilters(): void
     {
-        $this->activeFilters    = [];
+        $this->activeFilters = [];
         $this->showFiltersModal = false;
-        $this->page             = 1;
-        $this->selectAllQuery   = false;
+        $this->page = 1;
+        $this->selectAllQuery = false;
         $this->resetInfiniteScroll();
         $this->saveState();
     }
@@ -27,8 +27,8 @@ trait ManagesFilters
     {
         $filters = $this->activeFilters;
         unset($filters[$key]);
-        $this->activeFilters  = $filters;
-        $this->page           = 1;
+        $this->activeFilters = $filters;
+        $this->page = 1;
         $this->selectAllQuery = false;
         $this->resetInfiniteScroll();
         $this->saveState();

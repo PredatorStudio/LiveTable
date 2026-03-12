@@ -49,10 +49,19 @@ it('creates empty SubRows from empty Collection', function () {
 });
 
 // ---------------------------------------------------------------------------
-// fromQuery()
+// fromQuery() – lazy loading
 // ---------------------------------------------------------------------------
 
-it('creates SubRows from Eloquent Builder by calling get()', function () {
+it('fromQuery does not call get() immediately', function () {
+    $builder = Mockery::mock(Builder::class);
+    $builder->shouldNotReceive('get');
+
+    $subRows = SubRows::fromQuery($builder);
+
+    expect($subRows)->toBeInstanceOf(SubRows::class);
+});
+
+it('fromQuery executes get() lazily when getItems is called', function () {
     $result = Collection::make([
         (object) ['id' => 10, 'value' => 'X'],
     ]);
@@ -62,14 +71,30 @@ it('creates SubRows from Eloquent Builder by calling get()', function () {
 
     $subRows = SubRows::fromQuery($builder);
 
-    expect($subRows->count())->toBe(1);
+    expect($subRows->getItems())->toHaveCount(1);
 });
 
-it('fromQuery calls get exactly once', function () {
+it('fromQuery executes get() only once even when called multiple times', function () {
     $builder = Mockery::mock(Builder::class);
     $builder->shouldReceive('get')->once()->andReturn(Collection::make([]));
 
-    SubRows::fromQuery($builder);
+    $subRows = SubRows::fromQuery($builder);
+    $subRows->getItems();
+    $subRows->getItems(); // second call must not trigger another query
+});
+
+it('count() triggers lazy load from query', function () {
+    $builder = Mockery::mock(Builder::class);
+    $builder->shouldReceive('get')->once()->andReturn(Collection::make([(object) ['id' => 1]]));
+
+    expect(SubRows::fromQuery($builder)->count())->toBe(1);
+});
+
+it('isEmpty() triggers lazy load from query', function () {
+    $builder = Mockery::mock(Builder::class);
+    $builder->shouldReceive('get')->once()->andReturn(Collection::make([]));
+
+    expect(SubRows::fromQuery($builder)->isEmpty())->toBeTrue();
 });
 
 // ---------------------------------------------------------------------------
@@ -98,8 +123,8 @@ it('getItems returns all items as array', function () {
 });
 
 it('getItems from Collection returns array of objects', function () {
-    $obj      = (object) ['id' => 99];
-    $subRows  = SubRows::fromCollection(Collection::make([$obj]));
+    $obj = (object) ['id' => 99];
+    $subRows = SubRows::fromCollection(Collection::make([$obj]));
 
     expect($subRows->getItems()[0])->toBe($obj);
 });

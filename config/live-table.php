@@ -10,7 +10,7 @@ return [
     /*
      * Default row selection mode when $selectable = true.
      * 'checkbox' – dedicated checkbox column (default)
-     * 'row'      – clicking anywhere on the row toggles selection
+     * 'row' – clicking anywhere on the row toggles selection
      * Can be overridden per table via: protected string $selectMode = 'row';
      */
     'select_mode' => 'checkbox',
@@ -37,9 +37,9 @@ return [
      * These have the highest priority and override built-in heuristics.
      *
      * Example:
-     *   'phone'    => 'tel',
-     *   '*_color'  => 'color',
-     *   'website'  => 'url',
+     *   'phone' => 'tel',
+     *   '*_color' => 'color',
+     *   'website' => 'url',
      */
     'creating_field_types' => [],
 ];

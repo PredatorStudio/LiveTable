@@ -18,7 +18,8 @@ function makeMassDeleteTable(
     bool $massDelete = true,
     ?Builder $builder = null,
 ): BaseTable {
-    return new class ($selected, $selectAllQuery, $selectable, $massDelete, $builder) extends BaseTable {
+    return new class($selected, $selectAllQuery, $selectable, $massDelete, $builder) extends BaseTable
+    {
         public function __construct(
             array $sel,
             bool $allQuery,
@@ -26,10 +27,10 @@ function makeMassDeleteTable(
             bool $md,
             private ?Builder $mock,
         ) {
-            $this->selected       = $sel;
+            $this->selected = $sel;
             $this->selectAllQuery = $allQuery;
-            $this->selectable     = $selectable;
-            $this->massDelete     = $md;
+            $this->selectable = $selectable;
+            $this->massDelete = $md;
         }
 
         protected function baseQuery(): Builder
@@ -148,8 +149,8 @@ it('clears selected after mass delete', function () {
 it('resets page to 1 after mass delete', function () {
     $builder = makeBuilder(selected: [3]);
 
-    $table        = makeMassDeleteTable(selected: [3], builder: $builder);
-    $table->page  = 5;
+    $table = makeMassDeleteTable(selected: [3], builder: $builder);
+    $table->page = 5;
     $table->massDelete();
 
     expect($table->page)->toBe(1);
@@ -175,25 +176,33 @@ it('calls beforeMassDelete hook with ids before deletion', function () {
     $builder->shouldReceive('whereIn')->andReturnSelf();
     $builder->shouldReceive('delete');
 
-    $table = new class ($builder) extends BaseTable {
+    $table = new class($builder) extends BaseTable
+    {
         public bool $beforeCalled = false;
+
         public array $receivedIds = [];
 
         public function __construct(private Builder $mock)
         {
             $this->selectable = true;
             $this->massDelete = true;
-            $this->selected   = [10, 20];
+            $this->selected = [10, 20];
         }
 
-        protected function baseQuery(): Builder { return $this->mock; }
+        protected function baseQuery(): Builder
+        {
+            return $this->mock;
+        }
 
-        public function columns(): array { return [Column::make('id', 'ID')]; }
+        public function columns(): array
+        {
+            return [Column::make('id', 'ID')];
+        }
 
         protected function beforeMassDelete(array $ids): void
         {
             $this->beforeCalled = true;
-            $this->receivedIds  = $ids;
+            $this->receivedIds = $ids;
         }
     };
 
@@ -208,20 +217,28 @@ it('calls afterMassDelete hook with ids after successful deletion', function () 
     $builder->shouldReceive('whereIn')->andReturnSelf();
     $builder->shouldReceive('delete');
 
-    $table = new class ($builder) extends BaseTable {
+    $table = new class($builder) extends BaseTable
+    {
         public bool $afterCalled = false;
+
         public array $receivedIds = [];
 
         public function __construct(private Builder $mock)
         {
             $this->selectable = true;
             $this->massDelete = true;
-            $this->selected   = [7, 8];
+            $this->selected = [7, 8];
         }
 
-        protected function baseQuery(): Builder { return $this->mock; }
+        protected function baseQuery(): Builder
+        {
+            return $this->mock;
+        }
 
-        public function columns(): array { return [Column::make('id', 'ID')]; }
+        public function columns(): array
+        {
+            return [Column::make('id', 'ID')];
+        }
 
         protected function afterMassDelete(array $ids): void
         {
@@ -241,45 +258,59 @@ it('aborts deletion when beforeMassDelete throws', function () {
     $builder->shouldReceive('whereIn')->andReturnSelf();
     $builder->shouldReceive('delete')->never();
 
-    $table = new class ($builder) extends BaseTable {
+    $table = new class($builder) extends BaseTable
+    {
         public function __construct(private Builder $mock)
         {
             $this->selectable = true;
             $this->massDelete = true;
-            $this->selected   = [1];
+            $this->selected = [1];
         }
 
-        protected function baseQuery(): Builder { return $this->mock; }
+        protected function baseQuery(): Builder
+        {
+            return $this->mock;
+        }
 
-        public function columns(): array { return [Column::make('id', 'ID')]; }
+        public function columns(): array
+        {
+            return [Column::make('id', 'ID')];
+        }
 
         protected function beforeMassDelete(array $ids): void
         {
-            throw new \RuntimeException('Not authorized');
+            throw new RuntimeException('Not authorized');
         }
     };
 
-    expect(fn () => $table->massDelete())->toThrow(\RuntimeException::class, 'Not authorized');
+    expect(fn () => $table->massDelete())->toThrow(RuntimeException::class, 'Not authorized');
 });
 
 it('does not call afterMassDelete when deletion throws', function () {
     $builder = Mockery::mock(Builder::class);
     $builder->shouldReceive('whereIn')->andReturnSelf();
-    $builder->shouldReceive('delete')->once()->andThrow(new \RuntimeException('DB error'));
+    $builder->shouldReceive('delete')->once()->andThrow(new RuntimeException('DB error'));
 
-    $table = new class ($builder) extends BaseTable {
+    $table = new class($builder) extends BaseTable
+    {
         public bool $afterCalled = false;
 
         public function __construct(private Builder $mock)
         {
             $this->selectable = true;
             $this->massDelete = true;
-            $this->selected   = [1];
+            $this->selected = [1];
         }
 
-        protected function baseQuery(): Builder { return $this->mock; }
+        protected function baseQuery(): Builder
+        {
+            return $this->mock;
+        }
 
-        public function columns(): array { return [Column::make('id', 'ID')]; }
+        public function columns(): array
+        {
+            return [Column::make('id', 'ID')];
+        }
 
         protected function afterMassDelete(array $ids): void
         {
@@ -287,7 +318,7 @@ it('does not call afterMassDelete when deletion throws', function () {
         }
     };
 
-    expect(fn () => $table->massDelete())->toThrow(\RuntimeException::class);
+    expect(fn () => $table->massDelete())->toThrow(RuntimeException::class);
     expect($table->afterCalled)->toBeFalse();
 });
 
@@ -296,25 +327,39 @@ it('passes plucked ids to hooks in selectAllQuery mode', function () {
     $builder->shouldReceive('pluck')->with('id')->andReturn(collect([100, 200, 300]));
     $builder->shouldReceive('delete');
 
-    $table = new class ($builder) extends BaseTable {
+    $table = new class($builder) extends BaseTable
+    {
         public array $beforeIds = [];
-        public array $afterIds  = [];
+
+        public array $afterIds = [];
 
         public function __construct(private Builder $mock)
         {
-            $this->selectable     = true;
-            $this->massDelete     = true;
+            $this->selectable = true;
+            $this->massDelete = true;
             $this->selectAllQuery = true;
-            $this->selected       = [];
+            $this->selected = [];
         }
 
-        protected function baseQuery(): Builder { return $this->mock; }
+        protected function baseQuery(): Builder
+        {
+            return $this->mock;
+        }
 
-        public function columns(): array { return [Column::make('id', 'ID')]; }
+        public function columns(): array
+        {
+            return [Column::make('id', 'ID')];
+        }
 
-        protected function beforeMassDelete(array $ids): void { $this->beforeIds = $ids; }
+        protected function beforeMassDelete(array $ids): void
+        {
+            $this->beforeIds = $ids;
+        }
 
-        protected function afterMassDelete(array $ids): void { $this->afterIds = $ids; }
+        protected function afterMassDelete(array $ids): void
+        {
+            $this->afterIds = $ids;
+        }
     };
 
     $table->massDelete();
@@ -328,15 +373,22 @@ it('passes plucked ids to hooks in selectAllQuery mode', function () {
 // ---------------------------------------------------------------------------
 
 it('massDelete property defaults to false', function () {
-    $table = new class extends BaseTable {
+    $table = new class extends BaseTable
+    {
         public function __construct() {}
 
-        protected function baseQuery(): Builder { return Mockery::mock(Builder::class); }
+        protected function baseQuery(): Builder
+        {
+            return Mockery::mock(Builder::class);
+        }
 
-        public function columns(): array { return [Column::make('id', 'ID')]; }
+        public function columns(): array
+        {
+            return [Column::make('id', 'ID')];
+        }
     };
 
-    $prop = new \ReflectionProperty($table, 'massDelete');
+    $prop = new ReflectionProperty($table, 'massDelete');
     $prop->setAccessible(true);
 
     expect($prop->getValue($table))->toBeFalse();

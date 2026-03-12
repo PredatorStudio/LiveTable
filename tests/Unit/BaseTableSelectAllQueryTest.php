@@ -3,11 +3,12 @@
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Mockery;
+use Orchestra\Testbench\TestCase;
 use PredatorStudio\LiveTable\BaseTable;
 use PredatorStudio\LiveTable\Column;
 use PredatorStudio\LiveTable\LiveTableServiceProvider;
 
-uses(\Orchestra\Testbench\TestCase::class);
+uses(TestCase::class);
 
 beforeEach(function () {
     $this->app->register(LiveTableServiceProvider::class);
@@ -17,7 +18,8 @@ afterEach(fn () => Mockery::close());
 
 function makeSelectAllTable(): BaseTable
 {
-    return new class extends BaseTable {
+    return new class extends BaseTable
+    {
         public function __construct()
         {
             $this->selectable = true;
@@ -48,9 +50,9 @@ it('sets selectAllQuery to true', function () {
 });
 
 it('clearSelectAllQuery resets flag and clears selected', function () {
-    $table               = makeSelectAllTable();
+    $table = makeSelectAllTable();
     $table->selectAllQuery = true;
-    $table->selected     = ['1', '2', '3'];
+    $table->selected = ['1', '2', '3'];
 
     $table->clearSelectAllQuery();
 
@@ -63,7 +65,7 @@ it('clearSelectAllQuery resets flag and clears selected', function () {
 // ---------------------------------------------------------------------------
 
 it('resets selectAllQuery on updatedSearch', function () {
-    $table               = makeSelectAllTable();
+    $table = makeSelectAllTable();
     $table->selectAllQuery = true;
 
     $table->updatedSearch();
@@ -72,7 +74,7 @@ it('resets selectAllQuery on updatedSearch', function () {
 });
 
 it('resets selectAllQuery on sort', function () {
-    $table               = makeSelectAllTable();
+    $table = makeSelectAllTable();
     $table->selectAllQuery = true;
 
     $table->sort('name');
@@ -81,7 +83,7 @@ it('resets selectAllQuery on sort', function () {
 });
 
 it('resets selectAllQuery on applyActiveFilters', function () {
-    $table               = makeSelectAllTable();
+    $table = makeSelectAllTable();
     $table->selectAllQuery = true;
 
     $table->applyActiveFilters();
@@ -90,7 +92,7 @@ it('resets selectAllQuery on applyActiveFilters', function () {
 });
 
 it('resets selectAllQuery on clearFilters', function () {
-    $table               = makeSelectAllTable();
+    $table = makeSelectAllTable();
     $table->selectAllQuery = true;
 
     $table->clearFilters();
@@ -99,8 +101,8 @@ it('resets selectAllQuery on clearFilters', function () {
 });
 
 it('resets selectAllQuery on removeFilter', function () {
-    $table                = makeSelectAllTable();
-    $table->selectAllQuery  = true;
+    $table = makeSelectAllTable();
+    $table->selectAllQuery = true;
     $table->activeFilters = ['status' => 'active'];
 
     $table->removeFilter('status');
@@ -118,7 +120,8 @@ it('passes allPageSelected true when all page ids are selected', function () {
         (object) ['id' => 2],
     ]);
 
-    $table = new class ($rows) extends BaseTable {
+    $table = new class($rows) extends BaseTable
+    {
         public function __construct(private readonly Collection $rows)
         {
             $this->selected = ['1', '2'];
@@ -132,6 +135,7 @@ it('passes allPageSelected true when all page ids are selected', function () {
             $builder->shouldReceive('offset')->andReturnSelf();
             $builder->shouldReceive('limit')->andReturnSelf();
             $builder->shouldReceive('get')->andReturn($this->rows);
+
             return $builder;
         }
 
@@ -153,7 +157,8 @@ it('passes allPageSelected false when not all page ids are selected', function (
         (object) ['id' => 2],
     ]);
 
-    $table = new class ($rows) extends BaseTable {
+    $table = new class($rows) extends BaseTable
+    {
         public function __construct(private readonly Collection $rows)
         {
             $this->selected = ['1'];
@@ -167,6 +172,7 @@ it('passes allPageSelected false when not all page ids are selected', function (
             $builder->shouldReceive('offset')->andReturnSelf();
             $builder->shouldReceive('limit')->andReturnSelf();
             $builder->shouldReceive('get')->andReturn($this->rows);
+
             return $builder;
         }
 
