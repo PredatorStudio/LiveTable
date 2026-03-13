@@ -2,7 +2,7 @@
 
 namespace PredatorStudio\LiveTable\Contracts;
 
-interface EditableCellInterface extends CellInterface
+interface EditableCellInterface extends PlainRenderableCellInterface
 {
     /**
      * Render the editable input element with Livewire wiring.

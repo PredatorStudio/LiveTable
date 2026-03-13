@@ -9,6 +9,7 @@ use PredatorStudio\LiveTable\Cells\CheckboxCell;
 use PredatorStudio\LiveTable\Cells\DateCell;
 use PredatorStudio\LiveTable\Cells\DateTimeCell;
 use PredatorStudio\LiveTable\Cells\EditableCell;
+use PredatorStudio\LiveTable\Contracts\EditableCellInterface;
 use PredatorStudio\LiveTable\Cells\LinkCell;
 use PredatorStudio\LiveTable\Cells\MoneyCell;
 use PredatorStudio\LiveTable\Cells\NumberCell;
@@ -142,7 +143,7 @@ class Column
      */
     public function cell(Cell $cell): static
     {
-        if ($cell instanceof EditableCell) {
+        if ($cell instanceof EditableCellInterface) {
             $cell->setColumnKey($this->key);
         }
 
@@ -186,7 +187,7 @@ class Column
             return (string) ($this->formatter)($row, $value);
         }
 
-        if ($this->cell instanceof EditableCell) {
+        if ($this->cell instanceof EditableCellInterface) {
             $rowId = $primaryKey !== '' ? (string) data_get($row, $primaryKey) : '';
 
             return $this->cell->renderEditable($row, $value, $rowId);

@@ -2,6 +2,8 @@
 
 namespace PredatorStudio\LiveTable\Concerns;
 
+use PredatorStudio\LiveTable\ValueObjects\FieldDefinition;
+
 trait ManagesMassActions
 {
     /**
@@ -18,12 +20,12 @@ trait ManagesMassActions
             return;
         }
 
-        if ($this->model === '' || ! class_exists($this->model)) {
+        if (! $this->hasModel()) {
             return;
         }
 
         $this->massEditData = collect($this->creatingFields())
-            ->mapWithKeys(fn (array $f) => [$f['key'] => ''])
+            ->mapWithKeys(fn (FieldDefinition $f) => [$f->key => ''])
             ->all();
 
         $this->showMassEditModal = true;

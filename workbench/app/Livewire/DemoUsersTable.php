@@ -12,7 +12,7 @@ use Workbench\App\Models\DemoUser;
 
 class DemoUsersTable extends BaseTable
 {
-    protected string $model = DemoUser::class;
+    protected ?string $model = DemoUser::class;
 
     protected bool $selectable = true;
 

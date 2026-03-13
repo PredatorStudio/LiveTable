@@ -13,12 +13,12 @@ class LiveTableServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__.'/../config/live-table.php', 'live-table');
 
-        // mergeConfigFrom is skipped when configurationIsCached() is true (e.g. in Testbench).
-        // In real cached production environments the cache already contains merged defaults,
-        // so this fallback only fires in environments where the cache exists but is empty.
-        $config = $this->app->make('config');
-        if ($config->get('live-table') === null) {
-            $config->set('live-table', require __DIR__.'/../config/live-table.php');
+        // mergeConfigFrom is a no-op when configurationIsCached() is true (e.g. in Testbench).
+        // Replicate the same merge manually so defaults are always available.
+        if ($this->app->configurationIsCached()) {
+            $config   = $this->app->make('config');
+            $defaults = require __DIR__.'/../config/live-table.php';
+            $config->set('live-table', array_merge($defaults, $config->get('live-table', [])));
         }
 
         $this->app->bind(TableStateRepositoryInterface::class, EloquentTableStateRepository::class);

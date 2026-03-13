@@ -23,7 +23,7 @@
                             {{ $filter->label }}
                         </label>
 
-                        @if ($filter->type === 'select')
+                        @if ($filter->type->value === 'select')
                             <select
                                 wire:model="activeFilters.{{ $filter->key }}"
                                 class="block w-full rounded-md border-0 py-1 pl-3 pr-8 text-sm text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-500"
@@ -33,7 +33,7 @@
                                     <option value="{{ $value }}">{{ $label }}</option>
                                 @endforeach
                             </select>
-                        @elseif ($filter->type === 'date')
+                        @elseif ($filter->type->value === 'date')
                             <input
                                 type="date"
                                 wire:model="activeFilters.{{ $filter->key }}"

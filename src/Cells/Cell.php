@@ -2,7 +2,7 @@
 
 namespace PredatorStudio\LiveTable\Cells;
 
-abstract class Cell implements \PredatorStudio\LiveTable\Contracts\CellInterface
+abstract class Cell implements \PredatorStudio\LiveTable\Contracts\PlainRenderableCellInterface
 {
     abstract public function render(mixed $row, mixed $value): string;
 

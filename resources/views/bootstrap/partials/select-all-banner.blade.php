@@ -10,6 +10,11 @@
         </button>
     </div>
 @elseif ($selectable && count($selected) > 0)
+    @if (count($selected) > 500)
+        <div class="alert alert-warning py-1 small mb-1">
+            Zaznaczono {{ count($selected) }} rekordów – może to spowolnić działanie.
+        </div>
+    @endif
     <div class="d-flex align-items-center justify-content-between gap-2 rounded py-2 px-3 border border-primary" style="background: rgba(99,102,241,0.07);">
         <span class="small text-primary"><strong>{{ count($selected) }}</strong> zaznaczonych</span>
         <div class="d-flex align-items-center gap-2">

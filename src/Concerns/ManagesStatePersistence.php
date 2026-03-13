@@ -7,6 +7,18 @@ use PredatorStudio\LiveTable\Contracts\TableStateRepositoryInterface;
 
 trait ManagesStatePersistence
 {
+    /**
+     * Optional injected repository. When null, resolved from the IoC container.
+     * Can be set directly in tests to inject a mock:
+     *   $table->stateRepository = $mock;
+     */
+    protected ?TableStateRepositoryInterface $stateRepository = null;
+
+    private function getStateRepository(): TableStateRepositoryInterface
+    {
+        return $this->stateRepository ??= app(TableStateRepositoryInterface::class);
+    }
+
     public function saveState(): void
     {
         if (! $this->persistState) {
@@ -15,7 +27,7 @@ trait ManagesStatePersistence
 
         $identifier = $this->resolveClientIdentifier();
 
-        app(TableStateRepositoryInterface::class)->save(
+        $this->getStateRepository()->save(
             $this->getTableIdentifier(),
             $identifier,
             [
@@ -59,7 +71,7 @@ trait ManagesStatePersistence
 
         $identifier = $this->resolveClientIdentifier();
 
-        $data = app(TableStateRepositoryInterface::class)->load(
+        $data = $this->getStateRepository()->load(
             $this->getTableIdentifier(),
             $identifier,
         );

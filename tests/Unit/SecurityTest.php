@@ -7,6 +7,7 @@ use Orchestra\Testbench\TestCase;
 use PredatorStudio\LiveTable\BaseTable;
 use PredatorStudio\LiveTable\Column;
 use PredatorStudio\LiveTable\LiveTableServiceProvider;
+use PredatorStudio\LiveTable\ValueObjects\FieldDefinition;
 
 uses(TestCase::class);
 
@@ -236,7 +237,7 @@ it('massEditUpdate aborts when authorizeAction throws', function () {
 
         public function creatingFields(): array
         {
-            return [['key' => 'name', 'label' => 'Nazwa', 'type' => 'text']];
+            return [new FieldDefinition('name', 'Nazwa', 'text')];
         }
 
         public function validate($rules = null, $messages = [], $attributes = []): array
@@ -282,7 +283,7 @@ it('updateRecord aborts when authorizeAction throws', function () {
 
         public function creatingFields(): array
         {
-            return [['key' => 'name', 'label' => 'Nazwa', 'type' => 'text']];
+            return [new FieldDefinition('name', 'Nazwa', 'text')];
         }
 
         public function validate($rules = null, $messages = [], $attributes = []): array

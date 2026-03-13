@@ -15,6 +15,8 @@ trait ManagesExport
      */
     public function exportCsv(): StreamedResponse
     {
+        $this->authorizeAction('export');
+
         $columns = $this->visibleColumns();
         $query = $this->buildExportQuery();
         $filename = class_basename(static::class).'_'.now()->format('Y-m-d_His').'.csv';
@@ -62,6 +64,8 @@ trait ManagesExport
         if (! $this->exportPdf) {
             abort(404);
         }
+
+        $this->authorizeAction('export');
 
         $result = $this->generatePdf($this->buildExportQuery()->get(), $this->visibleColumns());
 

@@ -2,7 +2,6 @@
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Mockery;
 use Orchestra\Testbench\TestCase;
 use PredatorStudio\LiveTable\BaseTable;
 use PredatorStudio\LiveTable\Column;
@@ -138,10 +137,23 @@ it('defaultCreating defaults to false', function () {
     expect($prop->getValue($table))->toBeFalse();
 });
 
-it('model defaults to empty string', function () {
-    $table = makeCreatingTable();
+it('model defaults to null', function () {
+    $table = new class extends BaseTable
+    {
+        public function __construct() {}
+
+        protected function baseQuery(): Builder
+        {
+            return Mockery::mock(Builder::class);
+        }
+
+        public function columns(): array
+        {
+            return [Column::make('id', 'ID')];
+        }
+    };
     $prop = new ReflectionProperty($table, 'model');
-    expect($prop->getValue($table))->toBe('');
+    expect($prop->getValue($table))->toBeNull();
 });
 
 it('showCreatingModal defaults to false', function () {
@@ -184,11 +196,14 @@ it('creatingFields returns one entry per fillable field', function () {
         ->and($keys)->toContain('active');
 });
 
-it('creatingFields entries have key, label and type', function () {
+it('creatingFields entries are FieldDefinition objects', function () {
     $table = makeCreatingTable(model: FakeCreatingModel::class);
     $fields = $table->creatingFields();
 
-    expect($fields[0])->toHaveKeys(['key', 'label', 'type']);
+    expect($fields[0])->toBeInstanceOf(\PredatorStudio\LiveTable\ValueObjects\FieldDefinition::class);
+    expect($fields[0]->key)->toBeString();
+    expect($fields[0]->label)->toBeString();
+    expect($fields[0]->type)->toBeString();
 });
 
 it('creatingFields generates headline label from key', function () {
@@ -196,7 +211,7 @@ it('creatingFields generates headline label from key', function () {
     $fields = collect($table->creatingFields())->keyBy('key');
 
     // 'name' → 'Name'
-    expect($fields['name']['label'])->toBe('Name');
+    expect($fields['name']->label)->toBe('Name');
 });
 
 // ---------------------------------------------------------------------------
@@ -208,7 +223,7 @@ it('detects number type for integer cast', function () {
     $fields = collect($table->creatingFields())->keyBy('key');
 
     // 'age' cast to 'integer' → 'number'
-    expect($fields['age']['type'])->toBe('number');
+    expect($fields['age']->type)->toBe('number');
 });
 
 it('detects checkbox type for boolean cast', function () {
@@ -216,7 +231,7 @@ it('detects checkbox type for boolean cast', function () {
     $fields = collect($table->creatingFields())->keyBy('key');
 
     // 'active' cast to 'boolean' → 'checkbox'
-    expect($fields['active']['type'])->toBe('checkbox');
+    expect($fields['active']->type)->toBe('checkbox');
 });
 
 // ---------------------------------------------------------------------------
@@ -227,14 +242,14 @@ it('detects email type for field named email', function () {
     $table = makeCreatingTable(model: FakeCreatingModel::class);
     $fields = collect($table->creatingFields())->keyBy('key');
 
-    expect($fields['email']['type'])->toBe('email');
+    expect($fields['email']->type)->toBe('email');
 });
 
 it('detects password type for field named password', function () {
     $table = makeCreatingTable(model: FakeCreatingModel::class);
     $fields = collect($table->creatingFields())->keyBy('key');
 
-    expect($fields['password']['type'])->toBe('password');
+    expect($fields['password']->type)->toBe('password');
 });
 
 // ---------------------------------------------------------------------------
@@ -248,7 +263,7 @@ it('config creating_field_types overrides built-in heuristic', function () {
     $fields = collect($table->creatingFields())->keyBy('key');
 
     // config says email → text, overrides built-in email heuristic
-    expect($fields['email']['type'])->toBe('text');
+    expect($fields['email']->type)->toBe('text');
 });
 
 it('config creating_field_types supports wildcard patterns', function () {
@@ -267,8 +282,8 @@ it('config creating_field_types supports wildcard patterns', function () {
     $table = makeCreatingTable(model: 'FakeColorModel');
     $fields = collect($table->creatingFields())->keyBy('key');
 
-    expect($fields['bg_color']['type'])->toBe('color')
-        ->and($fields['text_color']['type'])->toBe('color');
+    expect($fields['bg_color']->type)->toBe('color')
+        ->and($fields['text_color']->type)->toBe('color');
 });
 
 // ---------------------------------------------------------------------------

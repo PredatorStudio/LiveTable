@@ -2,7 +2,6 @@
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
-use Mockery;
 use PredatorStudio\LiveTable\SubRows;
 
 afterEach(fn () => Mockery::close());

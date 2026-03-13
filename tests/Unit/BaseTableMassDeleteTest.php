@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Database\Eloquent\Builder;
-use Mockery;
 use PredatorStudio\LiveTable\BaseTable;
 use PredatorStudio\LiveTable\Column;
 

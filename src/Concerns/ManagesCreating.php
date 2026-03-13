@@ -2,130 +2,14 @@
 
 namespace PredatorStudio\LiveTable\Concerns;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use PredatorStudio\LiveTable\Cells\CheckboxCell;
 use PredatorStudio\LiveTable\Cells\SelectCell;
 use PredatorStudio\LiveTable\ValueObjects\FieldDefinition;
 
-trait ManagesDefaultCrud
+trait ManagesCreating
 {
-    /**
-     * Open the editing modal and pre-populate it with the record's current data.
-     * Does nothing when $defaultActions / $defaultActionEdit is disabled or $model not set.
-     */
-    public function openEditingModal(string $id): void
-    {
-        if (! $this->defaultActions || ! $this->defaultActionEdit) {
-            return;
-        }
-
-        if (! $this->hasModel()) {
-            return;
-        }
-
-        $record = $this->baseQuery()->where($this->primaryKey, $id)->firstOrFail();
-
-        $allowedKeys = array_column($this->creatingFields(), 'key');
-
-        $this->editingData = collect($allowedKeys)
-            ->mapWithKeys(fn (string $key) => [$key => data_get($record, $key) ?? ''])
-            ->all();
-
-        $this->editingId = $id;
-        $this->showEditingModal = true;
-    }
-
-    /**
-     * Validation rules for the editing form.
-     *
-     * @return array<string, string>
-     */
-    public function editingRules(): array
-    {
-        return collect($this->creatingFields())
-            ->mapWithKeys(fn (FieldDefinition $f) => ["editingData.{$f->key}" => 'required'])
-            ->all();
-    }
-
-    /**
-     * Called before the record is updated.
-     *
-     * @param  array<string, mixed>  $data
-     */
-    protected function beforeUpdate(mixed $record, array &$data): void {}
-
-    /**
-     * Called after the record has been successfully updated.
-     */
-    protected function afterUpdate(mixed $record): void {}
-
-    /**
-     * Validate, call hooks and persist changes to the edited record.
-     */
-    public function updateRecord(): void
-    {
-        if (! $this->defaultActions || $this->editingId === '') {
-            return;
-        }
-
-        $this->validate($this->editingRules());
-
-        $record = $this->baseQuery()->where($this->primaryKey, $this->editingId)->firstOrFail();
-
-        $this->authorizeAction('update', $record);
-
-        $allowedKeys = array_column($this->creatingFields(), 'key');
-        $data = array_intersect_key($this->editingData, array_flip($allowedKeys));
-
-        $data = $this->hashPasswordFields($data);
-
-        $this->beforeUpdate($record, $data);
-        $record->update($data);
-        $this->afterUpdate($record);
-
-        $this->showEditingModal = false;
-        $this->editingData = [];
-        $this->editingId = '';
-
-        $this->dispatch('live-table-notify', message: 'Rekord zaktualizowany.', type: 'success');
-    }
-
-    /**
-     * Delete the row identified by $id.
-     */
-    public function deleteRow(string $id): void
-    {
-        if (! $this->defaultActions || ! $this->defaultActionDelete) {
-            return;
-        }
-
-        $record = $this->baseQuery()->where($this->primaryKey, $id)->firstOrFail();
-
-        $this->authorizeAction('delete', $record);
-
-        $this->beforeDelete($record);
-        $record->delete();
-        $this->afterDelete($id);
-
-        $this->selected = array_values(
-            array_filter($this->selected, fn (string $s) => $s !== $id),
-        );
-
-        $this->dispatch('live-table-notify', message: 'Rekord usunięty.', type: 'success');
-    }
-
-    /**
-     * Called before the record is deleted. Throw an exception to abort.
-     */
-    protected function beforeDelete(mixed $record): void {}
-
-    /**
-     * Called after the record has been successfully deleted.
-     */
-    protected function afterDelete(string $id): void {}
-
     /**
      * Open the default-creating modal and initialise $creatingData with empty values.
      */
@@ -143,7 +27,7 @@ trait ManagesDefaultCrud
     }
 
     /**
-     * Field definitions for the creating form.
+     * Field definitions for the creating (and editing) form.
      *
      * @return FieldDefinition[]
      */
@@ -153,7 +37,7 @@ trait ManagesDefaultCrud
             return [];
         }
 
-        /** @var Model $instance */
+        /** @var \Illuminate\Database\Eloquent\Model $instance */
         $instance = new $this->model;
         $fillable = $instance->getFillable();
 
@@ -250,6 +134,10 @@ trait ManagesDefaultCrud
 
         $this->dispatch('live-table-notify', message: 'Rekord dodany.', type: 'success');
     }
+
+    // -------------------------------------------------------------------------
+    // Field type resolution (private – used only by creatingFields())
+    // -------------------------------------------------------------------------
 
     /**
      * Resolve the HTML input type for a given fillable field.
