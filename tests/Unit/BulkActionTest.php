@@ -1,0 +1,41 @@
+<?php
+
+use PredatorStudio\LiveTable\BulkAction;
+
+it('creates bulk action with method and label via make', function () {
+    $action = BulkAction::make('deleteSelected', 'Usuń zaznaczone');
+
+    expect($action->method)->toBe('deleteSelected');
+    expect($action->label)->toBe('Usuń zaznaczone');
+    expect($action->icon)->toBe('');
+});
+
+it('sets icon via fluent icon()', function () {
+    $action = BulkAction::make('delete', 'Usuń')->icon('<svg/>');
+
+    expect($action->icon)->toBe('<svg/>');
+    expect($action->method)->toBe('delete');
+    expect($action->label)->toBe('Usuń');
+});
+
+it('icon() returns new instance', function () {
+    $original = BulkAction::make('delete', 'Usuń');
+    $modified = $original->icon('<svg/>');
+
+    expect($modified)->not->toBe($original);
+});
+
+it('tooltip defaults to empty string', function () {
+    $action = BulkAction::make('delete', 'Usuń');
+
+    expect($action->tooltip)->toBe('');
+});
+
+it('tooltip() sets tooltip and returns new instance', function () {
+    $original = BulkAction::make('delete', 'Usuń');
+    $modified = $original->tooltip('Usuń zaznaczone rekordy');
+
+    expect($modified->tooltip)->toBe('Usuń zaznaczone rekordy');
+    expect($original->tooltip)->toBe(''); // immutable
+    expect($modified)->not->toBe($original);
+});

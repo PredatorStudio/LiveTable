@@ -8,6 +8,13 @@
             "PredatorStudio\\LiveTable\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/",
+            "Workbench\\App\\": "workbench/app/",
+            "Workbench\\Database\\": "workbench/database/"
+        }
+    },
     "authors": [
         {
             "name": "Predator Studio"
@@ -19,11 +26,21 @@
         "laravel/framework": "^11.0|^12.0",
         "livewire/livewire": "^4.0"
     },
+    "require-dev": {
+        "pestphp/pest": "^3.0",
+        "orchestra/testbench": "^9.0",
+        "laravel/pint": "^1.28"
+    },
     "extra": {
         "laravel": {
             "providers": [
                 "PredatorStudio\\LiveTable\\LiveTableServiceProvider"
             ]
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
         }
     }
 }

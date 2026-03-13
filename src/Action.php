@@ -4,12 +4,15 @@ namespace PredatorStudio\LiveTable;
 
 class Action
 {
-    public function __construct(
-        public readonly string $label,
-        public readonly string $method = '', // Livewire method name
-        public readonly string $href   = '', // or a plain link
-        public readonly string $icon   = '', // raw SVG string
-    ) {}
+    public string $label;
+    public string $method = ''; // Livewire method name
+    public string $href   = ''; // or a plain link
+    public string $icon   = ''; // raw SVG string
+
+    private function __construct(string $label)
+    {
+        $this->label = $label;
+    }
 
     public static function make(string $label): static
     {
@@ -18,16 +21,25 @@ class Action
 
     public function method(string $method): static
     {
-        return new static($this->label, $method, $this->href, $this->icon);
+        $clone         = clone $this;
+        $clone->method = $method;
+
+        return $clone;
     }
 
     public function href(string $href): static
     {
-        return new static($this->label, $this->method, $href, $this->icon);
+        $clone       = clone $this;
+        $clone->href = $href;
+
+        return $clone;
     }
 
     public function icon(string $icon): static
     {
-        return new static($this->label, $this->method, $this->href, $icon);
+        $clone       = clone $this;
+        $clone->icon = $icon;
+
+        return $clone;
     }
 }
