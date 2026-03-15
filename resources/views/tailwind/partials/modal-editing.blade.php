@@ -1,6 +1,6 @@
 @if ($showEditingModal && $canEdit && count($editingFields) > 0)
     <div
-        class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50"
+        class="fixed inset-0 bg-gray-500/75 flex items-center justify-center z-50"
         @keydown.escape.window="$wire.set('showEditingModal', false)"
     >
         <div class="bg-white rounded-xl shadow-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
