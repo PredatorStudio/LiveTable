@@ -6,44 +6,46 @@
   <component name="ChangeListManager">
     <list default="true" id="7d8a5d63-f11d-4422-9580-802720222ac3" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/views/bootstrap/partials/form-fields.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/bootstrap/partials/form-fields.blade.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/views/bootstrap/partials/modal-filters.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/bootstrap/partials/modal-filters.blade.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/views/bootstrap/partials/select-all-banner.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/bootstrap/partials/select-all-banner.blade.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/views/tailwind/partials/form-fields.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/tailwind/partials/form-fields.blade.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/views/tailwind/partials/modal-filters.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/tailwind/partials/modal-filters.blade.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/views/tailwind/partials/select-all-banner.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/tailwind/partials/select-all-banner.blade.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/views/tailwind/partials/table.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/tailwind/partials/table.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/views/bootstrap/base-table.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/bootstrap/base-table.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/views/bootstrap/partials/table.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/bootstrap/partials/table.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/views/bootstrap/partials/toolbar-left.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/bootstrap/partials/toolbar-left.blade.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/BaseTable.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/BaseTable.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Cells/Cell.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Cells/Cell.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Column.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Column.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Concerns/ManagesDefaultCrud.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Concerns/ManagesDefaultCrud.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Concerns/ManagesExport.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Concerns/ManagesExport.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Concerns/ManagesMassActions.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Concerns/ManagesMassActions.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Concerns/ManagesStatePersistence.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Concerns/ManagesStatePersistence.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Contracts/CellInterface.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Contracts/CellInterface.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Contracts/EditableCellInterface.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Contracts/EditableCellInterface.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Filter.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Filter.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/LiveTableServiceProvider.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/LiveTableServiceProvider.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tb_out.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Concerns/ManagesCreating.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Concerns/ManagesCreating.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Concerns/ManagesEditing.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Concerns/ManagesEditing.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Unit/ActionTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/ActionTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Unit/AuthorizeActionTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/AuthorizeActionTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Unit/BaseTableAggregatesTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/BaseTableAggregatesTest.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/Unit/BaseTableExportTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/BaseTableExportTest.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/Unit/BaseTableFieldTypeTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/BaseTableFieldTypeTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Unit/BaseTableInfiniteScrollTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/BaseTableInfiniteScrollTest.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/Unit/BaseTableMassDeleteTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/BaseTableMassDeleteTest.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/Unit/BaseTableMethodsTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/BaseTableMethodsTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Unit/BaseTableNewFeaturesTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/BaseTableNewFeaturesTest.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/Unit/BaseTableRowActionsTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/BaseTableRowActionsTest.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/Unit/BaseTableSelectAllQueryTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/BaseTableSelectAllQueryTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Unit/BaseTableSelectModeTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/BaseTableSelectModeTest.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/Unit/BaseTableSubRowsTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/BaseTableSubRowsTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Unit/BaseTableUpdateCellTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/BaseTableUpdateCellTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Unit/BuildPageLinksTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/BuildPageLinksTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Unit/BulkActionTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/BulkActionTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Unit/ColumnFluentTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/ColumnFluentTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Unit/ColumnMemoizationTest.php" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/Unit/DefaultActionsTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/DefaultActionsTest.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/Unit/DefaultCreatingTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/DefaultCreatingTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Unit/Enums/DateFormatTest.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Unit/Enums/DateTimeFormatTest.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Unit/Enums/MoneyFormatTest.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Unit/Enums/TimeFormatTest.php" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/Unit/FilterTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/FilterTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Unit/HashPasswordTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/HashPasswordTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Unit/LiveTableServiceProviderTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/LiveTableServiceProviderTest.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/Unit/MassEditTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/MassEditTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Unit/QuoteColumnTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/QuoteColumnTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Unit/RowActionTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/RowActionTest.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/Unit/SecurityTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/SecurityTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Unit/StatePersistenceTest.php" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/Unit/SubRowsTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/SubRowsTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/todo-1-krytyczne.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/todo-3-sredni.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/todo-4-niski.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/todo.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/workbench/app/Livewire/DemoUsersTable.php" beforeDir="false" afterPath="$PROJECT_DIR$/workbench/app/Livewire/DemoUsersTable.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Unit/TableSettingPersistTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/TableSettingPersistTest.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -243,8 +245,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-PS-253.31033.138" />
-        <option value="bundled-php-predefined-a98d8de5180a-0e0d91225499-com.jetbrains.php.sharedIndexes-PS-253.31033.138" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-PS-253.32098.40" />
+        <option value="bundled-php-predefined-a98d8de5180a-0e0d91225499-com.jetbrains.php.sharedIndexes-PS-253.32098.40" />
       </set>
     </attachedChunks>
   </component>
@@ -265,6 +267,7 @@
       <workItem from="1773356363819" duration="4383000" />
       <workItem from="1773389092904" duration="181000" />
       <workItem from="1773437551168" duration="158000" />
+      <workItem from="1773778807984" duration="5766000" />
     </task>
     <servers />
   </component>

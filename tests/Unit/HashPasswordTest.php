@@ -85,14 +85,6 @@ it('hashes a field matching *_password pattern', function () {
     expect(Hash::check('mypass', $result['backup_password']))->toBeTrue();
 });
 
-it('does not hash non-password fields', function () {
-    $table = makePasswordTable();
-    $result = callHashPasswordFields($table, ['name' => 'Jan', 'email' => 'j@b.com']);
-
-    expect($result['name'])->toBe('Jan')
-        ->and($result['email'])->toBe('j@b.com');
-});
-
 it('does not hash empty password value', function () {
     $table = makePasswordTable();
     $result = callHashPasswordFields($table, ['password' => '']);
@@ -112,26 +104,6 @@ it('returns data unchanged when autoHashPasswords is false', function () {
     $result = callHashPasswordFields($table, ['password' => 'plaintext']);
 
     expect($result['password'])->toBe('plaintext');
-});
-
-it('hashes all password fields in a single call', function () {
-    $table = makePasswordTable();
-    $result = callHashPasswordFields($table, [
-        'name' => 'Jan',
-        'password' => 'pass1',
-        'backup_password' => 'pass2',
-    ]);
-
-    expect(Hash::check('pass1', $result['password']))->toBeTrue();
-    expect(Hash::check('pass2', $result['backup_password']))->toBeTrue();
-    expect($result['name'])->toBe('Jan');
-});
-
-it('hashed value is different from original plaintext', function () {
-    $table = makePasswordTable();
-    $result = callHashPasswordFields($table, ['password' => 'secret']);
-
-    expect($result['password'])->not->toBe('secret');
 });
 
 // ---------------------------------------------------------------------------

@@ -6,7 +6,11 @@
         @foreach ($bulkActionDefs as $action)
             <button
                 type="button"
-                wire:click="{{ $action->method }}"
+                @if ($massActionRequiresConfirmation)
+                    @click.prevent="$dispatch('live-table-ask-confirm', { message: 'Czy na pewno chcesz wykonać akcję: {{ $action->label }}?', action: () => $wire.{{ $action->method }}() })"
+                @else
+                    wire:click="{{ $action->method }}"
+                @endif
                 title="{{ $action->label }}"
                 class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center justify-content-center"
                 style="width: 2rem; height: 2rem; padding: 0;"
@@ -37,7 +41,11 @@
     @if ($massDeleteEnabled && $selectable)
         <button
             type="button"
-            @click.prevent="$dispatch('live-table-ask-confirm', { message: 'Czy na pewno chcesz usunąć zaznaczone wiersze?', action: () => $wire.massDelete() })"
+            @if ($massActionRequiresConfirmation)
+                @click.prevent="$dispatch('live-table-ask-confirm', { message: 'Czy na pewno chcesz usunąć zaznaczone wiersze?', action: () => $wire.massDelete() })"
+            @else
+                wire:click="massDelete"
+            @endif
             class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1"
             title="Usuń zaznaczone"
         >

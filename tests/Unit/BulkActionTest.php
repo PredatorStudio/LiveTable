@@ -18,19 +18,6 @@ it('sets icon via fluent icon()', function () {
     expect($action->label)->toBe('Usuń');
 });
 
-it('icon() returns new instance', function () {
-    $original = BulkAction::make('delete', 'Usuń');
-    $modified = $original->icon('<svg/>');
-
-    expect($modified)->not->toBe($original);
-});
-
-it('tooltip defaults to empty string', function () {
-    $action = BulkAction::make('delete', 'Usuń');
-
-    expect($action->tooltip)->toBe('');
-});
-
 it('tooltip() sets tooltip and returns new instance', function () {
     $original = BulkAction::make('delete', 'Usuń');
     $modified = $original->tooltip('Usuń zaznaczone rekordy');

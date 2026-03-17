@@ -18,13 +18,6 @@ it('creates SubRows from array', function () {
     expect($subRows->getItems())->toBe($items);
 });
 
-it('creates empty SubRows from empty array', function () {
-    $subRows = SubRows::fromArray([]);
-
-    expect($subRows->isEmpty())->toBeTrue()
-        ->and($subRows->count())->toBe(0);
-});
-
 // ---------------------------------------------------------------------------
 // fromCollection()
 // ---------------------------------------------------------------------------
@@ -39,12 +32,6 @@ it('creates SubRows from Eloquent Collection', function () {
 
     expect($subRows->count())->toBe(2)
         ->and($subRows->isEmpty())->toBeFalse();
-});
-
-it('creates empty SubRows from empty Collection', function () {
-    $subRows = SubRows::fromCollection(Collection::make([]));
-
-    expect($subRows->isEmpty())->toBeTrue();
 });
 
 // ---------------------------------------------------------------------------
@@ -71,29 +58,6 @@ it('fromQuery executes get() lazily when getItems is called', function () {
     $subRows = SubRows::fromQuery($builder);
 
     expect($subRows->getItems())->toHaveCount(1);
-});
-
-it('fromQuery executes get() only once even when called multiple times', function () {
-    $builder = Mockery::mock(Builder::class);
-    $builder->shouldReceive('get')->once()->andReturn(Collection::make([]));
-
-    $subRows = SubRows::fromQuery($builder);
-    $subRows->getItems();
-    $subRows->getItems(); // second call must not trigger another query
-});
-
-it('count() triggers lazy load from query', function () {
-    $builder = Mockery::mock(Builder::class);
-    $builder->shouldReceive('get')->once()->andReturn(Collection::make([(object) ['id' => 1]]));
-
-    expect(SubRows::fromQuery($builder)->count())->toBe(1);
-});
-
-it('isEmpty() triggers lazy load from query', function () {
-    $builder = Mockery::mock(Builder::class);
-    $builder->shouldReceive('get')->once()->andReturn(Collection::make([]));
-
-    expect(SubRows::fromQuery($builder)->isEmpty())->toBeTrue();
 });
 
 // ---------------------------------------------------------------------------

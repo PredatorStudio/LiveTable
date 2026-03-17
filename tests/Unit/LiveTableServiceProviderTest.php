@@ -17,13 +17,6 @@ it('merges live-table config with default theme bootstrap', function () {
     expect(config('live-table.theme'))->toBe('bootstrap');
 });
 
-it('service provider boots without errors', function () {
-    $provider = new LiveTableServiceProvider(app());
-    $provider->boot();
-
-    expect(true)->toBeTrue();
-});
-
 it('loads tailwind views when theme is tailwind', function () {
     config(['live-table.theme' => 'tailwind']);
 

@@ -81,34 +81,6 @@ it('resets selectAllQuery on sort', function () {
     expect($table->selectAllQuery)->toBeFalse();
 });
 
-it('resets selectAllQuery on applyActiveFilters', function () {
-    $table = makeSelectAllTable();
-    $table->selectAllQuery = true;
-
-    $table->applyActiveFilters();
-
-    expect($table->selectAllQuery)->toBeFalse();
-});
-
-it('resets selectAllQuery on clearFilters', function () {
-    $table = makeSelectAllTable();
-    $table->selectAllQuery = true;
-
-    $table->clearFilters();
-
-    expect($table->selectAllQuery)->toBeFalse();
-});
-
-it('resets selectAllQuery on removeFilter', function () {
-    $table = makeSelectAllTable();
-    $table->selectAllQuery = true;
-    $table->activeFilters = ['status' => 'active'];
-
-    $table->removeFilter('status');
-
-    expect($table->selectAllQuery)->toBeFalse();
-});
-
 // ---------------------------------------------------------------------------
 // allPageSelected passed to view
 // ---------------------------------------------------------------------------

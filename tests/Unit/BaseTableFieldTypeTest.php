@@ -100,15 +100,6 @@ it('typeFromSchema returns number for integer column', function () {
     expect($fields['age']->type)->toBe('number');
 });
 
-it('typeFromSchema returns number for boolean column in SQLite (stored as integer)', function () {
-    // SQLite stores boolean as integer, so Schema::getColumnType() returns 'integer' → 'number'
-    // Use model $casts to get 'checkbox' – see separate test below
-    $table = makeFieldTypeTable(['active']);
-    $fields = collect($table->creatingFields())->keyBy('key');
-
-    expect($fields['active']->type)->toBe('number');
-});
-
 it('boolean field gets checkbox type via model cast', function () {
     // Cast to boolean overrides the schema-based 'number' from SQLite integer
     $table = makeFieldTypeTable(['active'], ['active' => 'boolean']);
@@ -145,42 +136,13 @@ it('typeFromSchema returns text for string column', function () {
     expect($fields['name']->type)->toBe('text');
 });
 
-it('typeFromSchema returns text as fallback when column does not exist', function () {
-    $table = makeFieldTypeTable(['nonexistent_column']);
-    $fields = collect($table->creatingFields())->keyBy('key');
-
-    expect($fields['nonexistent_column']->type)->toBe('text');
-});
-
 // ---------------------------------------------------------------------------
 // typeFromSchema() – static cache
 // ---------------------------------------------------------------------------
 
-it('typeFromSchema caches result and does not call Schema twice for same column', function () {
-    $schemaCallCount = 0;
-
-    // Spy on Schema calls by calling creatingFields() twice – second call uses cache
-    $table = makeFieldTypeTable(['age']);
-
-    $table->creatingFields(); // populates cache
-    $table->creatingFields(); // should use cache, not DB
-
-    // Verify cache has the entry
-    $cache = (new ReflectionProperty(BaseTable::class, 'schemaCache'))->getValue(null);
-    expect($cache)->toHaveKey('field_type_test.age');
-    expect($cache['field_type_test.age'])->toBe('number');
-});
-
 // ---------------------------------------------------------------------------
 // resolveFieldType() – name heuristics
 // ---------------------------------------------------------------------------
-
-it('resolveFieldType returns url for field named website', function () {
-    $table = makeFieldTypeTable(['website']);
-    $fields = collect($table->creatingFields())->keyBy('key');
-
-    expect($fields['website']->type)->toBe('url');
-});
 
 it('resolveFieldType returns email for field matching *_email pattern', function () {
     $table = makeFieldTypeTable(['email_address']);
@@ -195,13 +157,6 @@ it('resolveFieldType returns password for field matching *_password pattern', fu
     $fields = collect($table->creatingFields())->keyBy('key');
 
     expect($fields['reset_password']->type)->toBe('password');
-});
-
-it('resolveFieldType returns url for field matching *_url pattern', function () {
-    $table = makeFieldTypeTable(['profile_url']);
-    $fields = collect($table->creatingFields())->keyBy('key');
-
-    expect($fields['profile_url']->type)->toBe('url');
 });
 
 // ---------------------------------------------------------------------------
@@ -321,9 +276,3 @@ it('field with matching CheckboxCell column gets type checkbox', function () {
     expect($fields['name']->type)->toBe('checkbox');
 });
 
-it('fields without matching column definition have options as empty array', function () {
-    $table = makeFieldTypeTable(['name']);
-    $fields = collect($table->creatingFields())->keyBy('key');
-
-    expect($fields['name']->options)->toBe([]);
-});

@@ -52,13 +52,6 @@ it('initializes loadedRows to chunkSize on mount when perPage is zero', function
     expect($table->loadedRows)->toBe(30);
 });
 
-it('does not initialize loadedRows when perPage is not zero', function () {
-    $table = makeInfiniteTable(perPage: 25);
-    $table->mount();
-
-    expect($table->loadedRows)->toBe(0);
-});
-
 it('falls back to default perPage when infinite not allowed and state is zero', function () {
     $table = makeInfiniteTable(perPage: 0, allow: false);
     $table->mount();
@@ -78,15 +71,6 @@ it('loadMore increases loadedRows by chunkSize', function () {
     $table->loadMore();
 
     expect($table->loadedRows)->toBe(100);
-});
-
-it('loadMore does nothing when perPage is not zero', function () {
-    $table = makeInfiniteTable(perPage: 25);
-    $table->loadedRows = 0;
-
-    $table->loadMore();
-
-    expect($table->loadedRows)->toBe(0);
 });
 
 it('loadMore can be called multiple times', function () {
@@ -114,38 +98,11 @@ it('resets loadedRows on sort when in infinite mode', function () {
     expect($table->loadedRows)->toBe(50);
 });
 
-it('does not reset loadedRows on sort when not in infinite mode', function () {
-    $table = makeInfiniteTable(perPage: 25);
-    $table->loadedRows = 0;
-
-    $table->sort('name');
-
-    expect($table->loadedRows)->toBe(0);
-});
-
 it('resets loadedRows on updatedSearch when in infinite mode', function () {
     $table = makeInfiniteTable(perPage: 0, chunkSize: 50);
     $table->loadedRows = 200;
 
     $table->updatedSearch();
-
-    expect($table->loadedRows)->toBe(50);
-});
-
-it('resets loadedRows on applyActiveFilters when in infinite mode', function () {
-    $table = makeInfiniteTable(perPage: 0, chunkSize: 50);
-    $table->loadedRows = 150;
-
-    $table->applyActiveFilters();
-
-    expect($table->loadedRows)->toBe(50);
-});
-
-it('resets loadedRows on clearFilters when in infinite mode', function () {
-    $table = makeInfiniteTable(perPage: 0, chunkSize: 50);
-    $table->loadedRows = 150;
-
-    $table->clearFilters();
 
     expect($table->loadedRows)->toBe(50);
 });

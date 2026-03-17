@@ -76,8 +76,16 @@
     @include('live-table::partials.pagination')
 
     {{-- Modals --}}
-    @include('live-table::partials.modal-creating')
-    @include('live-table::partials.modal-editing')
+    @if ($creatingModalView)
+        @include($creatingModalView)
+    @else
+        @include('live-table::partials.modal-creating')
+    @endif
+    @if ($editingModalView)
+        @include($editingModalView)
+    @else
+        @include('live-table::partials.modal-editing')
+    @endif
     @include('live-table::partials.modal-mass-edit')
     @include('live-table::partials.modal-filters')
     @include('live-table::partials.modal-confirm')

@@ -7,6 +7,25 @@ use PredatorStudio\LiveTable\ValueObjects\FieldDefinition;
 trait ManagesEditing
 {
     /**
+     * Return the Blade view name to use as the editing modal.
+     * When null (default), the built-in modal-editing partial is rendered.
+     * Override in your table class to render your own Livewire component or Blade view.
+     *
+     * The custom view receives the same variables as the parent view, so you can
+     * use $showEditingModal, $editingFields, $editingData, $editingId, etc. directly.
+     *
+     * Example:
+     *   protected function editingModalView(): ?string
+     *   {
+     *       return 'my-app::modals.edit-user';
+     *   }
+     */
+    protected function editingModalView(): ?string
+    {
+        return null;
+    }
+
+    /**
      * Open the editing modal and pre-populate it with the record's current data.
      * Does nothing when $defaultActions / $defaultActionEdit is disabled or $model not set.
      */

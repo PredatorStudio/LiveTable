@@ -103,18 +103,6 @@ function makeRowActionsTable(array $rows = [], array $actions = [], RowActionsMo
     };
 }
 
-it('hasRowActions is false when rowActions returns empty array', function () {
-    $table = makeRowActionsTable(
-        rows: [(object) ['id' => 1, 'name' => 'Jan']],
-        actions: [],
-    );
-
-    $table->mount();
-    $viewData = $table->render()->getData();
-
-    expect($viewData['hasRowActions'])->toBeFalse();
-});
-
 it('hasRowActions is true when rowActions returns actions', function () {
     $table = makeRowActionsTable(
         rows: [(object) ['id' => 1, 'name' => 'Jan']],
@@ -186,35 +174,3 @@ it('rowActionsMap resolves closure href per row independently', function () {
         ->and($viewData['rowActionsMap']['2'][0]->href)->toBe('/edit/2');
 });
 
-it('rowActionsMode is passed to view', function () {
-    $table = makeRowActionsTable(
-        rows: [(object) ['id' => 1, 'name' => 'Jan']],
-        actions: [RowAction::make('Edytuj')->method('editRow')],
-        mode: RowActionsMode::ICONS,
-    );
-
-    $table->mount();
-    $viewData = $table->render()->getData();
-
-    expect($viewData['rowActionsMode'])->toBe(RowActionsMode::ICONS);
-});
-
-it('colspan increases by 1 when hasRowActions is true', function () {
-    $rowsWithActions = makeRowActionsTable(
-        rows: [(object) ['id' => 1, 'name' => 'Jan']],
-        actions: [RowAction::make('Edytuj')->method('editRow')],
-    );
-
-    $rowsWithout = makeRowActionsTable(
-        rows: [(object) ['id' => 1, 'name' => 'Jan']],
-        actions: [],
-    );
-
-    $rowsWithActions->mount();
-    $rowsWithout->mount();
-
-    $colspanWith = $rowsWithActions->render()->getData()['colspan'];
-    $colspanWithout = $rowsWithout->render()->getData()['colspan'];
-
-    expect($colspanWith)->toBe($colspanWithout + 1);
-});

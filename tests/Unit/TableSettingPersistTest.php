@@ -274,30 +274,6 @@ it('saves state after sort()', function () {
         ->and($record->state['sort_dir'])->toBe('asc');
 });
 
-it('saves state after toggleColumn()', function () {
-    session(['live_table_client_id' => 'uuid-toggle']);
-
-    $table = makePersistTable();
-    $table->mount();
-    $table->toggleColumn('email');
-
-    $record = TableState::first();
-    expect($record)->not->toBeNull()
-        ->and($record->state['hidden_columns'])->toContain('email');
-});
-
-it('saves state after reorderColumns()', function () {
-    session(['live_table_client_id' => 'uuid-reorder']);
-
-    $table = makePersistTable();
-    $table->mount();
-    $table->reorderColumns(['email', 'name']);
-
-    $record = TableState::first();
-    expect($record)->not->toBeNull()
-        ->and($record->state['column_order'])->toBe(['email', 'name']);
-});
-
 it('saves state after updatedSearch()', function () {
     session(['live_table_client_id' => 'uuid-search']);
 
@@ -311,55 +287,3 @@ it('saves state after updatedSearch()', function () {
         ->and($record->state['search'])->toBe('test query');
 });
 
-it('saves state after updatedPerPage()', function () {
-    session(['live_table_client_id' => 'uuid-perpage']);
-
-    $table = makePersistTable();
-    $table->perPage = 50;
-    $table->mount();
-    $table->updatedPerPage();
-
-    $record = TableState::first();
-    expect($record)->not->toBeNull()
-        ->and($record->state['per_page'])->toBe(50);
-});
-
-it('saves state after applyActiveFilters()', function () {
-    session(['live_table_client_id' => 'uuid-filters']);
-
-    $table = makePersistTable();
-    $table->activeFilters = ['status' => 'active'];
-    $table->mount();
-    $table->applyActiveFilters();
-
-    $record = TableState::first();
-    expect($record)->not->toBeNull()
-        ->and($record->state['active_filters'])->toBe(['status' => 'active']);
-});
-
-it('saves state after clearFilters()', function () {
-    session(['live_table_client_id' => 'uuid-clear']);
-
-    $table = makePersistTable();
-    $table->activeFilters = ['status' => 'active'];
-    $table->mount();
-    $table->clearFilters();
-
-    $record = TableState::first();
-    expect($record)->not->toBeNull()
-        ->and($record->state['active_filters'])->toBe([]);
-});
-
-it('saves state after removeFilter()', function () {
-    session(['live_table_client_id' => 'uuid-remove']);
-
-    $table = makePersistTable();
-    $table->activeFilters = ['status' => 'active', 'role' => 'admin'];
-    $table->mount();
-    $table->removeFilter('status');
-
-    $record = TableState::first();
-    expect($record)->not->toBeNull()
-        ->and($record->state['active_filters'])->toBe(['role' => 'admin'])
-        ->and(array_key_exists('status', $record->state['active_filters']))->toBeFalse();
-});

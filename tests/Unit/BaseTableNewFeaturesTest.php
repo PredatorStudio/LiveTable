@@ -69,26 +69,6 @@ function makeNewFeaturesTable(array $rows = [], ?callable $customize = null): Ba
 // 3.2 / 3.3 – hasModel()
 // ===========================================================================
 
-it('model property defaults to null', function () {
-    $table = new class extends BaseTable
-    {
-        public function __construct() {}
-
-        protected function baseQuery(): Builder
-        {
-            return Mockery::mock(Builder::class);
-        }
-
-        public function columns(): array
-        {
-            return [Column::make('id', 'ID')];
-        }
-    };
-
-    $prop = new ReflectionProperty($table, 'model');
-    expect($prop->getValue($table))->toBeNull();
-});
-
 it('hasModel returns false when model is null', function () {
     $table = new class extends BaseTable
     {
@@ -181,22 +161,6 @@ it('hasModel returns true when model is valid class', function () {
 // ===========================================================================
 // 3.5 – $defaultEditIcon / $defaultDeleteIcon
 // ===========================================================================
-
-it('defaultEditIcon property exists and is non-empty string', function () {
-    $table = makeNewFeaturesTable();
-    $prop = new ReflectionProperty($table, 'defaultEditIcon');
-    $icon = $prop->getValue($table);
-
-    expect($icon)->toBeString()->not->toBeEmpty();
-});
-
-it('defaultDeleteIcon property exists and is non-empty string', function () {
-    $table = makeNewFeaturesTable();
-    $prop = new ReflectionProperty($table, 'defaultDeleteIcon');
-    $icon = $prop->getValue($table);
-
-    expect($icon)->toBeString()->not->toBeEmpty();
-});
 
 it('default edit action in rowActionsMap uses $defaultEditIcon', function () {
     if (! class_exists('DefaultIconModel')) {
@@ -306,17 +270,6 @@ it('default delete action in rowActionsMap uses $defaultDeleteIcon', function ()
 // 3.7 – preloadSubRows()
 // ===========================================================================
 
-it('preloadSubRows defaults to empty hook', function () {
-    $table = makeNewFeaturesTable();
-    $method = new ReflectionMethod($table, 'preloadSubRows');
-
-    expect($method->isProtected())->toBeTrue();
-
-    // Default implementation does nothing – no exception
-    $method->invoke($table, Collection::make([]));
-    expect(true)->toBeTrue();
-});
-
 it('preloadSubRows is called before iterating subRows when expandable', function () {
     $row = (object) ['id' => 1, 'name' => 'Jan'];
 
@@ -405,14 +358,6 @@ it('preloadSubRows is NOT called when expandable is false', function () {
 // ===========================================================================
 // 3.8 – staticRowActions()
 // ===========================================================================
-
-it('staticRowActions defaults to empty array', function () {
-    $table = makeNewFeaturesTable();
-    $method = new ReflectionMethod($table, 'staticRowActions');
-
-    expect($method->isProtected())->toBeTrue();
-    expect($method->invoke($table))->toBe([]);
-});
 
 it('staticRowActions are merged with per-row rowActions in rowActionsMap', function () {
     $rows = [

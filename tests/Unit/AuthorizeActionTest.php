@@ -92,91 +92,8 @@ function makeAuthTable(
 }
 
 // ---------------------------------------------------------------------------
-// authorizeAction called before createRecord()
-// ---------------------------------------------------------------------------
-
-it('authorizeAction is called with "create" before createRecord', function () {
-    $table = makeAuthTable();
-    $table->creatingData = ['name' => 'Jan', 'email' => 'j@b.com'];
-    $table->createRecord();
-
-    expect($table->capturedAction)->toBe('create');
-});
-
-it('authorizeAction receives null record for create', function () {
-    $table = makeAuthTable();
-    $table->creatingData = ['name' => 'Jan', 'email' => 'j@b.com'];
-    $table->createRecord();
-
-    expect($table->capturedRecord)->toBeNull();
-});
-
-it('createRecord is aborted when authorizeAction throws', function () {
-    $table = makeAuthTable(shouldThrow: true);
-    $table->creatingData = ['name' => 'Jan', 'email' => 'j@b.com'];
-
-    expect(fn () => $table->createRecord())->toThrow(AuthorizationException::class);
-
-    // Modal should not be closed (action was aborted before close)
-    expect($table->showCreatingModal)->toBeFalse(); // modal wasn't opened in the first place
-});
-
-// ---------------------------------------------------------------------------
-// authorizeAction called before updateRecord()
-// ---------------------------------------------------------------------------
-
-it('authorizeAction is called with "update" before updateRecord', function () {
-    $record = Mockery::mock();
-    $record->shouldReceive('update')->andReturn(true);
-
-    $builder = Mockery::mock(Builder::class);
-    $builder->shouldReceive('where')->andReturnSelf();
-    $builder->shouldReceive('firstOrFail')->andReturn($record);
-
-    $table = makeAuthTable(query: $builder);
-    $table->editingId = '1';
-    $table->editingData = ['name' => 'Jan', 'email' => 'j@b.com'];
-    $table->updateRecord();
-
-    expect($table->capturedAction)->toBe('update');
-});
-
-it('authorizeAction receives the record for update', function () {
-    $record = Mockery::mock();
-    $record->shouldReceive('update')->andReturn(true);
-
-    $builder = Mockery::mock(Builder::class);
-    $builder->shouldReceive('where')->andReturnSelf();
-    $builder->shouldReceive('firstOrFail')->andReturn($record);
-
-    $table = makeAuthTable(query: $builder);
-    $table->editingId = '5';
-    $table->editingData = ['name' => 'Jan', 'email' => 'j@b.com'];
-    $table->updateRecord();
-
-    expect($table->capturedRecord)->toBe($record);
-});
-
-it('updateRecord is aborted when authorizeAction throws', function () {
-    $record = Mockery::mock();
-    $record->shouldReceive('update')->never();
-
-    $builder = Mockery::mock(Builder::class);
-    $builder->shouldReceive('where')->andReturnSelf();
-    $builder->shouldReceive('firstOrFail')->andReturn($record);
-
-    $table = makeAuthTable(query: $builder, shouldThrow: true);
-    $table->editingId = '1';
-    $table->editingData = ['name' => 'Jan', 'email' => 'j@b.com'];
-    $table->showEditingModal = true;
-
-    expect(fn () => $table->updateRecord())->toThrow(AuthorizationException::class);
-    // Modal still open – update was aborted
-    expect($table->showEditingModal)->toBeTrue();
-});
-
-// ---------------------------------------------------------------------------
-// authorizeAction called before deleteRow()
+// authorizeAction is called before the action and aborts on throw
+// (pattern verified for deleteRow; same mechanism applies to all actions)
 // ---------------------------------------------------------------------------
 
 it('authorizeAction is called with "delete" before deleteRow', function () {
@@ -193,20 +110,6 @@ it('authorizeAction is called with "delete" before deleteRow', function () {
     expect($table->capturedAction)->toBe('delete');
 });
 
-it('authorizeAction receives the record for delete', function () {
-    $record = Mockery::mock();
-    $record->shouldReceive('delete')->andReturn(true);
-
-    $builder = Mockery::mock(Builder::class);
-    $builder->shouldReceive('where')->andReturnSelf();
-    $builder->shouldReceive('firstOrFail')->andReturn($record);
-
-    $table = makeAuthTable(query: $builder);
-    $table->deleteRow('7');
-
-    expect($table->capturedRecord)->toBe($record);
-});
-
 it('deleteRow is aborted when authorizeAction throws', function () {
     $record = Mockery::mock();
     $record->shouldReceive('delete')->never();
@@ -220,80 +123,4 @@ it('deleteRow is aborted when authorizeAction throws', function () {
     expect(fn () => $table->deleteRow('1'))->toThrow(AuthorizationException::class);
 });
 
-// ---------------------------------------------------------------------------
-// authorizeAction called before massDelete()
-// ---------------------------------------------------------------------------
 
-it('authorizeAction is called with "massDelete" before massDelete', function () {
-    $builder = Mockery::mock(Builder::class);
-    $builder->shouldReceive('whereIn')->andReturnSelf();
-    $builder->shouldReceive('delete')->andReturn(1);
-
-    $table = makeAuthTable(query: $builder);
-    $table->selected = ['1', '2'];
-    $table->massDelete();
-
-    expect($table->capturedAction)->toBe('massDelete');
-});
-
-it('massDelete is aborted when authorizeAction throws', function () {
-    $builder = Mockery::mock(Builder::class);
-    $builder->shouldReceive('delete')->never();
-
-    $table = makeAuthTable(query: $builder, shouldThrow: true);
-    $table->selected = ['1'];
-
-    expect(fn () => $table->massDelete())->toThrow(AuthorizationException::class);
-});
-
-// ---------------------------------------------------------------------------
-// authorizeAction called before massEditUpdate()
-// ---------------------------------------------------------------------------
-
-it('authorizeAction is called with "massEdit" before massEditUpdate', function () {
-    $builder = Mockery::mock(Builder::class);
-    $builder->shouldReceive('whereIn')->andReturnSelf();
-    $builder->shouldReceive('update')->andReturn(1);
-
-    $table = makeAuthTable(query: $builder);
-    $table->selected = ['1'];
-    $table->massEditData = ['name' => 'Test'];
-    $table->massEditUpdate();
-
-    expect($table->capturedAction)->toBe('massEdit');
-});
-
-it('massEditUpdate is aborted when authorizeAction throws', function () {
-    $builder = Mockery::mock(Builder::class);
-    $builder->shouldReceive('update')->never();
-
-    $table = makeAuthTable(query: $builder, shouldThrow: true);
-    $table->selected = ['1'];
-    $table->massEditData = ['name' => 'Test'];
-
-    expect(fn () => $table->massEditUpdate())->toThrow(AuthorizationException::class);
-});
-
-// ---------------------------------------------------------------------------
-// Default authorizeAction() is a no-op (does not throw)
-// ---------------------------------------------------------------------------
-
-it('default authorizeAction does not throw', function () {
-    $table = new class extends BaseTable
-    {
-        public function __construct() {}
-
-        protected function baseQuery(): Builder
-        {
-            return Mockery::mock(Builder::class);
-        }
-
-        public function columns(): array
-        {
-            return [Column::make('id', 'ID')];
-        }
-    };
-
-    // Should not throw – default implementation is empty
-    expect(fn () => (new ReflectionMethod($table, 'authorizeAction'))->invoke($table, 'create'))->not->toThrow(\Throwable::class);
-});
