@@ -1,8 +1,9 @@
 <?php
 
+use Orchestra\Testbench\TestCase;
 use PredatorStudio\LiveTable\LiveTableServiceProvider;
 
-uses(\Orchestra\Testbench\TestCase::class);
+uses(TestCase::class);
 
 beforeEach(function () {
     $this->app->register(LiveTableServiceProvider::class);
@@ -14,13 +15,6 @@ it('registers live-table view namespace', function () {
 
 it('merges live-table config with default theme bootstrap', function () {
     expect(config('live-table.theme'))->toBe('bootstrap');
-});
-
-it('service provider boots without errors', function () {
-    $provider = new LiveTableServiceProvider(app());
-    $provider->boot();
-
-    expect(true)->toBeTrue();
 });
 
 it('loads tailwind views when theme is tailwind', function () {

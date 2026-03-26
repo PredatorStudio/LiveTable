@@ -13,7 +13,7 @@ class SelectCell extends EditableCell
 
     public static function fromArray(array $data): static
     {
-        $cell = new static();
+        $cell = new static;
 
         foreach ($data as $k => $v) {
             $cell->options[(string) $k] = (string) $v;
@@ -24,7 +24,7 @@ class SelectCell extends EditableCell
 
     public static function fromEnum(string $enumClass): static
     {
-        $cell  = new static();
+        $cell = new static;
         $cases = $enumClass::cases();
 
         foreach ($cases as $case) {
@@ -37,7 +37,7 @@ class SelectCell extends EditableCell
 
     public static function fromQuery(Builder|Collection $query, string $valueField = 'id', string $labelField = 'name'): static
     {
-        $cell    = new static();
+        $cell = new static;
         $results = $query instanceof Builder ? $query->get() : $query;
 
         foreach ($results as $item) {
@@ -47,16 +47,34 @@ class SelectCell extends EditableCell
         return $cell;
     }
 
+    public function getOptions(): array
+    {
+        return $this->options;
+    }
+
+    /**
+     * Returns the human-readable label for the given value, or the raw value when not found.
+     * Returns an empty string for null.
+     */
+    public function renderPlain(mixed $row, mixed $value): string
+    {
+        if ($value === null) {
+            return '';
+        }
+
+        return $this->options[(string) $value] ?? (string) $value;
+    }
+
     public function renderEditable(mixed $row, mixed $value, string $rowId): string
     {
-        $key      = e($this->columnKey);
+        $key = e($this->columnKey);
         $rowIdEsc = e($rowId);
-        $current  = (string) $value;
+        $current = (string) $value;
 
         $options = '';
         foreach ($this->options as $val => $label) {
             $selected = $val === $current ? ' selected' : '';
-            $options .= '<option value="' . e($val) . '"' . $selected . '>' . e($label) . '</option>';
+            $options .= '<option value="'.e($val).'"'.$selected.'>'.e($label).'</option>';
         }
 
         return <<<HTML

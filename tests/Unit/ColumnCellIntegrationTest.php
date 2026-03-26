@@ -1,17 +1,11 @@
 <?php
 
-uses(\Orchestra\Testbench\TestCase::class);
+use Orchestra\Testbench\TestCase;
 
-use PredatorStudio\LiveTable\Cells\BadgeCell;
-use PredatorStudio\LiveTable\Cells\CheckboxCell;
-use PredatorStudio\LiveTable\Cells\DateCell;
-use PredatorStudio\LiveTable\Cells\DateTimeCell;
-use PredatorStudio\LiveTable\Cells\LinkCell;
-use PredatorStudio\LiveTable\Cells\MoneyCell;
-use PredatorStudio\LiveTable\Cells\NumberCell;
+uses(TestCase::class);
+use PredatorStudio\LiveTable\Cells\Cell;
 use PredatorStudio\LiveTable\Cells\SelectCell;
 use PredatorStudio\LiveTable\Cells\TextCell;
-use PredatorStudio\LiveTable\Cells\TimeCell;
 use PredatorStudio\LiveTable\Column;
 use PredatorStudio\LiveTable\Enums\DateFormat;
 use PredatorStudio\LiveTable\Enums\DateTimeFormat;
@@ -19,8 +13,8 @@ use PredatorStudio\LiveTable\Enums\MoneyFormat;
 use PredatorStudio\LiveTable\Enums\TimeFormat;
 
 it('uses text cell by default via make', function () {
-    $col  = Column::make('name', 'Nazwa');
-    $row  = (object) ['name' => 'Jan'];
+    $col = Column::make('name', 'Nazwa');
+    $row = (object) ['name' => 'Jan'];
     expect($col->renderCell($row))->toBe('Jan');
 });
 
@@ -55,34 +49,38 @@ it('creates money column via factory', function () {
 });
 
 it('creates link column via factory', function () {
-    $col    = Column::link('url', 'Link', fn($row) => 'https://example.com/' . $row->id);
+    $col = Column::link('url', 'Link', fn ($row) => 'https://example.com/'.$row->id);
     $result = $col->renderCell((object) ['id' => 3, 'url' => 'test']);
     expect($result)->toContain('href="https://example.com/3"');
 });
 
 it('creates badge column via factory', function () {
-    $col    = Column::badge('status', 'Status', ['active' => 'success']);
+    $col = Column::badge('status', 'Status', ['active' => 'success']);
     $result = $col->renderCell((object) ['status' => 'active']);
     expect($result)->toContain('bg-success');
 });
 
 it('creates select column via factory with SelectCell', function () {
-    $col    = Column::select('status', 'Status', SelectCell::fromArray(['a' => 'A', 'b' => 'B']));
+    $col = Column::select('status', 'Status', SelectCell::fromArray(['a' => 'A', 'b' => 'B']));
     $result = $col->renderCell((object) ['status' => 'a'], 'id');
     expect($result)->toContain('<select');
     expect($result)->toContain('value="a"');
 });
 
 it('creates checkbox column via factory', function () {
-    $col    = Column::checkbox('active', 'Aktywny');
+    $col = Column::checkbox('active', 'Aktywny');
     $result = $col->renderCell((object) ['active' => true, 'id' => 1], 'id');
     expect($result)->toContain('type="checkbox"');
     expect($result)->toContain('checked');
 });
 
 it('creates custom column via factory', function () {
-    $customCell = new class extends \PredatorStudio\LiveTable\Cells\Cell {
-        public function render(mixed $row, mixed $value): string { return 'CUSTOM'; }
+    $customCell = new class extends Cell
+    {
+        public function render(mixed $row, mixed $value): string
+        {
+            return 'CUSTOM';
+        }
     };
     $col = Column::custom('field', 'Label', $customCell);
     expect($col->renderCell((object) ['field' => 'x']))->toBe('CUSTOM');
@@ -90,12 +88,12 @@ it('creates custom column via factory', function () {
 
 it('prefers format closure over cell type', function () {
     $col = Column::date('created_at', 'Data', DateFormat::DMY)
-        ->format(fn($row, $v) => 'OVERRIDE');
+        ->format(fn ($row, $v) => 'OVERRIDE');
     expect($col->renderCell((object) ['created_at' => '2026-01-01']))->toBe('OVERRIDE');
 });
 
 it('allows cell override via fluent method', function () {
-    $col = Column::make('name', 'Nazwa')->cell(new TextCell());
+    $col = Column::make('name', 'Nazwa')->cell(new TextCell);
     expect($col->renderCell((object) ['name' => 'Test']))->toBe('Test');
 });
 

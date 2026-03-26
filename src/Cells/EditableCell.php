@@ -2,11 +2,10 @@
 
 namespace PredatorStudio\LiveTable\Cells;
 
-use Illuminate\Validation\ValidationException;
-
-abstract class EditableCell extends Cell
+abstract class EditableCell extends Cell implements \PredatorStudio\LiveTable\Contracts\EditableCellInterface
 {
-    protected array  $rules     = [];
+    protected array $rules = [];
+
     protected string $columnKey = '';
 
     public function validation(array $rules): static

@@ -9,11 +9,11 @@ class BadgeCell extends Cell
      * Full class names so Tailwind scanner can detect them.
      */
     private const TAILWIND = [
-        'success'   => 'bg-green-100 text-green-800 ring-green-600/20',
-        'danger'    => 'bg-red-100 text-red-800 ring-red-600/20',
-        'warning'   => 'bg-yellow-100 text-yellow-800 ring-yellow-600/20',
-        'info'      => 'bg-blue-100 text-blue-800 ring-blue-600/20',
-        'primary'   => 'bg-indigo-100 text-indigo-800 ring-indigo-600/20',
+        'success' => 'bg-green-100 text-green-800 ring-green-600/20',
+        'danger' => 'bg-red-100 text-red-800 ring-red-600/20',
+        'warning' => 'bg-yellow-100 text-yellow-800 ring-yellow-600/20',
+        'info' => 'bg-blue-100 text-blue-800 ring-blue-600/20',
+        'primary' => 'bg-indigo-100 text-indigo-800 ring-indigo-600/20',
         'secondary' => 'bg-gray-100 text-gray-800 ring-gray-600/20',
     ];
 
@@ -31,7 +31,7 @@ class BadgeCell extends Cell
             return $this->renderEmpty();
         }
 
-        $str   = (string) $value;
+        $str = (string) $value;
         $entry = $this->map[$str] ?? null;
 
         if ($entry === null) {

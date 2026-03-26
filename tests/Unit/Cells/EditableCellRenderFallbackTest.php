@@ -7,7 +7,7 @@ use PredatorStudio\LiveTable\Cells\SelectCell;
 // This path is hit when a Cell is used without providing a primaryKey (e.g. in non-Livewire contexts).
 
 it('checkbox render() delegates to renderEditable with empty rowId', function () {
-    $cell = new CheckboxCell();
+    $cell = new CheckboxCell;
     $cell->setColumnKey('active');
 
     $result = $cell->render((object) [], true);

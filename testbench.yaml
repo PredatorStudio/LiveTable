@@ -1,0 +1,26 @@
+laravel: '@testbench'
+
+providers:
+  - PredatorStudio\LiveTable\LiveTableServiceProvider
+  - Livewire\LivewireServiceProvider
+  - Workbench\App\Providers\WorkbenchServiceProvider
+
+migrations:
+  - workbench/database/migrations
+
+seeders:
+  - Workbench\Database\Seeders\DatabaseSeeder
+
+workbench:
+  start: '/demo'
+  install: false
+  discovers:
+    web: true
+    api: false
+    commands: false
+    components: false
+    factories: false
+    views: true
+  build:
+    - create-sqlite-db
+    - migrate-fresh
