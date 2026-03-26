@@ -7,7 +7,7 @@ use Closure;
 class LinkCell extends Cell
 {
     public function __construct(
-        private readonly Closure  $urlResolver,
+        private readonly Closure $urlResolver,
         private readonly ?Closure $labelResolver = null,
     ) {}
 
@@ -17,7 +17,7 @@ class LinkCell extends Cell
             return $this->renderEmpty();
         }
 
-        $url   = e(($this->urlResolver)($row));
+        $url = e(($this->urlResolver)($row));
         $label = $this->labelResolver !== null
             ? e((string) ($this->labelResolver)($row, $value))
             : e((string) $value);

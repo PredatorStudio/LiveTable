@@ -1,0 +1,27 @@
+
+   FAIL  Tests\Unit\LiveTableServiceProviderTest
+  ✓ it registers live-table view namespace                               0.05s  
+  ⨯ it merges live-table config with default theme bootstrap             0.01s  
+  ✓ it service provider boots without errors
+  ✓ it loads tailwind views when theme is tailwind
+  ────────────────────────────────────────────────────────────────────────────  
+   FAILED  Tests\Unit\LiveTableServiceProviderTest > it merges live-table config with default theme bootstrap   
+  Failed asserting that null is identical to 'bootstrap'.
+
+  at tests/Unit/LiveTableServiceProviderTest.php:17
+     13▕     expect(view()->exists('live-table::base-table'))->toBeTrue();
+     14▕ });
+     15▕ 
+     16▕ it('merges live-table config with default theme bootstrap', function () {
+  ➜  17▕     expect(config('live-table.theme'))->toBe('bootstrap');
+     18▕ });
+     19▕ 
+     20▕ it('service provider boots without errors', function () {
+     21▕     $provider = new LiveTableServiceProvider(app());
+
+  1   tests/Unit/LiveTableServiceProviderTest.php:17
+
+
+  Tests:    1 failed, 3 passed (4 assertions)
+  Duration: 0.11s
+

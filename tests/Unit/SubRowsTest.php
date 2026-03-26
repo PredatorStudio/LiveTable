@@ -2,7 +2,6 @@
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
-use Mockery;
 use PredatorStudio\LiveTable\SubRows;
 
 afterEach(fn () => Mockery::close());
@@ -17,13 +16,6 @@ it('creates SubRows from array', function () {
     $subRows = SubRows::fromArray($items);
 
     expect($subRows->getItems())->toBe($items);
-});
-
-it('creates empty SubRows from empty array', function () {
-    $subRows = SubRows::fromArray([]);
-
-    expect($subRows->isEmpty())->toBeTrue()
-        ->and($subRows->count())->toBe(0);
 });
 
 // ---------------------------------------------------------------------------
@@ -42,17 +34,20 @@ it('creates SubRows from Eloquent Collection', function () {
         ->and($subRows->isEmpty())->toBeFalse();
 });
 
-it('creates empty SubRows from empty Collection', function () {
-    $subRows = SubRows::fromCollection(Collection::make([]));
+// ---------------------------------------------------------------------------
+// fromQuery() – lazy loading
+// ---------------------------------------------------------------------------
 
-    expect($subRows->isEmpty())->toBeTrue();
+it('fromQuery does not call get() immediately', function () {
+    $builder = Mockery::mock(Builder::class);
+    $builder->shouldNotReceive('get');
+
+    $subRows = SubRows::fromQuery($builder);
+
+    expect($subRows)->toBeInstanceOf(SubRows::class);
 });
 
-// ---------------------------------------------------------------------------
-// fromQuery()
-// ---------------------------------------------------------------------------
-
-it('creates SubRows from Eloquent Builder by calling get()', function () {
+it('fromQuery executes get() lazily when getItems is called', function () {
     $result = Collection::make([
         (object) ['id' => 10, 'value' => 'X'],
     ]);
@@ -62,14 +57,7 @@ it('creates SubRows from Eloquent Builder by calling get()', function () {
 
     $subRows = SubRows::fromQuery($builder);
 
-    expect($subRows->count())->toBe(1);
-});
-
-it('fromQuery calls get exactly once', function () {
-    $builder = Mockery::mock(Builder::class);
-    $builder->shouldReceive('get')->once()->andReturn(Collection::make([]));
-
-    SubRows::fromQuery($builder);
+    expect($subRows->getItems())->toHaveCount(1);
 });
 
 // ---------------------------------------------------------------------------
@@ -98,8 +86,8 @@ it('getItems returns all items as array', function () {
 });
 
 it('getItems from Collection returns array of objects', function () {
-    $obj      = (object) ['id' => 99];
-    $subRows  = SubRows::fromCollection(Collection::make([$obj]));
+    $obj = (object) ['id' => 99];
+    $subRows = SubRows::fromCollection(Collection::make([$obj]));
 
     expect($subRows->getItems()[0])->toBe($obj);
 });

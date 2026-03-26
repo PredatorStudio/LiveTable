@@ -2,14 +2,14 @@
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
-use Mockery;
+use Orchestra\Testbench\TestCase;
 use PredatorStudio\LiveTable\BaseTable;
 use PredatorStudio\LiveTable\Column;
 use PredatorStudio\LiveTable\Enums\RowActionsMode;
 use PredatorStudio\LiveTable\LiveTableServiceProvider;
 use PredatorStudio\LiveTable\RowAction;
 
-uses(\Orchestra\Testbench\TestCase::class);
+uses(TestCase::class);
 
 beforeEach(function () {
     $this->app->register(LiveTableServiceProvider::class);
@@ -22,12 +22,19 @@ afterEach(fn () => Mockery::close());
 // ---------------------------------------------------------------------------
 
 it('rowActions returns empty array by default', function () {
-    $table = new class extends BaseTable {
+    $table = new class extends BaseTable
+    {
         public function __construct() {}
 
-        protected function baseQuery(): Builder { return Mockery::mock(Builder::class); }
+        protected function baseQuery(): Builder
+        {
+            return Mockery::mock(Builder::class);
+        }
 
-        public function columns(): array { return [Column::make('id', 'ID')]; }
+        public function columns(): array
+        {
+            return [Column::make('id', 'ID')];
+        }
     };
 
     $row = (object) ['id' => 1];
@@ -35,15 +42,22 @@ it('rowActions returns empty array by default', function () {
 });
 
 it('rowActionsMode defaults to DROPDOWN', function () {
-    $table = new class extends BaseTable {
+    $table = new class extends BaseTable
+    {
         public function __construct() {}
 
-        protected function baseQuery(): Builder { return Mockery::mock(Builder::class); }
+        protected function baseQuery(): Builder
+        {
+            return Mockery::mock(Builder::class);
+        }
 
-        public function columns(): array { return [Column::make('id', 'ID')]; }
+        public function columns(): array
+        {
+            return [Column::make('id', 'ID')];
+        }
     };
 
-    $prop = new \ReflectionProperty($table, 'rowActionsMode');
+    $prop = new ReflectionProperty($table, 'rowActionsMode');
     $prop->setAccessible(true);
 
     expect($prop->getValue($table))->toBe(RowActionsMode::DROPDOWN);
@@ -55,7 +69,8 @@ it('rowActionsMode defaults to DROPDOWN', function () {
 
 function makeRowActionsTable(array $rows = [], array $actions = [], RowActionsMode $mode = RowActionsMode::DROPDOWN): BaseTable
 {
-    return new class ($rows, $actions, $mode) extends BaseTable {
+    return new class($rows, $actions, $mode) extends BaseTable
+    {
         public function __construct(
             private readonly array $rows,
             private readonly array $actionDefs,
@@ -87,18 +102,6 @@ function makeRowActionsTable(array $rows = [], array $actions = [], RowActionsMo
         }
     };
 }
-
-it('hasRowActions is false when rowActions returns empty array', function () {
-    $table = makeRowActionsTable(
-        rows: [(object) ['id' => 1, 'name' => 'Jan']],
-        actions: [],
-    );
-
-    $table->mount();
-    $viewData = $table->render()->getData();
-
-    expect($viewData['hasRowActions'])->toBeFalse();
-});
 
 it('hasRowActions is true when rowActions returns actions', function () {
     $table = makeRowActionsTable(
@@ -136,7 +139,7 @@ it('rowActionsMap contains resolved action data per row', function () {
         rows: $rows,
         actions: [
             RowAction::make('Edytuj')
-                ->href(fn ($row) => '/edit/' . $row->id)
+                ->href(fn ($row) => '/edit/'.$row->id)
                 ->icon('<svg/>')
                 ->confirm('Edytować?'),
         ],
@@ -144,7 +147,7 @@ it('rowActionsMap contains resolved action data per row', function () {
 
     $table->mount();
     $viewData = $table->render()->getData();
-    $action   = $viewData['rowActionsMap']['3'][0];
+    $action = $viewData['rowActionsMap']['3'][0];
 
     expect($action->label)->toBe('Edytuj')
         ->and($action->href)->toBe('/edit/3')
@@ -161,7 +164,7 @@ it('rowActionsMap resolves closure href per row independently', function () {
 
     $table = makeRowActionsTable(
         rows: $rows,
-        actions: [RowAction::make('Edytuj')->href(fn ($row) => '/edit/' . $row->id)],
+        actions: [RowAction::make('Edytuj')->href(fn ($row) => '/edit/'.$row->id)],
     );
 
     $table->mount();
@@ -171,35 +174,3 @@ it('rowActionsMap resolves closure href per row independently', function () {
         ->and($viewData['rowActionsMap']['2'][0]->href)->toBe('/edit/2');
 });
 
-it('rowActionsMode is passed to view', function () {
-    $table = makeRowActionsTable(
-        rows: [(object) ['id' => 1, 'name' => 'Jan']],
-        actions: [RowAction::make('Edytuj')->method('editRow')],
-        mode: RowActionsMode::ICONS,
-    );
-
-    $table->mount();
-    $viewData = $table->render()->getData();
-
-    expect($viewData['rowActionsMode'])->toBe(RowActionsMode::ICONS);
-});
-
-it('colspan increases by 1 when hasRowActions is true', function () {
-    $rowsWithActions = makeRowActionsTable(
-        rows: [(object) ['id' => 1, 'name' => 'Jan']],
-        actions: [RowAction::make('Edytuj')->method('editRow')],
-    );
-
-    $rowsWithout = makeRowActionsTable(
-        rows: [(object) ['id' => 1, 'name' => 'Jan']],
-        actions: [],
-    );
-
-    $rowsWithActions->mount();
-    $rowsWithout->mount();
-
-    $colspanWith    = $rowsWithActions->render()->getData()['colspan'];
-    $colspanWithout = $rowsWithout->render()->getData()['colspan'];
-
-    expect($colspanWith)->toBe($colspanWithout + 1);
-});

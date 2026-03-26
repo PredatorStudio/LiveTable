@@ -2,13 +2,14 @@
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
-use Mockery;
+use Orchestra\Testbench\TestCase;
 use PredatorStudio\LiveTable\BaseTable;
 use PredatorStudio\LiveTable\Column;
 use PredatorStudio\LiveTable\LiveTableServiceProvider;
+use PredatorStudio\LiveTable\RowAction;
 use PredatorStudio\LiveTable\SubRows;
 
-uses(\Orchestra\Testbench\TestCase::class);
+uses(TestCase::class);
 
 beforeEach(function () {
     $this->app->register(LiveTableServiceProvider::class);
@@ -22,7 +23,8 @@ afterEach(fn () => Mockery::close());
 
 function makeExpandableTable(bool $expandable, array $rows, ?array $subRowsData = null): BaseTable
 {
-    return new class ($expandable, $rows, $subRowsData) extends BaseTable {
+    return new class($expandable, $rows, $subRowsData) extends BaseTable
+    {
         public function __construct(
             bool $exp,
             private readonly array $rows,
@@ -140,3 +142,119 @@ it('passes expandable flag to view', function () {
 
     expect($data['expandable'])->toBeTrue();
 });
+
+// ---------------------------------------------------------------------------
+// Tests: subrows – checkboxes
+// ---------------------------------------------------------------------------
+
+it('subRowsSelectable can be enabled', function () {
+    $rows = [(object) ['id' => 1, 'name' => 'Anna']];
+    $table = new class(true, $rows, [1 => []]) extends BaseTable
+    {
+        public function __construct(bool $exp, private readonly array $rows, private readonly array $subRowsData)
+        {
+            $this->expandable = $exp;
+            $this->subRowsSelectable = true;
+        }
+
+        protected function baseQuery(): Builder
+        {
+            $b = Mockery::mock(Builder::class);
+            $b->shouldReceive('count')->andReturn(1);
+            $b->shouldReceive('orderBy')->andReturnSelf();
+            $b->shouldReceive('limit')->andReturnSelf();
+            $b->shouldReceive('offset')->andReturnSelf();
+            $b->shouldReceive('get')->andReturn(Collection::make($this->rows));
+
+            return $b;
+        }
+
+        public function columns(): array
+        {
+            return [Column::make('id', 'ID')];
+        }
+
+        protected function subRows(mixed $row): ?SubRows
+        {
+            return SubRows::fromArray($this->subRowsData[data_get($row, 'id')] ?? []);
+        }
+    };
+    $table->mount();
+
+    $data = $table->render()->getData();
+
+    expect($data['subRowsSelectable'])->toBeTrue();
+});
+
+it('toggleSelectSubRow adds id to selectedSubRows', function () {
+    $table = makeExpandableTable(expandable: true, rows: [], subRowsData: []);
+    $table->mount();
+
+    $table->toggleSelectSubRow('42');
+
+    expect($table->selectedSubRows)->toContain('42');
+});
+
+it('toggleSelectSubRow removes id when already selected', function () {
+    $table = makeExpandableTable(expandable: true, rows: [], subRowsData: []);
+    $table->mount();
+
+    $table->toggleSelectSubRow('42');
+    $table->toggleSelectSubRow('42');
+
+    expect($table->selectedSubRows)->not->toContain('42');
+});
+
+// ---------------------------------------------------------------------------
+// Tests: subrows – actions
+// ---------------------------------------------------------------------------
+
+it('subRowActionsMap is populated when subRowsHasActions is true', function () {
+    $subItem = (object) ['id' => 10, 'name' => 'Sub Anna'];
+    $rows = [(object) ['id' => 1, 'name' => 'Anna']];
+
+    $table = new class(true, $rows, [1 => [$subItem]]) extends BaseTable
+    {
+        public function __construct(bool $exp, private readonly array $rows, private readonly array $subRowsData)
+        {
+            $this->expandable = $exp;
+            $this->subRowsHasActions = true;
+        }
+
+        protected function baseQuery(): Builder
+        {
+            $b = Mockery::mock(Builder::class);
+            $b->shouldReceive('count')->andReturn(1);
+            $b->shouldReceive('orderBy')->andReturnSelf();
+            $b->shouldReceive('limit')->andReturnSelf();
+            $b->shouldReceive('offset')->andReturnSelf();
+            $b->shouldReceive('get')->andReturn(Collection::make($this->rows));
+
+            return $b;
+        }
+
+        public function columns(): array
+        {
+            return [Column::make('id', 'ID')];
+        }
+
+        protected function subRows(mixed $row): ?SubRows
+        {
+            return SubRows::fromArray($this->subRowsData[data_get($row, 'id')] ?? []);
+        }
+
+        public function subRowActions(mixed $subRow): array
+        {
+            return [RowAction::make('Usuń')->method('deleteSubRow')];
+        }
+    };
+    $table->mount();
+
+    $data = $table->render()->getData();
+
+    expect($data['subRowActionsMap'])->toHaveKey('1')
+        ->and($data['subRowActionsMap']['1'])->toHaveKey('10')
+        ->and($data['subRowActionsMap']['1']['10'])->toHaveCount(1)
+        ->and($data['subRowActionsMap']['1']['10'][0]->label)->toBe('Usuń');
+});
+
