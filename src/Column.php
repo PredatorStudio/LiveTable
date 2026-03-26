@@ -27,6 +27,8 @@ class Column
 
     public bool $visible = true;
 
+    public ?string $width = null;
+
     private ?Closure $formatter = null;
 
     private Cell $cell;
@@ -124,6 +126,13 @@ class Column
     public function hidden(): static
     {
         $this->visible = false;
+
+        return $this;
+    }
+
+    public function width(?string $width): static
+    {
+        $this->width = $width;
 
         return $this;
     }

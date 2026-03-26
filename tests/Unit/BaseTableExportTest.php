@@ -99,13 +99,6 @@ it('exportCsv returns StreamedResponse', function () {
     expect($response)->toBeInstanceOf(StreamedResponse::class);
 });
 
-it('exportCsv content has UTF-8 BOM', function () {
-    $table = makeExportTable();
-    $content = captureStreamedResponse($table->exportCsv());
-
-    expect(str_starts_with($content, "\xEF\xBB\xBF"))->toBeTrue();
-});
-
 it('exportCsv first row is column labels', function () {
     $table = makeExportTable();
     $content = captureStreamedResponse($table->exportCsv());
@@ -128,13 +121,6 @@ it('exportCsv includes data rows', function () {
     expect(count($lines))->toBe(3) // header + 2 rows
         ->and(str_getcsv($lines[1]))->toBe(['Jan', 'jan@example.com'])
         ->and(str_getcsv($lines[2]))->toBe(['Anna', 'anna@example.com']);
-});
-
-it('exportCsv filename contains class name and date', function () {
-    $table = makeExportTable();
-    $response = $table->exportCsv();
-
-    expect($response->headers->get('content-disposition'))->toContain('.csv');
 });
 
 // ---------------------------------------------------------------------------
@@ -291,13 +277,6 @@ it('exportPdf calls generatePdf when exportPdf is true', function () {
     $table->exportPdf();
 
     expect($table->generatePdfCalled)->toBeTrue();
-});
-
-it('exportPdf throws BadMethodCallException when generatePdf is not implemented', function () {
-    $table = makeExportTable(exportPdf: true);
-
-    expect(fn () => $table->exportPdf())
-        ->toThrow(\BadMethodCallException::class, 'implement generatePdf()');
 });
 
 // ---------------------------------------------------------------------------

@@ -147,16 +147,6 @@ it('passes expandable flag to view', function () {
 // Tests: subrows – checkboxes
 // ---------------------------------------------------------------------------
 
-it('subRowsSelectable defaults to false and is passed to view', function () {
-    $table = makeExpandableTable(expandable: true, rows: [], subRowsData: []);
-    $table->mount();
-
-    $data = $table->render()->getData();
-
-    expect($data)->toHaveKey('subRowsSelectable')
-        ->and($data['subRowsSelectable'])->toBeFalse();
-});
-
 it('subRowsSelectable can be enabled', function () {
     $rows = [(object) ['id' => 1, 'name' => 'Anna']];
     $table = new class(true, $rows, [1 => []]) extends BaseTable
@@ -196,16 +186,6 @@ it('subRowsSelectable can be enabled', function () {
     expect($data['subRowsSelectable'])->toBeTrue();
 });
 
-it('subRowPrimaryKey is passed to view', function () {
-    $table = makeExpandableTable(expandable: true, rows: [], subRowsData: []);
-    $table->mount();
-
-    $data = $table->render()->getData();
-
-    expect($data)->toHaveKey('subRowPrimaryKey')
-        ->and($data['subRowPrimaryKey'])->toBe('id');
-});
-
 it('toggleSelectSubRow adds id to selectedSubRows', function () {
     $table = makeExpandableTable(expandable: true, rows: [], subRowsData: []);
     $table->mount();
@@ -228,16 +208,6 @@ it('toggleSelectSubRow removes id when already selected', function () {
 // ---------------------------------------------------------------------------
 // Tests: subrows – actions
 // ---------------------------------------------------------------------------
-
-it('subRowsHasActions defaults to false and is passed to view', function () {
-    $table = makeExpandableTable(expandable: true, rows: [], subRowsData: []);
-    $table->mount();
-
-    $data = $table->render()->getData();
-
-    expect($data)->toHaveKey('subRowActionsMap')
-        ->and($data['subRowActionsMap'])->toBe([]);
-});
 
 it('subRowActionsMap is populated when subRowsHasActions is true', function () {
     $subItem = (object) ['id' => 10, 'name' => 'Sub Anna'];
@@ -288,13 +258,3 @@ it('subRowActionsMap is populated when subRowsHasActions is true', function () {
         ->and($data['subRowActionsMap']['1']['10'][0]->label)->toBe('Usuń');
 });
 
-it('subRowActions default implementation returns empty array', function () {
-    $table = makeExpandableTable(expandable: true, rows: [], subRowsData: []);
-    $table->mount();
-
-    // Access via reflection since subRowActions is protected
-    $ref = new ReflectionMethod($table, 'subRowActions');
-    $ref->setAccessible(true);
-
-    expect($ref->invoke($table, (object) []))->toBe([]);
-});

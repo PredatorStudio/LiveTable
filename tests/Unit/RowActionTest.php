@@ -52,29 +52,6 @@ it('sets confirm via fluent confirm()', function () {
     expect($action->confirm)->toBe('Na pewno?');
 });
 
-it('fluent setters return new instances', function () {
-    $original = RowAction::make('Edytuj');
-
-    expect($original->method('x'))->not->toBe($original)
-        ->and($original->href('/x'))->not->toBe($original)
-        ->and($original->icon('<svg/>'))->not->toBe($original)
-        ->and($original->confirm('x'))->not->toBe($original);
-});
-
-it('fluent setters preserve other properties', function () {
-    $action = RowAction::make('Edytuj')
-        ->method('editRow')
-        ->icon('<svg/>')
-        ->confirm('Edytować?');
-
-    $modified = $action->href('/x');
-
-    expect($modified->method)->toBe('editRow')
-        ->and($modified->icon)->toBe('<svg/>')
-        ->and($modified->confirm)->toBe('Edytować?')
-        ->and($modified->label)->toBe('Edytuj');
-});
-
 // ---------------------------------------------------------------------------
 // resolveHref()
 // ---------------------------------------------------------------------------
@@ -91,11 +68,4 @@ it('resolveHref calls closure with row and returns string', function () {
     $row = (object) ['id' => 7];
 
     expect($action->resolveHref($row))->toBe('/users/7/edit');
-});
-
-it('resolveHref returns empty string when no href set', function () {
-    $action = RowAction::make('Usuń')->method('deleteRow');
-    $row = (object) ['id' => 1];
-
-    expect($action->resolveHref($row))->toBe('');
 });

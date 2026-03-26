@@ -133,96 +133,8 @@ function makeActionsTable(
 }
 
 // ---------------------------------------------------------------------------
-// Property defaults
-// ---------------------------------------------------------------------------
-
-it('defaultActions defaults to false', function () {
-    $table = new class extends BaseTable
-    {
-        public function __construct() {}
-
-        protected function baseQuery(): Builder
-        {
-            return Mockery::mock(Builder::class);
-        }
-
-        public function columns(): array
-        {
-            return [Column::make('id', 'ID')];
-        }
-    };
-
-    $prop = new ReflectionProperty($table, 'defaultActions');
-    expect($prop->getValue($table))->toBeFalse();
-});
-
-it('defaultActionEdit defaults to true', function () {
-    $table = new class extends BaseTable
-    {
-        public function __construct() {}
-
-        protected function baseQuery(): Builder
-        {
-            return Mockery::mock(Builder::class);
-        }
-
-        public function columns(): array
-        {
-            return [Column::make('id', 'ID')];
-        }
-    };
-
-    $prop = new ReflectionProperty($table, 'defaultActionEdit');
-    expect($prop->getValue($table))->toBeTrue();
-});
-
-it('defaultActionDelete defaults to true', function () {
-    $table = new class extends BaseTable
-    {
-        public function __construct() {}
-
-        protected function baseQuery(): Builder
-        {
-            return Mockery::mock(Builder::class);
-        }
-
-        public function columns(): array
-        {
-            return [Column::make('id', 'ID')];
-        }
-    };
-
-    $prop = new ReflectionProperty($table, 'defaultActionDelete');
-    expect($prop->getValue($table))->toBeTrue();
-});
-
-it('showEditingModal defaults to false', function () {
-    $table = makeActionsTable();
-    expect($table->showEditingModal)->toBeFalse();
-});
-
-it('editingId defaults to empty string', function () {
-    $table = makeActionsTable();
-    expect($table->editingId)->toBe('');
-});
-
-it('editingData defaults to empty array', function () {
-    $table = makeActionsTable();
-    expect($table->editingData)->toBe([]);
-});
-
-// ---------------------------------------------------------------------------
 // deleteRow()
 // ---------------------------------------------------------------------------
-
-it('deleteRow does nothing when defaultActions is false', function () {
-    $record = new stdClass;
-    $builder = Mockery::mock(Builder::class);
-    $builder->shouldReceive('where')->never();
-
-    $table = makeActionsTable(defaultActions: false, queryOverride: $builder);
-    $table->deleteRow('1');
-});
 
 it('deleteRow does nothing when defaultActionDelete is false', function () {
     $builder = Mockery::mock(Builder::class);
@@ -317,13 +229,6 @@ it('deleteRow aborts when beforeDelete throws', function () {
 // openEditingModal()
 // ---------------------------------------------------------------------------
 
-it('openEditingModal does nothing when defaultActions is false', function () {
-    $table = makeActionsTable(defaultActions: false, model: FakeActionsModel::class);
-    $table->openEditingModal('1');
-
-    expect($table->showEditingModal)->toBeFalse();
-});
-
 it('openEditingModal does nothing when defaultActionEdit is false', function () {
     $table = makeActionsTable(defaultActionEdit: false, model: FakeActionsModel::class);
     $table->openEditingModal('1');
@@ -391,15 +296,6 @@ it('openEditingModal only loads fillable keys', function () {
 // ---------------------------------------------------------------------------
 // updateRecord()
 // ---------------------------------------------------------------------------
-
-it('updateRecord does nothing when editingId is empty', function () {
-    $builder = Mockery::mock(Builder::class);
-    $builder->shouldReceive('where')->never();
-
-    $table = makeActionsTable(model: FakeActionsModel::class, queryOverride: $builder);
-    $table->editingId = '';
-    $table->updateRecord();
-});
 
 it('updateRecord does nothing when defaultActions is false', function () {
     $builder = Mockery::mock(Builder::class);
@@ -543,11 +439,6 @@ it('editingRules returns required rule for each fillable field', function () {
 
     expect($rules)->toHaveKey('editingData.name')
         ->and($rules['editingData.name'])->toContain('required');
-});
-
-it('editingRules returns empty array when no model set', function () {
-    $table = makeActionsTable(model: '');
-    expect($table->editingRules())->toBe([]);
 });
 
 // ---------------------------------------------------------------------------

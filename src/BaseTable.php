@@ -194,6 +194,13 @@ abstract class BaseTable extends Component
     protected bool $massDelete = false;
 
     /**
+     * When true (default), all bulk actions and mass delete require confirmation
+     * via the accept modal before executing.
+     * Set to false to execute mass actions immediately without a confirmation prompt.
+     */
+    protected bool $massActionRequiresConfirmation = true;
+
+    /**
      * When true, bulk actions and export operate on the full filtered query
      * instead of only $selected IDs. Set via selectAllFromQuery().
      */
@@ -472,10 +479,23 @@ abstract class BaseTable extends Component
 
     /**
      * Apply full-text search to the query. Called only when $search is non-empty.
+     *
+     * Default implementation searches all declared column keys with LIKE.
+     * Override in your table class to customise the search logic.
      */
     protected function applySearch(Builder $query, string $search): Builder
     {
-        return $query;
+        $columns = array_column($this->cachedColumns(), 'key');
+
+        if (empty($columns)) {
+            return $query;
+        }
+
+        return $query->where(function (Builder $q) use ($search, $columns): void {
+            foreach ($columns as $col) {
+                $q->orWhere($col, 'like', '%'.$search.'%');
+            }
+        });
     }
 
     /**
@@ -760,6 +780,9 @@ abstract class BaseTable extends Component
             'canEdit'            => $canEdit,
             'editingFields'      => $editingFields,
             'showEditingModal'   => $this->showEditingModal,
+            'creatingModalView'              => $this->creatingModalView(),
+            'editingModalView'               => $this->editingModalView(),
+            'massActionRequiresConfirmation' => $this->massActionRequiresConfirmation,
         ]);
     }
 

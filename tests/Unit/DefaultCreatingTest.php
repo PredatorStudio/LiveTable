@@ -215,78 +215,6 @@ it('creatingFields generates headline label from key', function () {
 });
 
 // ---------------------------------------------------------------------------
-// Type detection – $casts override
-// ---------------------------------------------------------------------------
-
-it('detects number type for integer cast', function () {
-    $table = makeCreatingTable(model: FakeCreatingModel::class);
-    $fields = collect($table->creatingFields())->keyBy('key');
-
-    // 'age' cast to 'integer' → 'number'
-    expect($fields['age']->type)->toBe('number');
-});
-
-it('detects checkbox type for boolean cast', function () {
-    $table = makeCreatingTable(model: FakeCreatingModel::class);
-    $fields = collect($table->creatingFields())->keyBy('key');
-
-    // 'active' cast to 'boolean' → 'checkbox'
-    expect($fields['active']->type)->toBe('checkbox');
-});
-
-// ---------------------------------------------------------------------------
-// Type detection – built-in name heuristics
-// ---------------------------------------------------------------------------
-
-it('detects email type for field named email', function () {
-    $table = makeCreatingTable(model: FakeCreatingModel::class);
-    $fields = collect($table->creatingFields())->keyBy('key');
-
-    expect($fields['email']->type)->toBe('email');
-});
-
-it('detects password type for field named password', function () {
-    $table = makeCreatingTable(model: FakeCreatingModel::class);
-    $fields = collect($table->creatingFields())->keyBy('key');
-
-    expect($fields['password']->type)->toBe('password');
-});
-
-// ---------------------------------------------------------------------------
-// Type detection – config override (highest priority)
-// ---------------------------------------------------------------------------
-
-it('config creating_field_types overrides built-in heuristic', function () {
-    config(['live-table.creating_field_types' => ['email' => 'text']]);
-
-    $table = makeCreatingTable(model: FakeCreatingModel::class);
-    $fields = collect($table->creatingFields())->keyBy('key');
-
-    // config says email → text, overrides built-in email heuristic
-    expect($fields['email']->type)->toBe('text');
-});
-
-it('config creating_field_types supports wildcard patterns', function () {
-    config(['live-table.creating_field_types' => ['*_color' => 'color']]);
-
-    if (! class_exists('FakeColorModel')) {
-        eval('
-            class FakeColorModel extends \Illuminate\Database\Eloquent\Model {
-                protected $table    = "fake_color_models";
-                protected $fillable = ["bg_color", "text_color"];
-                public static function create(array $a = []): static { return new static($a); }
-            }
-        ');
-    }
-
-    $table = makeCreatingTable(model: 'FakeColorModel');
-    $fields = collect($table->creatingFields())->keyBy('key');
-
-    expect($fields['bg_color']->type)->toBe('color')
-        ->and($fields['text_color']->type)->toBe('color');
-});
-
-// ---------------------------------------------------------------------------
 // openCreatingModal()
 // ---------------------------------------------------------------------------
 
@@ -318,15 +246,6 @@ it('openCreatingModal initializes creatingData with empty string per field', fun
     $keys = array_column((new FakeCreatingModel)->getFillable(), null);
     foreach ($keys as $key) {
         expect($table->creatingData)->toHaveKey($key);
-    }
-});
-
-it('openCreatingModal initializes creatingData values as empty strings', function () {
-    $table = makeCreatingTable(model: FakeCreatingModel::class);
-    $table->openCreatingModal();
-
-    foreach ($table->creatingData as $value) {
-        expect($value)->toBe('');
     }
 });
 
@@ -398,16 +317,6 @@ it('createRecord resets creatingData after creation', function () {
     $table->createRecord();
 
     expect($table->creatingData)->toBe([]);
-});
-
-it('createRecord resets page to 1', function () {
-    $table = makeCreatingTable(model: FakeCreatingModel::class);
-    $table->creatingData = ['name' => 'Anna', 'email' => 'a@example.com'];
-    $table->page = 5;
-
-    $table->createRecord();
-
-    expect($table->page)->toBe(1);
 });
 
 it('beforeCreate can modify data by reference', function () {

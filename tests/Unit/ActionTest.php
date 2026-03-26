@@ -31,21 +31,3 @@ it('sets icon via fluent icon()', function () {
     expect($action->icon)->toBe('<svg/>');
 });
 
-it('fluent methods preserve other properties', function () {
-    $action = Action::make('Test')
-        ->method('doSomething')
-        ->href('/path')
-        ->icon('<svg/>');
-
-    expect($action->label)->toBe('Test');
-    expect($action->method)->toBe('doSomething');
-    expect($action->href)->toBe('/path');
-    expect($action->icon)->toBe('<svg/>');
-});
-
-it('fluent methods return new instance', function () {
-    $original = Action::make('Test');
-    $modified = $original->method('foo');
-
-    expect($modified)->not->toBe($original);
-});

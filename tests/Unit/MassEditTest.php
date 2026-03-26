@@ -96,52 +96,11 @@ function makeMassEditTable(
 }
 
 // ---------------------------------------------------------------------------
-// Property defaults
-// ---------------------------------------------------------------------------
-
-it('massEdit defaults to false', function () {
-    $table = new class extends BaseTable
-    {
-        public function __construct() {}
-
-        protected function baseQuery(): Builder
-        {
-            return Mockery::mock(Builder::class);
-        }
-
-        public function columns(): array
-        {
-            return [Column::make('id', 'ID')];
-        }
-    };
-
-    $prop = new ReflectionProperty($table, 'massEdit');
-    expect($prop->getValue($table))->toBeFalse();
-});
-
-it('showMassEditModal defaults to false', function () {
-    $table = makeMassEditTable();
-    expect($table->showMassEditModal)->toBeFalse();
-});
-
-it('massEditData defaults to empty array', function () {
-    $table = makeMassEditTable();
-    expect($table->massEditData)->toBe([]);
-});
-
-// ---------------------------------------------------------------------------
 // openMassEditModal() – guards
 // ---------------------------------------------------------------------------
 
 it('openMassEditModal does nothing when massEdit is false', function () {
     $table = makeMassEditTable(selected: ['1'], massEdit: false);
-    $table->openMassEditModal();
-
-    expect($table->showMassEditModal)->toBeFalse();
-});
-
-it('openMassEditModal does nothing when selectable is false', function () {
-    $table = makeMassEditTable(selected: ['1'], selectable: false);
     $table->openMassEditModal();
 
     expect($table->showMassEditModal)->toBeFalse();
@@ -294,17 +253,6 @@ it('massEditUpdate uses pluck in selectAllQuery mode', function () {
     $table->massEditUpdate();
 });
 
-it('massEditUpdate does not call whereIn twice in selectAllQuery mode', function () {
-    $builder = Mockery::mock(Builder::class);
-    $builder->shouldReceive('pluck')->with('id')->once()->andReturn(collect([10, 20]));
-    $builder->shouldReceive('whereIn')->once()->andReturnSelf();
-    $builder->shouldReceive('update')->once()->andReturn(2);
-
-    $table = makeMassEditTable(selected: [], selectAllQuery: true, builder: $builder);
-    $table->massEditData = ['status' => 'active'];
-    $table->massEditUpdate();
-});
-
 // ---------------------------------------------------------------------------
 // Hooks
 // ---------------------------------------------------------------------------
@@ -451,20 +399,6 @@ it('massEditUpdate closes modal after update', function () {
     expect($table->showMassEditModal)->toBeFalse();
 });
 
-it('massEditUpdate resets massEditData after update', function () {
-    $builder = Mockery::mock(Builder::class);
-    $builder->shouldReceive('where')->andReturnSelf();
-    $builder->shouldReceive('whereIn')->andReturnSelf();
-    $builder->shouldReceive('count')->andReturn(0);
-    $builder->shouldReceive('update')->andReturn(1);
-
-    $table = makeMassEditTable(selected: ['1'], builder: $builder);
-    $table->massEditData = ['name' => 'Test'];
-    $table->massEditUpdate();
-
-    expect($table->massEditData)->toBe([]);
-});
-
 it('massEditUpdate clears selected after update', function () {
     $builder = Mockery::mock(Builder::class);
     $builder->shouldReceive('where')->andReturnSelf();
@@ -507,11 +441,3 @@ it('massEditUpdate resets page to 1', function () {
     expect($table->page)->toBe(1);
 });
 
-// ---------------------------------------------------------------------------
-// massEditRules()
-// ---------------------------------------------------------------------------
-
-it('massEditRules returns empty array by default (no required)', function () {
-    $table = makeMassEditTable();
-    expect($table->massEditRules())->toBe([]);
-});

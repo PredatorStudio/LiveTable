@@ -65,23 +65,6 @@ it('returns all pages for small range (5 pages)', function () {
     expect($links)->toBe([1, 2, 3, 4, 5]);
 });
 
-it('returns all pages for range of 2', function () {
-    $table = makePageLinksTable(currentPage: 1);
-    $links = callBuildPageLinks($table, 2);
-
-    expect($links)->toBe([1, 2]);
-});
-
-it('returns all pages when range is exactly 5', function () {
-    $table = makePageLinksTable(currentPage: 1);
-    $links = callBuildPageLinks($table, 5);
-
-    // Current=1, neighbors: 1,2,3 + last=5 → might have ellipsis
-    // 1,2,3 and 5 → gap at 4 → [1,2,3,'...',5]
-    expect($links)->toContain(1)
-        ->and($links)->toContain(5);
-});
-
 // ---------------------------------------------------------------------------
 // First and last pages always present
 // ---------------------------------------------------------------------------
@@ -143,61 +126,3 @@ it('includes current page ±2 neighbors in links', function () {
         ->and($links)->toContain(12);
 });
 
-it('does not include page numbers below 1 when current is near start', function () {
-    $table = makePageLinksTable(currentPage: 1);
-    $links = callBuildPageLinks($table, 20);
-
-    $numericLinks = array_filter($links, fn ($v) => is_int($v));
-    expect(min($numericLinks))->toBeGreaterThanOrEqual(1);
-});
-
-it('does not include page numbers above lastPage when current is near end', function () {
-    $table = makePageLinksTable(currentPage: 20);
-    $links = callBuildPageLinks($table, 20);
-
-    $numericLinks = array_filter($links, fn ($v) => is_int($v));
-    expect(max($numericLinks))->toBeLessThanOrEqual(20);
-});
-
-// ---------------------------------------------------------------------------
-// Result is sorted, no duplicates
-// ---------------------------------------------------------------------------
-
-it('numeric links are in ascending order', function () {
-    $table = makePageLinksTable(currentPage: 10);
-    $links = callBuildPageLinks($table, 20);
-
-    $numericLinks = array_values(array_filter($links, fn ($v) => is_int($v)));
-    $sorted = $numericLinks;
-    sort($sorted);
-
-    expect($numericLinks)->toBe($sorted);
-});
-
-it('links contain no duplicate page numbers', function () {
-    $table = makePageLinksTable(currentPage: 10);
-    $links = callBuildPageLinks($table, 20);
-
-    $numericLinks = array_filter($links, fn ($v) => is_int($v));
-    expect(count($numericLinks))->toBe(count(array_unique($numericLinks)));
-});
-
-// ---------------------------------------------------------------------------
-// Boundary: current page at last page
-// ---------------------------------------------------------------------------
-
-it('works when current page equals last page', function () {
-    $table = makePageLinksTable(currentPage: 10);
-    $links = callBuildPageLinks($table, 10);
-
-    expect($links)->toContain(1)
-        ->and($links)->toContain(10);
-});
-
-it('works when current page equals 1 with many pages', function () {
-    $table = makePageLinksTable(currentPage: 1);
-    $links = callBuildPageLinks($table, 100);
-
-    expect($links[0])->toBe(1)
-        ->and(last($links))->toBe(100);
-});

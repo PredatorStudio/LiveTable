@@ -11,6 +11,25 @@ use PredatorStudio\LiveTable\ValueObjects\FieldDefinition;
 trait ManagesCreating
 {
     /**
+     * Return the Blade view name to use as the creating modal.
+     * When null (default), the built-in modal-creating partial is rendered.
+     * Override in your table class to render your own Livewire component or Blade view.
+     *
+     * The custom view receives the same variables as the parent view, so you can
+     * use $showCreatingModal, $creatingFields, $creatingData, etc. directly.
+     *
+     * Example:
+     *   protected function creatingModalView(): ?string
+     *   {
+     *       return 'my-app::modals.create-user';
+     *   }
+     */
+    protected function creatingModalView(): ?string
+    {
+        return null;
+    }
+
+    /**
      * Open the default-creating modal and initialise $creatingData with empty values.
      */
     public function openCreatingModal(): void

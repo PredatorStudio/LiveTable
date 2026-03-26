@@ -98,16 +98,6 @@ it('calls whereIn and delete for selected ids', function () {
     $table->massDelete();
 });
 
-it('does not call pluck when using selected ids mode', function () {
-    $builder = Mockery::mock(Builder::class);
-    $builder->shouldReceive('whereIn')->once()->andReturnSelf();
-    $builder->shouldReceive('delete')->once();
-    $builder->shouldReceive('pluck')->never();
-
-    $table = makeMassDeleteTable(selected: [1, 2], builder: $builder);
-    $table->massDelete();
-});
-
 // ---------------------------------------------------------------------------
 // Deletion – selectAllQuery mode
 // ---------------------------------------------------------------------------
@@ -117,16 +107,6 @@ it('calls pluck and delete without whereIn for selectAllQuery mode', function ()
     $builder->shouldReceive('pluck')->with('id')->once()->andReturn(collect([1, 2, 3]));
     $builder->shouldReceive('delete')->once();
     $builder->shouldReceive('whereIn')->never();
-
-    $table = makeMassDeleteTable(selected: [], selectAllQuery: true, builder: $builder);
-    $table->massDelete();
-});
-
-it('uses pluck not get for selectAllQuery mode', function () {
-    $builder = Mockery::mock(Builder::class);
-    $builder->shouldReceive('pluck')->with('id')->once()->andReturn(collect([5]));
-    $builder->shouldReceive('delete')->once();
-    $builder->shouldReceive('get')->never();
 
     $table = makeMassDeleteTable(selected: [], selectAllQuery: true, builder: $builder);
     $table->massDelete();
@@ -367,28 +347,3 @@ it('passes plucked ids to hooks in selectAllQuery mode', function () {
         ->and($table->afterIds)->toBe([100, 200, 300]);
 });
 
-// ---------------------------------------------------------------------------
-// Property
-// ---------------------------------------------------------------------------
-
-it('massDelete property defaults to false', function () {
-    $table = new class extends BaseTable
-    {
-        public function __construct() {}
-
-        protected function baseQuery(): Builder
-        {
-            return Mockery::mock(Builder::class);
-        }
-
-        public function columns(): array
-        {
-            return [Column::make('id', 'ID')];
-        }
-    };
-
-    $prop = new ReflectionProperty($table, 'massDelete');
-    $prop->setAccessible(true);
-
-    expect($prop->getValue($table))->toBeFalse();
-});

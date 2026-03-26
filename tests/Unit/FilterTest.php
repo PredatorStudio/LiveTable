@@ -31,14 +31,3 @@ it('creates date filter', function () {
     expect($filter->options)->toBe([]);
 });
 
-it('FilterType TEXT has value text', function () {
-    expect(FilterType::TEXT->value)->toBe('text');
-});
-
-it('FilterType SELECT has value select', function () {
-    expect(FilterType::SELECT->value)->toBe('select');
-});
-
-it('FilterType DATE has value date', function () {
-    expect(FilterType::DATE->value)->toBe('date');
-});

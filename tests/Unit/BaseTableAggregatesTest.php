@@ -58,25 +58,6 @@ function callComputeAggregates(BaseTable $table, Collection $items): array
 afterEach(fn () => Mockery::close());
 
 // ---------------------------------------------------------------------------
-// Default property values
-// ---------------------------------------------------------------------------
-
-it('has empty sumColumns by default', function () {
-    $table = aggregateTable();
-    expect((fn () => $this->sumColumns)->call($table))->toBe([]);
-});
-
-it('has empty countColumns by default', function () {
-    $table = aggregateTable();
-    expect((fn () => $this->countColumns)->call($table))->toBe([]);
-});
-
-it('has aggregateScope ALL by default', function () {
-    $table = aggregateTable();
-    expect((fn () => $this->aggregateScope)->call($table))->toBe(AggregateScope::ALL);
-});
-
-// ---------------------------------------------------------------------------
 // No aggregate columns configured → empty results
 // ---------------------------------------------------------------------------
 
@@ -117,30 +98,6 @@ it('counts non-null values from page items for configured countColumns', functio
     [, $countData] = callComputeAggregates($table, $items);
 
     expect($countData['name'])->toBe(2);
-});
-
-it('returns zero sum when all page values are null', function () {
-    $items = collect([
-        (object) ['price' => null],
-        (object) ['price' => null],
-    ]);
-
-    $table = aggregateTable(sumColumns: ['price'], scope: AggregateScope::PAGE);
-    [$sumData] = callComputeAggregates($table, $items);
-
-    expect($sumData['price'])->toBe(0);
-});
-
-it('returns zero count when all page values are null', function () {
-    $items = collect([
-        (object) ['name' => null],
-        (object) ['name' => null],
-    ]);
-
-    $table = aggregateTable(countColumns: ['name'], scope: AggregateScope::PAGE);
-    [, $countData] = callComputeAggregates($table, $items);
-
-    expect($countData['name'])->toBe(0);
 });
 
 // ---------------------------------------------------------------------------

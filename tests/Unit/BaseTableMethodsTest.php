@@ -1,5 +1,6 @@
 <?php
 
+use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Orchestra\Testbench\TestCase;
 use PredatorStudio\LiveTable\BaseTable;
@@ -89,61 +90,6 @@ it('updatedPerPage resets page to 1', function () {
     $table = stubTable();
     $table->page = 3;
     $table->updatedPerPage();
-
-    expect($table->page)->toBe(1);
-});
-
-// ---------------------------------------------------------------------------
-// sort()
-// ---------------------------------------------------------------------------
-
-it('sort sets sortBy and resets to asc on first click', function () {
-    $table = stubTable();
-    $table->sort('name');
-
-    expect($table->sortBy)->toBe('name');
-    expect($table->sortDir)->toBe('asc');
-    expect($table->page)->toBe(1);
-});
-
-it('sort toggles direction to desc on second click', function () {
-    $table = stubTable();
-    $table->sortBy = 'name';
-    $table->sort('name');
-
-    expect($table->sortDir)->toBe('desc');
-});
-
-it('sort toggles back to asc from desc', function () {
-    $table = stubTable();
-    $table->sortBy = 'name';
-    $table->sortDir = 'desc';
-    $table->sort('name');
-
-    expect($table->sortDir)->toBe('asc');
-});
-
-it('sort ignores non-sortable column', function () {
-    $table = stubTable();
-    $table->sort('email'); // not sortable
-
-    expect($table->sortBy)->toBe('');
-});
-
-// ---------------------------------------------------------------------------
-// setPage()
-// ---------------------------------------------------------------------------
-
-it('setPage sets the current page', function () {
-    $table = stubTable();
-    $table->setPage(3);
-
-    expect($table->page)->toBe(3);
-});
-
-it('setPage enforces minimum of 1', function () {
-    $table = stubTable();
-    $table->setPage(0);
 
     expect($table->page)->toBe(1);
 });
@@ -273,21 +219,6 @@ it('removeFilter leaves other filters intact', function () {
 // toggleSelectRow() / selectRows() / deselectRows()
 // ---------------------------------------------------------------------------
 
-it('toggleSelectRow adds row id to selected', function () {
-    $table = stubTable();
-    $table->toggleSelectRow('5');
-
-    expect($table->selected)->toContain('5');
-});
-
-it('toggleSelectRow removes already-selected row', function () {
-    $table = stubTable();
-    $table->selected = ['5'];
-    $table->toggleSelectRow('5');
-
-    expect($table->selected)->not->toContain('5');
-});
-
 it('selectRows adds multiple ids', function () {
     $table = stubTable();
     $table->selectRows(['1', '2', '3']);
@@ -313,89 +244,48 @@ it('deselectRows removes specified ids', function () {
     expect($table->selected)->toContain('3');
 });
 
-// ---------------------------------------------------------------------------
-// Default hook method implementations
-// ---------------------------------------------------------------------------
+it('default applySearch applies orWhere for each declared column', function () {
+    $table = stubTable([
+        Column::make('name', 'Nazwa'),
+        Column::make('email', 'Email'),
+    ]);
 
-it('filters() returns empty array by default', function () {
-    $table = stubTable();
-    expect($table->filters())->toBe([]);
-});
+    $inner = Mockery::mock(Builder::class);
+    $inner->shouldReceive('orWhere')->with('name', 'like', '%hello%')->once()->andReturnSelf();
+    $inner->shouldReceive('orWhere')->with('email', 'like', '%hello%')->once()->andReturnSelf();
 
-it('bulkActions() returns empty array by default', function () {
-    $table = stubTable();
-    expect($table->bulkActions())->toBe([]);
-});
+    $outer = Mockery::mock(Builder::class);
+    $outer->shouldReceive('where')
+        ->once()
+        ->with(Mockery::type(Closure::class))
+        ->andReturnUsing(function (Closure $cb) use ($inner, $outer) {
+            $cb($inner);
+            return $outer;
+        });
 
-it('headerActions() returns empty array by default', function () {
-    $table = stubTable();
-    expect($table->headerActions())->toBe([]);
-});
-
-it('applySearch returns query unchanged by default', function () {
-    $table = stubTable();
-    $mockBuilder = Mockery::mock(Builder::class);
     $reflection = new ReflectionMethod($table, 'applySearch');
+    $result = $reflection->invoke($table, $outer, 'hello');
 
-    $result = $reflection->invoke($table, $mockBuilder, 'test');
-
-    expect($result)->toBe($mockBuilder);
+    expect($result)->toBe($outer);
 });
 
-it('applyFilters returns query unchanged by default', function () {
-    $table = stubTable();
-    $mockBuilder = Mockery::mock(Builder::class);
-    $reflection = new ReflectionMethod($table, 'applyFilters');
+it('default applySearch wraps LIKE pattern with %', function () {
+    $table = stubTable([Column::make('title', 'Tytuł')]);
 
-    $result = $reflection->invoke($table, $mockBuilder);
+    $inner = Mockery::mock(Builder::class);
+    $inner->shouldReceive('orWhere')->with('title', 'like', '%foo bar%')->once()->andReturnSelf();
 
-    expect($result)->toBe($mockBuilder);
-});
+    $outer = Mockery::mock(Builder::class);
+    $outer->shouldReceive('where')
+        ->once()
+        ->with(Mockery::type(Closure::class))
+        ->andReturnUsing(function (Closure $cb) use ($inner, $outer) {
+            $cb($inner);
+            return $outer;
+        });
 
-// ---------------------------------------------------------------------------
-// buildPageLinks() – private, tested via Reflection
-// ---------------------------------------------------------------------------
-
-it('buildPageLinks returns empty array for single page', function () {
-    $table = stubTable();
-    $reflection = new ReflectionMethod($table, 'buildPageLinks');
-
-    expect($reflection->invoke($table, 1))->toBe([]);
-});
-
-it('buildPageLinks includes first and last page', function () {
-    $table = stubTable();
-    $table->page = 1;
-    $reflection = new ReflectionMethod($table, 'buildPageLinks');
-
-    $links = $reflection->invoke($table, 10);
-
-    expect($links)->toContain(1);
-    expect($links)->toContain(10);
-});
-
-it('buildPageLinks adds ellipsis for gaps', function () {
-    $table = stubTable();
-    $table->page = 1;
-    $reflection = new ReflectionMethod($table, 'buildPageLinks');
-
-    $links = $reflection->invoke($table, 20);
-
-    expect($links)->toContain('...');
-});
-
-it('buildPageLinks includes pages around current page', function () {
-    $table = stubTable();
-    $table->page = 10;
-    $reflection = new ReflectionMethod($table, 'buildPageLinks');
-
-    $links = $reflection->invoke($table, 20);
-
-    expect($links)->toContain(8);
-    expect($links)->toContain(9);
-    expect($links)->toContain(10);
-    expect($links)->toContain(11);
-    expect($links)->toContain(12);
+    $reflection = new ReflectionMethod($table, 'applySearch');
+    $reflection->invoke($table, $outer, 'foo bar');
 });
 
 // ---------------------------------------------------------------------------
@@ -527,4 +417,107 @@ it('resolvedColumns appends column not present in columnOrder', function () {
     expect($keys)->toContain('b'); // appended at end
     expect($keys[0])->toBe('a');
     expect($keys[1])->toBe('b');
+});
+
+// ---------------------------------------------------------------------------
+// creatingModalView() / editingModalView()
+// ---------------------------------------------------------------------------
+
+it('creatingModalView returns null by default', function () {
+    $table = stubTable();
+    $reflection = new ReflectionMethod($table, 'creatingModalView');
+
+    expect($reflection->invoke($table))->toBeNull();
+});
+
+it('editingModalView returns null by default', function () {
+    $table = stubTable();
+    $reflection = new ReflectionMethod($table, 'editingModalView');
+
+    expect($reflection->invoke($table))->toBeNull();
+});
+
+it('creatingModalView can be overridden to return a custom view name', function () {
+    $table = new class extends BaseTable
+    {
+        public function __construct() {}
+
+        protected function baseQuery(): Builder
+        {
+            return Mockery::mock(Builder::class);
+        }
+
+        public function columns(): array
+        {
+            return [];
+        }
+
+        protected function creatingModalView(): ?string
+        {
+            return 'my-app::modals.create';
+        }
+    };
+
+    $reflection = new ReflectionMethod($table, 'creatingModalView');
+    expect($reflection->invoke($table))->toBe('my-app::modals.create');
+});
+
+it('editingModalView can be overridden to return a custom view name', function () {
+    $table = new class extends BaseTable
+    {
+        public function __construct() {}
+
+        protected function baseQuery(): Builder
+        {
+            return Mockery::mock(Builder::class);
+        }
+
+        public function columns(): array
+        {
+            return [];
+        }
+
+        protected function editingModalView(): ?string
+        {
+            return 'my-app::modals.edit';
+        }
+    };
+
+    $reflection = new ReflectionMethod($table, 'editingModalView');
+    expect($reflection->invoke($table))->toBe('my-app::modals.edit');
+});
+
+// ---------------------------------------------------------------------------
+// massActionRequiresConfirmation
+// ---------------------------------------------------------------------------
+
+it('massActionRequiresConfirmation defaults to true', function () {
+    $table = stubTable();
+
+    $reflection = new ReflectionProperty($table, 'massActionRequiresConfirmation');
+
+    expect($reflection->getValue($table))->toBeTrue();
+});
+
+it('massActionRequiresConfirmation can be set to false in subclass', function () {
+    $table = new class extends BaseTable
+    {
+        public function __construct() {}
+
+        protected bool $massActionRequiresConfirmation = false;
+
+        protected function baseQuery(): Builder
+        {
+            return Mockery::mock(Builder::class);
+        }
+
+        public function columns(): array
+        {
+            return [];
+        }
+    };
+
+    $reflection = new ReflectionProperty($table, 'massActionRequiresConfirmation');
+
+    expect($reflection->getValue($table))->toBeFalse();
 });

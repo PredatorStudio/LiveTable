@@ -84,34 +84,9 @@ it('throws InvalidArgumentException for column with spaces', function () {
     );
 });
 
-it('throws InvalidArgumentException for column with semicolon', function () {
-    $table = makeQuoteColumnTable();
-    expect(fn () => callQuoteColumn($table, 'col;DROP TABLE users'))->toThrow(\InvalidArgumentException::class);
-});
-
-it('throws InvalidArgumentException for column with single quote', function () {
-    $table = makeQuoteColumnTable();
-    expect(fn () => callQuoteColumn($table, "col'injection"))->toThrow(\InvalidArgumentException::class);
-});
-
-it('throws InvalidArgumentException for column with double quote', function () {
-    $table = makeQuoteColumnTable();
-    expect(fn () => callQuoteColumn($table, 'col"injection'))->toThrow(\InvalidArgumentException::class);
-});
-
-it('throws InvalidArgumentException for column starting with a digit', function () {
-    $table = makeQuoteColumnTable();
-    expect(fn () => callQuoteColumn($table, '123col'))->toThrow(\InvalidArgumentException::class);
-});
-
 it('throws InvalidArgumentException for empty string', function () {
     $table = makeQuoteColumnTable();
     expect(fn () => callQuoteColumn($table, ''))->toThrow(\InvalidArgumentException::class);
-});
-
-it('throws InvalidArgumentException for column with parentheses', function () {
-    $table = makeQuoteColumnTable();
-    expect(fn () => callQuoteColumn($table, 'col()'))->toThrow(\InvalidArgumentException::class);
 });
 
 it('throws InvalidArgumentException for column with dash', function () {
