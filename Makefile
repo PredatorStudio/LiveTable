@@ -24,10 +24,10 @@ shell:
 demo-build:
 	$(DOCKER) bash -c "$(SERVE_ENV) php vendor/bin/testbench workbench:build"
 	$(DOCKER) bash -c "$(SERVE_ENV) php vendor/bin/testbench db:seed --class='Workbench\Database\Seeders\DatabaseSeeder'"
-	$(DOCKER) bash -c "VIEWS=/app/vendor/orchestra/testbench-core/laravel/resources/views/vendor/live-table && ln -sf /app/resources/views/bootstrap/base-table.blade.php \$$VIEWS/base-table.blade.php && rm -rf \$$VIEWS/partials && ln -s /app/resources/views/bootstrap/partials \$$VIEWS/partials"
+	$(DOCKER) bash -c "rm -rf /app/vendor/orchestra/testbench-core/laravel/resources/views/vendor/live-table && rm -f /app/vendor/orchestra/testbench-core/laravel/storage/framework/views/*.php"
 
 demo-link:
-	docker compose exec serve bash -c "VIEWS=/app/vendor/orchestra/testbench-core/laravel/resources/views/vendor/live-table && ln -sf /app/resources/views/bootstrap/base-table.blade.php \$$VIEWS/base-table.blade.php && rm -rf \$$VIEWS/partials && ln -s /app/resources/views/bootstrap/partials \$$VIEWS/partials && echo 'OK'"
+	docker compose exec serve bash -c "rm -rf /app/vendor/orchestra/testbench-core/laravel/resources/views/vendor/live-table && rm -f /app/vendor/orchestra/testbench-core/laravel/storage/framework/views/*.php && echo 'OK'"
 
 serve:
 	docker compose up serve

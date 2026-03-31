@@ -28,7 +28,7 @@ services:
     working_dir: /app
     command: php vendor/bin/testbench serve --host=0.0.0.0 --port=8000
     ports:
-      - "8001:8000"
+      - "8002:8000"
     environment:
       APP_KEY: base64:kk6RfQP+3SJhHJCNMJwRrVh9a9bJB3gXVIr4tHdMgNs=
       APP_DEBUG: "true"
@@ -37,6 +37,27 @@ services:
       DB_DATABASE: /app/workbench/database/database.sqlite
       SESSION_DRIVER: cookie
       SESSION_ENCRYPT: "false"
+
+  serve-tailwind:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+      - vendor:/app/vendor
+    working_dir: /app
+    command: php vendor/bin/testbench serve --host=0.0.0.0 --port=8000
+    ports:
+      - "8003:8000"
+    environment:
+      APP_KEY: base64:kk6RfQP+3SJhHJCNMJwRrVh9a9bJB3gXVIr4tHdMgNs=
+      APP_DEBUG: "true"
+      APP_ENV: local
+      DB_CONNECTION: sqlite
+      DB_DATABASE: /app/workbench/database/database.sqlite
+      SESSION_DRIVER: cookie
+      SESSION_ENCRYPT: "false"
+      LIVE_TABLE_THEME: tailwind
 
   db:
     image: mysql:8.0

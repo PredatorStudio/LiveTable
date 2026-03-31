@@ -5,7 +5,7 @@ return [
      * CSS framework used for table views.
      * Supported: 'bootstrap', 'tailwind'
      */
-    'theme' => 'bootstrap',
+    'theme' => env('LIVE_TABLE_THEME', 'bootstrap'),
 
     /*
      * Default row selection mode when $selectable = true.

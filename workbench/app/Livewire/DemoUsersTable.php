@@ -104,10 +104,10 @@ class DemoUsersTable extends BaseTable
     public function creatingFields(): array
     {
         return [
-            ['key' => 'imie',     'label' => 'Imię',     'type' => 'text'],
-            ['key' => 'nazwisko', 'label' => 'Nazwisko', 'type' => 'text'],
-            ['key' => 'adres',    'label' => 'Adres',    'type' => 'text'],
-            ['key' => 'status',   'label' => 'Status',   'type' => 'text'],
+            new \PredatorStudio\LiveTable\ValueObjects\FieldDefinition('imie',     'Imię',     'text'),
+            new \PredatorStudio\LiveTable\ValueObjects\FieldDefinition('nazwisko', 'Nazwisko', 'text'),
+            new \PredatorStudio\LiveTable\ValueObjects\FieldDefinition('adres',    'Adres',    'text'),
+            new \PredatorStudio\LiveTable\ValueObjects\FieldDefinition('status',   'Status',   'text'),
         ];
     }
 

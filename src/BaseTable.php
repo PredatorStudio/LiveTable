@@ -679,6 +679,11 @@ abstract class BaseTable extends Component
     // Render
     // -------------------------------------------------------------------------
 
+    protected function viewName(): string
+    {
+        return 'live-table::base-table';
+    }
+
     /** @codeCoverageIgnore – requires full Livewire + Blade view stack */
     public function render(): mixed
     {
@@ -731,7 +736,7 @@ abstract class BaseTable extends Component
         $creatingFields = $canCreate ? $allCreatingFields : [];
         $editingFields  = $canEdit   ? $allCreatingFields : [];
 
-        return view('live-table::base-table', [
+        return view($this->viewName(), [
             'items'              => $items,
             'total'              => $total,
             'lastPage'           => $page['lastPage'],

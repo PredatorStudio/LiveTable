@@ -6,46 +6,15 @@
   <component name="ChangeListManager">
     <list default="true" id="7d8a5d63-f11d-4422-9580-802720222ac3" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/views/bootstrap/base-table.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/bootstrap/base-table.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/live-table.php" beforeDir="false" afterPath="$PROJECT_DIR$/config/live-table.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/resources/views/bootstrap/partials/table.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/bootstrap/partials/table.blade.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/views/bootstrap/partials/toolbar-left.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/bootstrap/partials/toolbar-left.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/views/tailwind/partials/table.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/tailwind/partials/table.blade.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/BaseTable.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/BaseTable.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Column.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Column.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Concerns/ManagesCreating.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Concerns/ManagesCreating.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Concerns/ManagesEditing.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Concerns/ManagesEditing.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Unit/ActionTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/ActionTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Unit/AuthorizeActionTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/AuthorizeActionTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Unit/BaseTableAggregatesTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/BaseTableAggregatesTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Unit/BaseTableExportTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/BaseTableExportTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Unit/BaseTableFieldTypeTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/BaseTableFieldTypeTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Unit/BaseTableInfiniteScrollTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/BaseTableInfiniteScrollTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Unit/BaseTableMassDeleteTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/BaseTableMassDeleteTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Unit/BaseTableMethodsTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/BaseTableMethodsTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Unit/BaseTableNewFeaturesTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/BaseTableNewFeaturesTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Unit/BaseTableRowActionsTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/BaseTableRowActionsTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Unit/BaseTableSelectAllQueryTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/BaseTableSelectAllQueryTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Unit/BaseTableSelectModeTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/BaseTableSelectModeTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Unit/BaseTableSubRowsTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/BaseTableSubRowsTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Unit/BuildPageLinksTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/BuildPageLinksTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Unit/BulkActionTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/BulkActionTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Unit/ColumnFluentTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/ColumnFluentTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Unit/ColumnMemoizationTest.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Unit/DefaultActionsTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/DefaultActionsTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Unit/DefaultCreatingTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/DefaultCreatingTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Unit/Enums/DateFormatTest.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Unit/Enums/DateTimeFormatTest.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Unit/Enums/MoneyFormatTest.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Unit/Enums/TimeFormatTest.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Unit/FilterTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/FilterTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Unit/HashPasswordTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/HashPasswordTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Unit/LiveTableServiceProviderTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/LiveTableServiceProviderTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Unit/MassEditTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/MassEditTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Unit/QuoteColumnTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/QuoteColumnTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Unit/RowActionTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/RowActionTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Unit/SecurityTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/SecurityTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Unit/StatePersistenceTest.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Unit/SubRowsTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/SubRowsTest.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Unit/TableSettingPersistTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/TableSettingPersistTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/workbench/app/Livewire/DemoUsersTable.php" beforeDir="false" afterPath="$PROJECT_DIR$/workbench/app/Livewire/DemoUsersTable.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/workbench/app/Providers/WorkbenchServiceProvider.php" beforeDir="false" afterPath="$PROJECT_DIR$/workbench/app/Providers/WorkbenchServiceProvider.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/workbench/routes/web.php" beforeDir="false" afterPath="$PROJECT_DIR$/workbench/routes/web.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -212,29 +181,30 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;Default-Actions&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/piotr/web/son/son3&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;settings.php.quality.tools.laravel.pint&quot;,
-    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;/snap/phpstorm/607/plugins/javascript-plugin/jsLanguageServicesImpl/external&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "main",
+    "junie.onboarding.icon.badge.shown": "true",
+    "last_opened_file_path": "/home/piotr/web/PredatorStudio/PredatorFinances",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "settings.php.quality.tools.laravel.pint",
+    "to.speed.mode.migration.done": "true",
+    "ts.external.directory.path": "/snap/phpstorm/607/plugins/javascript-plugin/jsLanguageServicesImpl/external",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecapSpentCounter">
     <option name="endsOfQuotaMs" value="1775833207967" />
     <option name="spentUsd" value="0.00886975" />
@@ -245,8 +215,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-PS-253.32098.40" />
-        <option value="bundled-php-predefined-a98d8de5180a-0e0d91225499-com.jetbrains.php.sharedIndexes-PS-253.32098.40" />
+        <option value="bundled-js-predefined-d6986cc7102b-3bd3a6803838-JavaScript-PS-261.22158.283" />
+        <option value="bundled-php-predefined-a98d8de5180a-a9a4ea3ee0f4-com.jetbrains.php.sharedIndexes-PS-261.22158.283" />
       </set>
     </attachedChunks>
   </component>
@@ -268,6 +238,10 @@
       <workItem from="1773389092904" duration="181000" />
       <workItem from="1773437551168" duration="158000" />
       <workItem from="1773778807984" duration="5766000" />
+      <workItem from="1774555731214" duration="68000" />
+      <workItem from="1774555824291" duration="5513000" />
+      <workItem from="1774599383006" duration="27000" />
+      <workItem from="1774984469434" duration="14000" />
     </task>
     <servers />
   </component>

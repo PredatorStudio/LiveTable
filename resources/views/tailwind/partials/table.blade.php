@@ -12,7 +12,7 @@
                             type="checkbox"
                             class="h-4 w-4 rounded border-gray-300 text-indigo-500 focus:ring-indigo-500 cursor-pointer"
                             :checked="{{ json_encode($currentPageIds) }}.length > 0
-                                && {{ json_encode($currentPageIds) }}.every(id => $wire.selected.includes(id))"
+                                && {{ json_encode($currentPageIds) }}.every(id => Array.from($wire.selected).includes(id))"
                             @change="$event.target.checked
                                 ? $wire.selectRows({{ json_encode($currentPageIds) }})
                                 : $wire.deselectRows({{ json_encode($currentPageIds) }})"
@@ -59,7 +59,7 @@
             @php $rowId = (string) data_get($row, $primaryKey); @endphp
             <tbody class="bg-white divide-y divide-gray-100" x-data="{ open: false }">
                 <tr
-                    :class="$wire.selected.includes('{{ $rowId }}') ? 'bg-indigo-50' : 'hover:bg-gray-50'"
+                    :class="Array.from($wire.selected).includes('{{ $rowId }}') ? 'bg-indigo-50' : 'hover:bg-gray-50'"
                     @if ($isRowSelectMode)
                         wire:click="toggleSelectRow('{{ $rowId }}')"
                         style="cursor: pointer;"
@@ -89,7 +89,7 @@
                             <input
                                 type="checkbox"
                                 class="h-4 w-4 rounded border-gray-300 text-indigo-500 focus:ring-indigo-500 cursor-pointer"
-                                :checked="$wire.selected.includes('{{ $rowId }}')"
+                                :checked="Array.from($wire.selected).includes('{{ $rowId }}')"
                                 @change="$wire.toggleSelectRow('{{ $rowId }}')"
                             >
                         </td>
@@ -191,7 +191,7 @@
                                     <input
                                         type="checkbox"
                                         class="h-4 w-4 rounded border-gray-300 text-indigo-500 focus:ring-indigo-500 cursor-pointer"
-                                        :checked="$wire.selectedSubRows.includes('{{ $subRowId }}')"
+                                        :checked="Array.from($wire.selectedSubRows).includes('{{ $subRowId }}')"
                                         @change="$wire.toggleSelectSubRow('{{ $subRowId }}')"
                                     >
                                 @endif
