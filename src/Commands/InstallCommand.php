@@ -43,7 +43,11 @@ class InstallCommand extends Command
         if (file_exists($path)) {
             file_put_contents(
                 $path,
-                str_replace("'theme' => 'bootstrap'", "'theme' => '{$theme}'", file_get_contents($path)),
+                preg_replace(
+                    "/'theme'\s*=>[^\n]+/",
+                    "'theme' => '$theme',",
+                    file_get_contents($path),
+                ),
             );
         }
 

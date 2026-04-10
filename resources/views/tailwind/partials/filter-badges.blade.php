@@ -1,16 +1,37 @@
 @php
     $activeFilterDefs = collect($filterDefs)->keyBy('key');
-    $displayedFilters = collect($activeFilters)->filter(fn($v) => $v !== '' && $v !== null);
+
+    $displayedFilters = collect($activeFilters)->filter(function ($v) {
+        if (is_array($v)) {
+            return ($v['from'] ?? '') !== '' || ($v['to'] ?? '') !== '';
+        }
+        return $v !== '' && $v !== null;
+    });
 @endphp
 @if ($displayedFilters->isNotEmpty())
     <div class="flex flex-wrap items-center gap-2">
         @foreach ($displayedFilters as $key => $value)
             @php
-                $filterDef    = $activeFilterDefs->get($key);
-                $filterLabel  = $filterDef ? $filterDef->label : $key;
-                $displayValue = ($filterDef && $filterDef->type === 'select' && isset($filterDef->options[$value]))
-                    ? $filterDef->options[$value]
-                    : $value;
+                $filterDef   = $activeFilterDefs->get($key);
+                $filterLabel = $filterDef ? $filterDef->label : $key;
+
+                if (is_array($value)) {
+                    $from = $value['from'] ?? '';
+                    $to   = $value['to'] ?? '';
+                    if ($from !== '' && $to !== '') {
+                        $displayValue = $from . ' – ' . $to;
+                    } elseif ($from !== '') {
+                        $displayValue = 'od ' . $from;
+                    } else {
+                        $displayValue = 'do ' . $to;
+                    }
+                } elseif ($filterDef && $filterDef->type->value === 'select' && isset($filterDef->options[$value])) {
+                    $displayValue = $filterDef->options[$value];
+                } elseif ($filterDef && $filterDef->type->value === 'boolean') {
+                    $displayValue = $value === '1' ? 'Tak' : 'Nie';
+                } else {
+                    $displayValue = $value;
+                }
             @endphp
             <span class="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 border border-indigo-200 px-2.5 py-1 text-xs font-medium text-indigo-700">
                 <span>{{ $filterLabel }}: {{ $displayValue }}</span>

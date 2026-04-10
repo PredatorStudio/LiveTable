@@ -27,12 +27,114 @@
                                     <option value="{{ $value }}">{{ $label }}</option>
                                 @endforeach
                             </select>
+
+                        @elseif ($filter->type->value === 'boolean')
+                            <select
+                                wire:model="activeFilters.{{ $filter->key }}"
+                                class="form-select form-select-sm"
+                            >
+                                <option value="">— Wszystkie —</option>
+                                <option value="1">Tak</option>
+                                <option value="0">Nie</option>
+                            </select>
+
                         @elseif ($filter->type->value === 'date')
                             <input
                                 type="date"
                                 wire:model="activeFilters.{{ $filter->key }}"
                                 class="form-control form-control-sm"
                             >
+
+                        @elseif ($filter->type->value === 'date_range')
+                            <div class="d-flex align-items-center gap-2">
+                                <input
+                                    type="date"
+                                    wire:model="activeFilters.{{ $filter->key }}.from"
+                                    class="form-control form-control-sm"
+                                    placeholder="Od"
+                                >
+                                <span class="text-muted small">–</span>
+                                <input
+                                    type="date"
+                                    wire:model="activeFilters.{{ $filter->key }}.to"
+                                    class="form-control form-control-sm"
+                                    placeholder="Do"
+                                >
+                            </div>
+
+                        @elseif ($filter->type->value === 'datetime')
+                            <input
+                                type="datetime-local"
+                                wire:model="activeFilters.{{ $filter->key }}"
+                                class="form-control form-control-sm"
+                            >
+
+                        @elseif ($filter->type->value === 'datetime_range')
+                            <div class="d-flex align-items-center gap-2">
+                                <input
+                                    type="datetime-local"
+                                    wire:model="activeFilters.{{ $filter->key }}.from"
+                                    class="form-control form-control-sm"
+                                    placeholder="Od"
+                                >
+                                <span class="text-muted small">–</span>
+                                <input
+                                    type="datetime-local"
+                                    wire:model="activeFilters.{{ $filter->key }}.to"
+                                    class="form-control form-control-sm"
+                                    placeholder="Do"
+                                >
+                            </div>
+
+                        @elseif ($filter->type->value === 'time')
+                            <input
+                                type="time"
+                                wire:model="activeFilters.{{ $filter->key }}"
+                                class="form-control form-control-sm"
+                            >
+
+                        @elseif ($filter->type->value === 'number')
+                            <input
+                                type="number"
+                                wire:model="activeFilters.{{ $filter->key }}"
+                                placeholder="Filtruj po {{ strtolower($filter->label) }}..."
+                                class="form-control form-control-sm"
+                            >
+
+                        @elseif ($filter->type->value === 'number_range')
+                            <div class="d-flex align-items-center gap-2">
+                                <input
+                                    type="number"
+                                    wire:model="activeFilters.{{ $filter->key }}.from"
+                                    class="form-control form-control-sm"
+                                    placeholder="Min"
+                                >
+                                <span class="text-muted small">–</span>
+                                <input
+                                    type="number"
+                                    wire:model="activeFilters.{{ $filter->key }}.to"
+                                    class="form-control form-control-sm"
+                                    placeholder="Max"
+                                >
+                            </div>
+
+                        @elseif ($filter->type->value === 'money')
+                            <div class="d-flex align-items-center gap-2">
+                                <input
+                                    type="text"
+                                    wire:model="activeFilters.{{ $filter->key }}.from"
+                                    class="form-control form-control-sm"
+                                    placeholder="Od (np. 1 000,00)"
+                                >
+                                <span class="text-muted small">–</span>
+                                <input
+                                    type="text"
+                                    wire:model="activeFilters.{{ $filter->key }}.to"
+                                    class="form-control form-control-sm"
+                                    placeholder="Do (np. 5 000,00)"
+                                >
+                            </div>
+
                         @else
                             <input
                                 type="text"

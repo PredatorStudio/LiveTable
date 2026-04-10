@@ -23,6 +23,7 @@ use PredatorStudio\LiveTable\Concerns\ManagesSelection;
 use PredatorStudio\LiveTable\Concerns\ManagesSorting;
 use PredatorStudio\LiveTable\Concerns\ManagesStatePersistence;
 use PredatorStudio\LiveTable\Enums\AggregateScope;
+use PredatorStudio\LiveTable\Enums\FilterType;
 use PredatorStudio\LiveTable\Enums\RowActionsMode;
 use PredatorStudio\LiveTable\Enums\SelectMode;
 
@@ -511,10 +512,152 @@ abstract class BaseTable extends Component
 
     /**
      * Apply active filter values ($this->activeFilters) to the query.
+     *
+     * Default implementation auto-applies filters declared in filters() based
+     * on their FilterType. Override this method for custom filtering logic.
+     * Call parent::applyFilters($query) to combine custom logic with auto-apply.
      */
     protected function applyFilters(Builder $query): Builder
     {
+        return $this->autoApplyFilters($query);
+    }
+
+    /**
+     * Automatically applies all active filters based on the filter definitions
+     * returned by filters(). Each FilterType maps to a specific query constraint.
+     *
+     * Range filters (NUMBER_RANGE, DATE_RANGE, DATETIME_RANGE, MONEY) read
+     * $activeFilters[$key]['from'] and $activeFilters[$key]['to'].
+     */
+    final protected function autoApplyFilters(Builder $query): Builder
+    {
+        $filterDefs = collect($this->filters())->keyBy('key');
+
+        foreach ($this->activeFilters as $key => $value) {
+            /** @var Filter|null $def */
+            $def = $filterDefs->get($key);
+
+            if ($def === null) {
+                continue;
+            }
+
+            match ($def->type) {
+                FilterType::TEXT => $this->autoApplyTextFilter($query, $key, $value),
+                FilterType::SELECT => $this->autoApplySelectFilter($query, $key, $value),
+                FilterType::DATE => $this->autoApplyDateFilter($query, $key, $value),
+                FilterType::NUMBER => $this->autoApplyNumberFilter($query, $key, $value),
+                FilterType::NUMBER_RANGE => $this->autoApplyRangeFilter($query, $key, $value, numeric: true, normalize: false),
+                FilterType::DATE_RANGE => $this->autoApplyDateRangeFilter($query, $key, $value),
+                FilterType::DATETIME => $this->autoApplyDatetimeFilter($query, $key, $value),
+                FilterType::DATETIME_RANGE => $this->autoApplyRangeFilter($query, $key, $value, numeric: false, normalize: false),
+                FilterType::TIME => $this->autoApplyTimeFilter($query, $key, $value),
+                FilterType::BOOLEAN => $this->autoApplyBooleanFilter($query, $key, $value),
+                FilterType::MONEY => $this->autoApplyRangeFilter($query, $key, $value, numeric: true, normalize: true),
+            };
+        }
+
         return $query;
+    }
+
+    private function autoApplyTextFilter(Builder $query, string $key, mixed $value): void
+    {
+        if (is_string($value) && $value !== '') {
+            $query->where($key, 'like', '%' . $value . '%');
+        }
+    }
+
+    private function autoApplySelectFilter(Builder $query, string $key, mixed $value): void
+    {
+        if (is_string($value) && $value !== '') {
+            $query->where($key, $value);
+        }
+    }
+
+    private function autoApplyDateFilter(Builder $query, string $key, mixed $value): void
+    {
+        if (is_string($value) && $value !== '') {
+            $query->whereDate($key, $value);
+        }
+    }
+
+    private function autoApplyNumberFilter(Builder $query, string $key, mixed $value): void
+    {
+        if (is_string($value) && $value !== '' && is_numeric($value)) {
+            $query->where($key, (float) $value);
+        }
+    }
+
+    private function autoApplyDateRangeFilter(Builder $query, string $key, mixed $value): void
+    {
+        if (!is_array($value)) {
+            return;
+        }
+
+        $from = $value['from'] ?? '';
+        $to   = $value['to'] ?? '';
+
+        if (is_string($from) && $from !== '') {
+            $query->whereDate($key, '>=', $from);
+        }
+
+        if (is_string($to) && $to !== '') {
+            $query->whereDate($key, '<=', $to);
+        }
+    }
+
+    private function autoApplyDatetimeFilter(Builder $query, string $key, mixed $value): void
+    {
+        if (is_string($value) && $value !== '') {
+            $query->where($key, $value);
+        }
+    }
+
+    private function autoApplyTimeFilter(Builder $query, string $key, mixed $value): void
+    {
+        if (is_string($value) && $value !== '') {
+            $query->whereTime($key, $value);
+        }
+    }
+
+    private function autoApplyBooleanFilter(Builder $query, string $key, mixed $value): void
+    {
+        if (is_string($value) && $value !== '') {
+            $query->where($key, (bool) (int) $value);
+        }
+    }
+
+    /**
+     * Handles NUMBER_RANGE, DATETIME_RANGE, and MONEY (when $normalize = true).
+     * Reads $value['from'] and $value['to'].
+     */
+    private function autoApplyRangeFilter(Builder $query, string $key, mixed $value, bool $numeric, bool $normalize): void
+    {
+        if (!is_array($value)) {
+            return;
+        }
+
+        $from = $value['from'] ?? '';
+        $to   = $value['to'] ?? '';
+
+        if (is_string($from) && $from !== '') {
+            $parsed = $normalize
+                ? Filter::normalizeMoney($from)
+                : ($numeric && is_numeric($from) ? (float) $from : ($numeric ? null : $from));
+
+            if ($parsed !== null) {
+                $query->where($key, '>=', $parsed);
+            }
+        }
+
+        if (is_string($to) && $to !== '') {
+            $parsed = $normalize
+                ? Filter::normalizeMoney($to)
+                : ($numeric && is_numeric($to) ? (float) $to : ($numeric ? null : $to));
+
+            if ($parsed !== null) {
+                $query->where($key, '<=', $parsed);
+            }
+        }
     }
 
     // -------------------------------------------------------------------------

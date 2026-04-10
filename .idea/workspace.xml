@@ -6,12 +6,15 @@
   <component name="ChangeListManager">
     <list default="true" id="7d8a5d63-f11d-4422-9580-802720222ac3" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/views/bootstrap/base-table.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/bootstrap/base-table.blade.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/views/bootstrap/partials/table.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/bootstrap/partials/table.blade.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/views/tailwind/base-table.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/tailwind/base-table.blade.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/views/tailwind/partials/table.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/tailwind/partials/table.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/views/bootstrap/partials/filter-badges.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/bootstrap/partials/filter-badges.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/views/bootstrap/partials/modal-filters.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/bootstrap/partials/modal-filters.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/views/tailwind/partials/filter-badges.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/tailwind/partials/filter-badges.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/views/tailwind/partials/modal-filters.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/tailwind/partials/modal-filters.blade.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/BaseTable.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/BaseTable.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/Unit/ColumnWidthTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/ColumnWidthTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Commands/InstallCommand.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Commands/InstallCommand.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Enums/FilterType.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Enums/FilterType.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Filter.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Filter.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Unit/FilterTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/FilterTest.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../lwtable-site/astro.config.mjs" beforeDir="false" afterPath="$PROJECT_DIR$/../lwtable-site/astro.config.mjs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../lwtable-site/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/../lwtable-site/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../lwtable-site/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/../lwtable-site/package.json" afterDir="false" />
@@ -21,6 +24,7 @@
       <change beforePath="$PROJECT_DIR$/../../ekorepetycje/backend/app/Livewire/BaseTable.php" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../../ekorepetycje/backend/app/Livewire/Tutor/StudentsTable.php" beforeDir="false" afterPath="$PROJECT_DIR$/../../ekorepetycje/backend/app/Livewire/Tutor/StudentsTable.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../ekorepetycje/backend/config/live-table.php" beforeDir="false" afterPath="$PROJECT_DIR$/../../ekorepetycje/backend/config/live-table.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../ekorepetycje/backend/resources/views/tutor/partials/nav.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/../../ekorepetycje/backend/resources/views/tutor/partials/nav.blade.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../ekorepetycje/backend/resources/views/vendor/live-table/base-table.blade.php" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../../ekorepetycje/backend/resources/views/vendor/live-table/partials/modal-filters.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/../../ekorepetycje/backend/resources/views/vendor/live-table/partials/modal-filters.blade.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../ekorepetycje/backend/resources/views/vendor/live-table/partials/table.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/../../ekorepetycje/backend/resources/views/vendor/live-table/partials/table.blade.php" afterDir="false" />
@@ -41,7 +45,7 @@
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../../ekorepetycje" />
   </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/pest_sp.txt" root0="SKIP_INSPECTION" />
@@ -202,7 +206,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "laravel13",
     "junie.onboarding.icon.badge.shown": "true",
     "last_opened_file_path": "/home/piotr/web/ekorepetycje",
     "node.js.detected.package.eslint": "true",
@@ -260,7 +264,7 @@
       <workItem from="1774984469434" duration="14000" />
       <workItem from="1775755210181" duration="1882000" />
       <workItem from="1775804587526" duration="59000" />
-      <workItem from="1775835025974" duration="9839000" />
+      <workItem from="1775835025974" duration="11981000" />
     </task>
     <servers />
   </component>

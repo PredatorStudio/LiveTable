@@ -125,48 +125,60 @@
                         <td class="px-3 py-2 text-right align-middle whitespace-nowrap">
                             @if (!empty($rowActionList))
                                 @if ($rowActionsMode === \PredatorStudio\LiveTable\Enums\RowActionsMode::DROPDOWN)
-                                    <div class="relative inline-block" x-data="{ openRowActions: false }">
+                                    <div class="relative inline-block" x-data="{ openRowActions: false, ddStyle: '' }" @lt-close-dropdowns.window="openRowActions = false">
                                         <button
                                             type="button"
-                                            @click.stop="openRowActions = !openRowActions"
-                                            @click.outside="openRowActions = false"
+                                            @click.stop="
+                                                if (openRowActions) { openRowActions = false; return; }
+                                                window.dispatchEvent(new CustomEvent('lt-close-dropdowns'));
+                                                const r = $el.getBoundingClientRect();
+                                                const spaceBelow = window.innerHeight - r.bottom;
+                                                ddStyle = 'position:fixed;z-index:9999;min-width:10rem;right:' + Math.round(window.innerWidth - r.right) + 'px;' +
+                                                    (spaceBelow < 160
+                                                        ? 'bottom:' + Math.round(window.innerHeight - r.top + 4) + 'px;'
+                                                        : 'top:' + Math.round(r.bottom + 4) + 'px;');
+                                                openRowActions = true;
+                                            "
                                             class="inline-flex items-center justify-center w-7 h-7 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
                                             title="Akcje"
                                         >
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="currentColor" viewBox="0 0 16 16"><circle cx="8" cy="2" r="1.5"/><circle cx="8" cy="8" r="1.5"/><circle cx="8" cy="14" r="1.5"/></svg>
                                         </button>
-                                        <div
-                                            x-show="openRowActions"
-                                            x-transition
-                                            class="absolute right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg"
-                                            style="min-width: 10rem; z-index: 50;"
-                                        >
-                                            @foreach ($rowActionList as $rowAction)
-                                                @if ($rowAction->href)
-                                                    <a
-                                                        href="{{ $rowAction->href }}"
-                                                        class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                                                    >
-                                                        @if ($rowAction->icon){!! $rowAction->icon !!}@endif
-                                                        {{ $rowAction->label }}
-                                                    </a>
-                                                @else
-                                                    <button
-                                                        type="button"
-                                                        @if ($rowAction->confirm)
-                                                            @click.prevent="$dispatch('live-table-ask-confirm', { message: '{{ $rowAction->confirm }}', action: () => $wire.{{ $rowAction->method }}('{{ $rowId }}') }); openRowActions = false"
-                                                        @else
-                                                            wire:click="{{ $rowAction->method }}('{{ $rowId }}')"
-                                                            @click.stop="openRowActions = false"
-                                                        @endif
-                                                        class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 w-full text-left"
-                                                    >
-                                                        @if ($rowAction->icon){!! $rowAction->icon !!}@endif
-                                                        {{ $rowAction->label }}
-                                                    </button>
-                                                @endif
-                                            @endforeach
-                                        </div>
+                                        <template x-teleport="body">
+                                            <div
+                                                x-show="openRowActions"
+                                                x-transition
+                                                :style="ddStyle"
+                                                class="bg-white border border-gray-200 rounded-md shadow-lg"
+                                                @click.outside="openRowActions = false"
+                                            >
+                                                @foreach ($rowActionList as $rowAction)
+                                                    @if ($rowAction->href)
+                                                        <a
+                                                            href="{{ $rowAction->href }}"
+                                                            class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                                                        >
+                                                            @if ($rowAction->icon){!! $rowAction->icon !!}@endif
+                                                            {{ $rowAction->label }}
+                                                        </a>
+                                                    @else
+                                                        <button
+                                                            type="button"
+                                                            @if ($rowAction->confirm)
+                                                                @click.prevent="$dispatch('live-table-ask-confirm', { message: '{{ $rowAction->confirm }}', action: () => $wire.{{ $rowAction->method }}('{{ $rowId }}') }); openRowActions = false"
+                                                            @else
+                                                                wire:click="{{ $rowAction->method }}('{{ $rowId }}')"
+                                                                @click.stop="openRowActions = false"
+                                                            @endif
+                                                            class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 w-full text-left"
+                                                        >
+                                                            @if ($rowAction->icon){!! $rowAction->icon !!}@endif
+                                                            {{ $rowAction->label }}
+                                                        </button>
+                                                    @endif
+                                                @endforeach
+                                            </div>
+                                        </template>
                                     </div>
                                 @else
                                     <div class="flex items-center gap-1 justify-end">
@@ -227,48 +239,60 @@
                             @php $subRowActionList = $subRowActionsMap[$rowId][$subRowId] ?? []; @endphp
                             <td class="px-3 py-2 text-right align-middle whitespace-nowrap">
                                 @if (!empty($subRowActionList))
-                                    <div class="relative inline-block" x-data="{ openSubRowActions: false }">
+                                    <div class="relative inline-block" x-data="{ openSubRowActions: false, ddStyleSub: '' }" @lt-close-dropdowns.window="openSubRowActions = false">
                                         <button
                                             type="button"
-                                            @click.stop="openSubRowActions = !openSubRowActions"
-                                            @click.outside="openSubRowActions = false"
+                                            @click.stop="
+                                                if (openSubRowActions) { openSubRowActions = false; return; }
+                                                window.dispatchEvent(new CustomEvent('lt-close-dropdowns'));
+                                                const r = $el.getBoundingClientRect();
+                                                const spaceBelow = window.innerHeight - r.bottom;
+                                                ddStyleSub = 'position:fixed;z-index:9999;min-width:10rem;right:' + Math.round(window.innerWidth - r.right) + 'px;' +
+                                                    (spaceBelow < 160
+                                                        ? 'bottom:' + Math.round(window.innerHeight - r.top + 4) + 'px;'
+                                                        : 'top:' + Math.round(r.bottom + 4) + 'px;');
+                                                openSubRowActions = true;
+                                            "
                                             class="inline-flex items-center justify-center w-7 h-7 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
                                             title="Akcje"
                                         >
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="currentColor" viewBox="0 0 16 16"><circle cx="8" cy="2" r="1.5"/><circle cx="8" cy="8" r="1.5"/><circle cx="8" cy="14" r="1.5"/></svg>
                                         </button>
-                                        <div
-                                            x-show="openSubRowActions"
-                                            x-transition
-                                            class="absolute right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg"
-                                            style="min-width: 10rem; z-index: 50;"
-                                        >
-                                            @foreach ($subRowActionList as $subRowAction)
-                                                @if ($subRowAction->href)
-                                                    <a
-                                                        href="{{ $subRowAction->href }}"
-                                                        class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                                                    >
-                                                        @if ($subRowAction->icon){!! $subRowAction->icon !!}@endif
-                                                        {{ $subRowAction->label }}
-                                                    </a>
-                                                @else
-                                                    <button
-                                                        type="button"
-                                                        @if ($subRowAction->confirm)
-                                                            @click.prevent="$dispatch('live-table-ask-confirm', { message: '{{ $subRowAction->confirm }}', action: () => $wire.{{ $subRowAction->method }}('{{ $subRowId }}') }); openSubRowActions = false"
-                                                        @else
-                                                            wire:click="{{ $subRowAction->method }}('{{ $subRowId }}')"
-                                                            @click.stop="openSubRowActions = false"
-                                                        @endif
-                                                        class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 w-full text-left"
-                                                    >
-                                                        @if ($subRowAction->icon){!! $subRowAction->icon !!}@endif
-                                                        {{ $subRowAction->label }}
-                                                    </button>
-                                                @endif
-                                            @endforeach
-                                        </div>
+                                        <template x-teleport="body">
+                                            <div
+                                                x-show="openSubRowActions"
+                                                x-transition
+                                                :style="ddStyleSub"
+                                                class="bg-white border border-gray-200 rounded-md shadow-lg"
+                                                @click.outside="openSubRowActions = false"
+                                            >
+                                                @foreach ($subRowActionList as $subRowAction)
+                                                    @if ($subRowAction->href)
+                                                        <a
+                                                            href="{{ $subRowAction->href }}"
+                                                            class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                                                        >
+                                                            @if ($subRowAction->icon){!! $subRowAction->icon !!}@endif
+                                                            {{ $subRowAction->label }}
+                                                        </a>
+                                                    @else
+                                                        <button
+                                                            type="button"
+                                                            @if ($subRowAction->confirm)
+                                                                @click.prevent="$dispatch('live-table-ask-confirm', { message: '{{ $subRowAction->confirm }}', action: () => $wire.{{ $subRowAction->method }}('{{ $subRowId }}') }); openSubRowActions = false"
+                                                            @else
+                                                                wire:click="{{ $subRowAction->method }}('{{ $subRowId }}')"
+                                                                @click.stop="openSubRowActions = false"
+                                                            @endif
+                                                            class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 w-full text-left"
+                                                        >
+                                                            @if ($subRowAction->icon){!! $subRowAction->icon !!}@endif
+                                                            {{ $subRowAction->label }}
+                                                        </button>
+                                                    @endif
+                                                @endforeach
+                                            </div>
+                                        </template>
                                     </div>
                                 @endif
                             </td>
