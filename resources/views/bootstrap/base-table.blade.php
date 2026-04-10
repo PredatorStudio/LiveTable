@@ -1,32 +1,3 @@
-<style>
-    :root, [data-bs-theme] {
-        --bs-primary: #6366f1;
-        --bs-primary-rgb: 99, 102, 241;
-        --bs-link-color: #6366f1;
-        --bs-link-hover-color: #4f46e5;
-    }
-    .btn-primary {
-        --bs-btn-bg: #6366f1;
-        --bs-btn-border-color: #6366f1;
-        --bs-btn-hover-bg: #4f46e5;
-        --bs-btn-hover-border-color: #4338ca;
-        --bs-btn-active-bg: #4338ca;
-        --bs-btn-active-border-color: #3730a3;
-        --bs-btn-disabled-bg: #6366f1;
-        --bs-btn-disabled-border-color: #6366f1;
-        --bs-btn-focus-shadow-rgb: 99, 102, 241;
-    }
-    .btn-outline-primary {
-        --bs-btn-color: #6366f1;
-        --bs-btn-border-color: #6366f1;
-        --bs-btn-hover-bg: #6366f1;
-        --bs-btn-hover-border-color: #6366f1;
-        --bs-btn-active-bg: #6366f1;
-        --bs-btn-active-border-color: #6366f1;
-        --bs-btn-focus-shadow-rgb: 99, 102, 241;
-    }
-</style>
-
 <div
     x-data="{
         showColumnPanel: false,
@@ -51,11 +22,73 @@
             }
             this.draggingCol = null;
             this.dragOverCol = null;
+        },
+        startColResize(e, key) {
+            e.preventDefault();
+            const th = e.target.closest('th');
+            const table = th.closest('table');
+            Array.from(th.closest('tr').querySelectorAll('th')).forEach(t => {
+                const w = Math.round(t.getBoundingClientRect().width);
+                t.style.width = w + 'px';
+                t.style.minWidth = w + 'px';
+            });
+            const startX = e.clientX;
+            const startW = Math.round(th.getBoundingClientRect().width);
+            const startTableW = Math.round(table.getBoundingClientRect().width);
+            table.style.width = startTableW + 'px';
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;cursor:col-resize;z-index:9999;';
+            document.body.appendChild(overlay);
+            const onMove = (ev) => {
+                const w = Math.max(60, startW + ev.clientX - startX);
+                th.style.width = w + 'px';
+                th.style.minWidth = w + 'px';
+                table.style.width = (startTableW + w - startW) + 'px';
+            };
+            const onUp = (ev) => {
+                document.removeEventListener('mousemove', onMove);
+                document.removeEventListener('mouseup', onUp);
+                overlay.remove();
+                $wire.saveColumnWidth(key, Math.max(60, Math.round(startW + ev.clientX - startX)));
+            };
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onUp);
         }
     }"
     @live-table-ask-confirm.window="confirm.message = $event.detail.message; confirm.action = $event.detail.action; confirm.open = true"
     class="d-flex flex-column gap-3"
 >
+    <style>
+        :root, [data-bs-theme] {
+            --bs-primary: #6366f1;
+            --bs-primary-rgb: 99, 102, 241;
+            --bs-link-color: #6366f1;
+            --bs-link-hover-color: #4f46e5;
+        }
+        .btn-primary {
+            --bs-btn-bg: #6366f1;
+            --bs-btn-border-color: #6366f1;
+            --bs-btn-hover-bg: #4f46e5;
+            --bs-btn-hover-border-color: #4338ca;
+            --bs-btn-active-bg: #4338ca;
+            --bs-btn-active-border-color: #3730a3;
+            --bs-btn-disabled-bg: #6366f1;
+            --bs-btn-disabled-border-color: #6366f1;
+            --bs-btn-focus-shadow-rgb: 99, 102, 241;
+        }
+        .btn-outline-primary {
+            --bs-btn-color: #6366f1;
+            --bs-btn-border-color: #6366f1;
+            --bs-btn-hover-bg: #6366f1;
+            --bs-btn-hover-border-color: #6366f1;
+            --bs-btn-active-bg: #6366f1;
+            --bs-btn-active-border-color: #6366f1;
+            --bs-btn-focus-shadow-rgb: 99, 102, 241;
+        }
+        thead th { position: relative; overflow: visible !important; border-left: 1px solid #dee2e6; border-right: 1px solid #dee2e6; }
+        .lt-resize-handle { position: absolute; right: 0; top: 0; bottom: 0; width: 5px; cursor: col-resize; z-index: 1; }
+        .lt-resize-handle:hover { background: rgba(99,102,241,0.3); border-radius: 0 2px 2px 0; }
+    </style>
 
     {{-- Top bar --}}
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
@@ -92,5 +125,6 @@
 
     {{-- Toast notifications --}}
     @include('live-table::partials.toasts')
+
 
 </div>

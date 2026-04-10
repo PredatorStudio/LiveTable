@@ -1,5 +1,5 @@
 <div class="overflow-auto border border-gray-200 rounded-lg" style="max-height: 75vh;">
-    <table class="min-w-full divide-y divide-gray-200">
+    <table class="divide-y divide-gray-200" style="table-layout: fixed; width: 100%;">
         <thead class="bg-gray-50 sticky top-0 z-10">
             <tr>
                 @if ($expandable)
@@ -21,10 +21,15 @@
                 @endif
 
                 @foreach ($visibleColumns as $col)
+                    @php
+                        $thW = isset($columnWidths[$col->key])
+                            ? $columnWidths[$col->key].'px'
+                            : $col->width;
+                    @endphp
                     <th
                         class="px-3 py-2 text-xs font-semibold text-gray-500 select-none transition-colors"
                         :class="dragOverCol === '{{ $col->key }}' ? 'bg-indigo-50' : ''"
-                        style="cursor: {{ $col->sortable ? 'pointer' : 'grab' }}; white-space: nowrap;"
+                        style="white-space: nowrap; {{ $col->sortable ? 'cursor: pointer;' : '' }} {{ $thW ? "width: {$thW}; min-width: {$thW};" : 'min-width: 80px;' }}"
                         draggable="true"
                         @dragstart="startDrag('{{ $col->key }}')"
                         @dragover.prevent="onDragOver('{{ $col->key }}')"
@@ -46,6 +51,12 @@
                                 @endif
                             @endif
                         </span>
+                        <div
+                            class="lt-resize-handle"
+                            draggable="false"
+                            @mousedown.stop.prevent="startColResize($event, '{{ $col->key }}')"
+                            @click.stop
+                        ></div>
                     </th>
                 @endforeach
 

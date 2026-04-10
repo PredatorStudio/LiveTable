@@ -22,6 +22,37 @@
             }
             this.draggingCol = null;
             this.dragOverCol = null;
+        },
+        startColResize(e, key) {
+            e.preventDefault();
+            const th = e.target.closest('th');
+            const table = th.closest('table');
+            Array.from(th.closest('tr').querySelectorAll('th')).forEach(t => {
+                const w = Math.round(t.getBoundingClientRect().width);
+                t.style.width = w + 'px';
+                t.style.minWidth = w + 'px';
+            });
+            const startX = e.clientX;
+            const startW = Math.round(th.getBoundingClientRect().width);
+            const startTableW = Math.round(table.getBoundingClientRect().width);
+            table.style.width = startTableW + 'px';
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;cursor:col-resize;z-index:9999;';
+            document.body.appendChild(overlay);
+            const onMove = (ev) => {
+                const w = Math.max(60, startW + ev.clientX - startX);
+                th.style.width = w + 'px';
+                th.style.minWidth = w + 'px';
+                table.style.width = (startTableW + w - startW) + 'px';
+            };
+            const onUp = (ev) => {
+                document.removeEventListener('mousemove', onMove);
+                document.removeEventListener('mouseup', onUp);
+                overlay.remove();
+                $wire.saveColumnWidth(key, Math.max(60, Math.round(startW + ev.clientX - startX)));
+            };
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onUp);
         }
     }"
     @live-table-ask-confirm.window="confirm.message = $event.detail.message; confirm.action = $event.detail.action; confirm.open = true"
@@ -56,4 +87,9 @@
     {{-- Toast notifications --}}
     @include('live-table::partials.toasts')
 
+    <style>
+        thead th { position: relative; overflow: visible !important; border-left: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; }
+        .lt-resize-handle { position: absolute; right: 0; top: 0; bottom: 0; width: 5px; cursor: col-resize; z-index: 1; }
+        .lt-resize-handle:hover { background: rgba(99,102,241,0.3); border-radius: 0 2px 2px 0; }
+    </style>
 </div>

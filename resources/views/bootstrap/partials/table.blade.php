@@ -1,5 +1,5 @@
 <div class="table-responsive border rounded" style="max-height: 75vh;">
-    <table class="table table-hover table-sm table-bordered mb-0 align-middle">
+    <table class="table table-hover table-sm table-bordered mb-0 align-middle" style="table-layout: fixed; width: 100%;">
         <thead class="table-light sticky-top">
             <tr>
                 @if ($expandable)
@@ -21,10 +21,15 @@
                 @endif
 
                 @foreach ($visibleColumns as $col)
+                    @php
+                        $thW = isset($columnWidths[$col->key])
+                            ? $columnWidths[$col->key].'px'
+                            : $col->width;
+                    @endphp
                     <th
                         class="text-muted small fw-semibold user-select-none"
                         :class="dragOverCol === '{{ $col->key }}' ? 'bg-primary bg-opacity-10' : ''"
-                        style="cursor: {{ $col->sortable ? 'pointer' : 'grab' }}; white-space: nowrap; background: #6366f1;{{ $col->width ? ' width: '.$col->width.'; min-width: '.$col->width.';' : '' }}"
+                        style="white-space: nowrap; background: #6366f1; {{ $col->sortable ? 'cursor: pointer;' : '' }} {{ $thW ? "width: {$thW}; min-width: {$thW};" : 'min-width: 80px;' }}"
                         draggable="true"
                         @dragstart="startDrag('{{ $col->key }}')"
                         @dragover.prevent="onDragOver('{{ $col->key }}')"
@@ -46,6 +51,12 @@
                                 @endif
                             @endif
                         </span>
+                        <div
+                            class="lt-resize-handle"
+                            draggable="false"
+                            @mousedown.stop.prevent="startColResize($event, '{{ $col->key }}')"
+                            @click.stop
+                        ></div>
                     </th>
                 @endforeach
 
