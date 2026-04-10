@@ -647,6 +647,25 @@ abstract class BaseTable extends Component
         $this->saveState();
     }
 
+    /**
+     * Persist widths for all columns at once (called after a resize drag ends).
+     * Saves the full snapshot so the next re-render restores all column widths.
+     *
+     * @param array<string, int> $widths  column key → pixel width
+     */
+    public function saveAllColumnWidths(array $widths): void
+    {
+        $keys = array_column($this->cachedColumns(), 'key');
+
+        foreach ($widths as $key => $width) {
+            if (in_array($key, $keys, true)) {
+                $this->columnWidths[$key] = max(50, (int) $width);
+            }
+        }
+
+        $this->saveState();
+    }
+
     public function updateCell(string $rowId, string $columnKey, mixed $value): void
     {
         $col = collect($this->cachedColumns())->firstWhere('key', $columnKey);

@@ -1,5 +1,14 @@
 <div class="table-responsive border rounded" style="max-height: 75vh;">
     <table class="table table-hover table-sm table-bordered mb-0 align-middle" style="table-layout: fixed; width: 100%;">
+        <colgroup>
+            @if ($expandable)<col style="width: 28px; min-width: 28px;">@endif
+            @if ($hasCheckboxCol)<col style="width: 2.5rem; min-width: 2.5rem;">@endif
+            @foreach ($visibleColumns as $col)
+                @php $colW = isset($columnWidths[$col->key]) ? $columnWidths[$col->key].'px' : $col->width; @endphp
+                <col data-col-key="{{ $col->key }}"@if($colW) style="width: {{ $colW }}; min-width: {{ $colW }};"@endif>
+            @endforeach
+            @if ($hasRowActions)<col style="width: 60px; min-width: 60px;">@endif
+        </colgroup>
         <thead class="table-light sticky-top">
             <tr>
                 @if ($expandable)
@@ -29,7 +38,8 @@
                     <th
                         class="text-muted small fw-semibold user-select-none"
                         :class="dragOverCol === '{{ $col->key }}' ? 'bg-primary bg-opacity-10' : ''"
-                        style="white-space: nowrap; background: #6366f1; {{ $col->sortable ? 'cursor: pointer;' : '' }} {{ $thW ? "width: {$thW}; min-width: {$thW};" : 'min-width: 80px;' }}"
+                        style="white-space: nowrap; background: #6366f1; {{ $col->sortable ? 'cursor: pointer;' : '' }}"
+                        data-col-key="{{ $col->key }}"
                         draggable="true"
                         @dragstart="startDrag('{{ $col->key }}')"
                         @dragover.prevent="onDragOver('{{ $col->key }}')"

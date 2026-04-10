@@ -27,10 +27,14 @@
             e.preventDefault();
             const th = e.target.closest('th');
             const table = th.closest('table');
-            Array.from(th.closest('tr').querySelectorAll('th')).forEach(t => {
-                const w = Math.round(t.getBoundingClientRect().width);
-                t.style.width = w + 'px';
-                t.style.minWidth = w + 'px';
+            const allCols = Array.from(table.querySelectorAll('col[data-col-key]'));
+            const allThs = Array.from(th.closest('tr').querySelectorAll('th[data-col-key]'));
+            // Freeze all th widths explicitly, clear col widths so th controls layout
+            allThs.forEach(t => {
+                t.style.width = Math.round(t.getBoundingClientRect().width) + 'px';
+                t.style.minWidth = '';
+                const c = allCols.find(x => x.dataset.colKey === t.dataset.colKey);
+                if (c) { c.style.width = ''; c.style.minWidth = ''; }
             });
             const startX = e.clientX;
             const startW = Math.round(th.getBoundingClientRect().width);
@@ -42,14 +46,20 @@
             const onMove = (ev) => {
                 const w = Math.max(60, startW + ev.clientX - startX);
                 th.style.width = w + 'px';
-                th.style.minWidth = w + 'px';
                 table.style.width = (startTableW + w - startW) + 'px';
             };
             const onUp = (ev) => {
                 document.removeEventListener('mousemove', onMove);
                 document.removeEventListener('mouseup', onUp);
                 overlay.remove();
-                $wire.saveColumnWidth(key, Math.max(60, Math.round(startW + ev.clientX - startX)));
+                const widths = {};
+                allThs.forEach(t => {
+                    const w = Math.round(t.getBoundingClientRect().width);
+                    widths[t.dataset.colKey] = w;
+                    const c = allCols.find(x => x.dataset.colKey === t.dataset.colKey);
+                    if (c) c.style.width = w + 'px';
+                });
+                $wire.saveAllColumnWidths(widths);
             };
             document.addEventListener('mousemove', onMove);
             document.addEventListener('mouseup', onUp);
