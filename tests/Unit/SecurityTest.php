@@ -45,96 +45,114 @@ function securityStub(array $extraCols = []): BaseTable
 }
 
 // ===========================================================================
-// 1.1 – safeSortBy() – walidacja kolumny przed orderBy()
+// 1.1 – applySorting() – walidacja kolumny przed orderBy()
 // ===========================================================================
 
-it('safeSortBy returns empty string when column is not in sortable list', function () {
+function applySortingOn(BaseTable $table): Builder
+{
+    $query = Mockery::mock(Builder::class);
+    (new ReflectionMethod($table, 'applySorting'))->invoke($table, $query);
+    return $query;
+}
+
+it('applySorting does not call orderBy when column is not sortable', function () {
     $table = securityStub();
     $table->mount();
     $table->sortBy = 'email'; // email nie jest sortable
 
-    $result = (new ReflectionMethod($table, 'safeSortBy'))->invoke($table);
-
-    expect($result)->toBe('');
+    $query = Mockery::mock(Builder::class);
+    $query->shouldNotReceive('orderBy');
+    (new ReflectionMethod($table, 'applySorting'))->invoke($table, $query);
 });
 
-it('safeSortBy returns empty string for SQL injection attempt', function () {
+it('applySorting does not call orderBy for SQL injection attempt', function () {
     $table = securityStub();
     $table->mount();
     $table->sortBy = 'name; DROP TABLE users--';
 
-    $result = (new ReflectionMethod($table, 'safeSortBy'))->invoke($table);
-
-    expect($result)->toBe('');
+    $query = Mockery::mock(Builder::class);
+    $query->shouldNotReceive('orderBy');
+    (new ReflectionMethod($table, 'applySorting'))->invoke($table, $query);
 });
 
-it('safeSortBy returns the column key when it is sortable', function () {
+it('applySorting calls orderBy with correct column when sortable', function () {
     $table = securityStub();
     $table->mount();
-    $table->sortBy = 'name'; // name jest sortable
+    $table->sortBy  = 'name';
+    $table->sortDir = 'asc';
 
-    $result = (new ReflectionMethod($table, 'safeSortBy'))->invoke($table);
-
-    expect($result)->toBe('name');
+    $query = Mockery::mock(Builder::class);
+    $query->shouldReceive('orderBy')->once()->with('name', 'asc');
+    (new ReflectionMethod($table, 'applySorting'))->invoke($table, $query);
 });
 
-it('safeSortBy returns empty string when sortBy is empty', function () {
+it('applySorting does not call orderBy when sortBy is empty', function () {
     $table = securityStub();
     $table->mount();
     $table->sortBy = '';
 
-    $result = (new ReflectionMethod($table, 'safeSortBy'))->invoke($table);
-
-    expect($result)->toBe('');
+    $query = Mockery::mock(Builder::class);
+    $query->shouldNotReceive('orderBy');
+    (new ReflectionMethod($table, 'applySorting'))->invoke($table, $query);
 });
 
 // ===========================================================================
-// 1.2 – safeSortDir() – walidacja kierunku sortowania
+// 1.2 – applySorting() – walidacja kierunku sortowania
 // ===========================================================================
 
-it('safeSortDir returns asc for invalid value', function () {
+it('applySorting uses asc for invalid sortDir value', function () {
     $table = securityStub();
+    $table->mount();
+    $table->sortBy  = 'name';
     $table->sortDir = 'INVALID; DROP TABLE';
 
-    $result = (new ReflectionMethod($table, 'safeSortDir'))->invoke($table);
-
-    expect($result)->toBe('asc');
+    $query = Mockery::mock(Builder::class);
+    $query->shouldReceive('orderBy')->once()->with('name', 'asc');
+    (new ReflectionMethod($table, 'applySorting'))->invoke($table, $query);
 });
 
-it('safeSortDir returns asc when sortDir is asc', function () {
+it('applySorting uses asc when sortDir is asc', function () {
     $table = securityStub();
+    $table->mount();
+    $table->sortBy  = 'name';
     $table->sortDir = 'asc';
 
-    $result = (new ReflectionMethod($table, 'safeSortDir'))->invoke($table);
-
-    expect($result)->toBe('asc');
+    $query = Mockery::mock(Builder::class);
+    $query->shouldReceive('orderBy')->once()->with('name', 'asc');
+    (new ReflectionMethod($table, 'applySorting'))->invoke($table, $query);
 });
 
-it('safeSortDir returns desc when sortDir is desc', function () {
+it('applySorting uses desc when sortDir is desc', function () {
     $table = securityStub();
+    $table->mount();
+    $table->sortBy  = 'name';
     $table->sortDir = 'desc';
 
-    $result = (new ReflectionMethod($table, 'safeSortDir'))->invoke($table);
-
-    expect($result)->toBe('desc');
+    $query = Mockery::mock(Builder::class);
+    $query->shouldReceive('orderBy')->once()->with('name', 'desc');
+    (new ReflectionMethod($table, 'applySorting'))->invoke($table, $query);
 });
 
-it('safeSortDir returns asc for empty string', function () {
+it('applySorting uses asc for empty sortDir', function () {
     $table = securityStub();
+    $table->mount();
+    $table->sortBy  = 'name';
     $table->sortDir = '';
 
-    $result = (new ReflectionMethod($table, 'safeSortDir'))->invoke($table);
-
-    expect($result)->toBe('asc');
+    $query = Mockery::mock(Builder::class);
+    $query->shouldReceive('orderBy')->once()->with('name', 'asc');
+    (new ReflectionMethod($table, 'applySorting'))->invoke($table, $query);
 });
 
-it('safeSortDir returns asc for ASC (uppercase not accepted)', function () {
+it('applySorting uses asc for uppercase ASC (not accepted)', function () {
     $table = securityStub();
+    $table->mount();
+    $table->sortBy  = 'name';
     $table->sortDir = 'ASC';
 
-    $result = (new ReflectionMethod($table, 'safeSortDir'))->invoke($table);
-
-    expect($result)->toBe('asc');
+    $query = Mockery::mock(Builder::class);
+    $query->shouldReceive('orderBy')->once()->with('name', 'asc');
+    (new ReflectionMethod($table, 'applySorting'))->invoke($table, $query);
 });
 
 // ===========================================================================

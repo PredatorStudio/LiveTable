@@ -2,6 +2,7 @@
 
 namespace PredatorStudio\LiveTable\Concerns;
 
+use Illuminate\Database\Eloquent\Builder;
 use PredatorStudio\LiveTable\Column;
 
 trait ManagesSorting
@@ -31,10 +32,10 @@ trait ManagesSorting
         $this->saveState();
     }
 
-    private function safeSortBy(): string
+    private function applySorting(Builder $query): void
     {
         if ($this->sortBy === '') {
-            return '';
+            return;
         }
 
         $sortable = array_column(
@@ -42,11 +43,8 @@ trait ManagesSorting
             'key',
         );
 
-        return in_array($this->sortBy, $sortable, true) ? $this->sortBy : '';
-    }
-
-    private function safeSortDir(): string
-    {
-        return $this->sortDir === 'desc' ? 'desc' : 'asc';
+        if (in_array($this->sortBy, $sortable, true)) {
+            $query->orderBy($this->sortBy, $this->sortDir === 'desc' ? 'desc' : 'asc');
+        }
     }
 }

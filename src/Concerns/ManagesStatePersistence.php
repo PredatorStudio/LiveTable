@@ -38,6 +38,7 @@ trait ManagesStatePersistence
                 'per_page'       => $this->perPage,
                 'sort_by'        => $this->sortBy,
                 'sort_dir'       => $this->sortDir,
+                'column_widths'  => $this->columnWidths,
             ],
         );
     }
@@ -87,5 +88,6 @@ trait ManagesStatePersistence
         $this->perPage       = $data['per_page'] ?? $this->perPage;
         $this->sortBy        = $data['sort_by'] ?? $this->sortBy;
         $this->sortDir       = $data['sort_dir'] ?? $this->sortDir;
+        $this->columnWidths  = $data['column_widths'] ?? $this->columnWidths;
     }
 }

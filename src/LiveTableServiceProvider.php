@@ -11,13 +11,13 @@ class LiveTableServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->mergeConfigFrom(__DIR__.'/../config/live-table.php', 'live-table');
+        $this->mergeConfigFrom(__DIR__ . '/../config/live-table.php', 'live-table');
 
         // mergeConfigFrom is a no-op when configurationIsCached() is true (e.g. in Testbench).
         // Replicate the same merge manually so defaults are always available.
         if ($this->app->configurationIsCached()) {
-            $config   = $this->app->make('config');
-            $defaults = require __DIR__.'/../config/live-table.php';
+            $config = $this->app->make('config');
+            $defaults = require __DIR__ . '/../config/live-table.php';
             $config->set('live-table', array_merge($defaults, $config->get('live-table', [])));
         }
 
@@ -28,25 +28,25 @@ class LiveTableServiceProvider extends ServiceProvider
     {
         $theme = config('live-table.theme', 'bootstrap');
 
-        $this->loadViewsFrom(__DIR__.'/../resources/views/'.$theme, 'live-table');
+        $this->loadViewsFrom(__DIR__ . '/../resources/views/' . $theme, 'live-table');
 
         $this->publishes([
-            __DIR__.'/../config/live-table.php' => config_path('live-table.php'),
+            __DIR__ . '/../config/live-table.php' => config_path('live-table.php'),
         ], 'live-table-config');
 
         $this->publishes([
-            __DIR__.'/../resources/views/bootstrap' => resource_path('views/vendor/live-table'),
+            __DIR__ . '/../resources/views/bootstrap' => resource_path('views/vendor/live-table'),
         ], 'live-table-views-bootstrap');
 
         $this->publishes([
-            __DIR__.'/../resources/views/tailwind' => resource_path('views/vendor/live-table'),
+            __DIR__ . '/../resources/views/tailwind' => resource_path('views/vendor/live-table'),
         ], 'live-table-views-tailwind');
 
         $this->publishes([
-            __DIR__.'/../database/migrations' => database_path('migrations'),
+            __DIR__ . '/../database/migrations' => database_path('migrations'),
         ], 'live-table-migrations');
 
-        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
 
         if ($this->app->runningInConsole()) {
             $this->commands([InstallCommand::class]);

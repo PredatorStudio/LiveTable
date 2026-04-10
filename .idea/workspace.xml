@@ -5,16 +5,49 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7d8a5d63-f11d-4422-9580-802720222ac3" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/LiveTable.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/LiveTable.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/laravel-idea-personal.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/laravel-idea-personal.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/live-table.php" beforeDir="false" afterPath="$PROJECT_DIR$/config/live-table.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/composer.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/views/bootstrap/base-table.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/bootstrap/base-table.blade.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/resources/views/bootstrap/partials/table.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/bootstrap/partials/table.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/resources/views/tailwind/base-table.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/tailwind/base-table.blade.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/resources/views/tailwind/partials/table.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/tailwind/partials/table.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Action.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Action.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/BaseTable.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/BaseTable.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/workbench/app/Livewire/DemoUsersTable.php" beforeDir="false" afterPath="$PROJECT_DIR$/workbench/app/Livewire/DemoUsersTable.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/workbench/app/Providers/WorkbenchServiceProvider.php" beforeDir="false" afterPath="$PROJECT_DIR$/workbench/app/Providers/WorkbenchServiceProvider.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/BulkAction.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/BulkAction.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Column.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Column.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Concerns/ManagesDefaultCrud.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Concerns/ManagesSorting.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Concerns/ManagesSorting.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Concerns/ManagesStatePersistence.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Concerns/ManagesStatePersistence.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Enums/FilterType.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Enums/FilterType.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Filter.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Filter.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/LiveTableServiceProvider.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/LiveTableServiceProvider.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/RowAction.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/RowAction.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/SubRows.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/SubRows.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/Unit/SecurityTest.php" beforeDir="false" afterPath="$PROJECT_DIR$/tests/Unit/SecurityTest.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/workbench/app/Livewire/DemoUsersTableBootstrap.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/workbench/app/Livewire/DemoUsersTableTailwind.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/workbench/resources/views/demo-bootstrap.blade.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/workbench/resources/views/demo-tailwind.blade.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/workbench/resources/views/demo.blade.php" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/workbench/routes/web.php" beforeDir="false" afterPath="$PROJECT_DIR$/workbench/routes/web.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lwtable-site/astro.config.mjs" beforeDir="false" afterPath="$PROJECT_DIR$/../lwtable-site/astro.config.mjs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lwtable-site/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/../lwtable-site/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lwtable-site/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/../lwtable-site/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lwtable-site/src/components/Welcome.astro" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lwtable-site/src/layouts/Layout.astro" beforeDir="false" afterPath="$PROJECT_DIR$/../lwtable-site/src/layouts/Layout.astro" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lwtable-site/src/pages/index.astro" beforeDir="false" afterPath="$PROJECT_DIR$/../lwtable-site/src/pages/index.astro" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../ekorepetycje/backend/app/Livewire/BaseTable.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../ekorepetycje/backend/resources/views/vendor/live-table/base-table.blade.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../ekorepetycje/backend/resources/views/vendor/live-table/partials/modal-filters.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/../../ekorepetycje/backend/resources/views/vendor/live-table/partials/modal-filters.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../ekorepetycje/backend/resources/views/vendor/live-table/partials/table.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/../../ekorepetycje/backend/resources/views/vendor/live-table/partials/table.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../ekorepetycje/backend/resources/views/vendor/live-table/partials/toolbar-left.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/../../ekorepetycje/backend/resources/views/vendor/live-table/partials/toolbar-left.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../ekorepetycje/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../../ekorepetycje/docker-compose.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -26,11 +59,11 @@
     <execution />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="181" />
+    <option name="cachedIndexableFilesCount" value="234" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../../ekorepetycje" />
   </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/pest_sp.txt" root0="SKIP_INSPECTION" />
@@ -191,9 +224,9 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "laravel13",
     "junie.onboarding.icon.badge.shown": "true",
-    "last_opened_file_path": "/home/piotr/web/PredatorStudio/PredatorFinances",
+    "last_opened_file_path": "/home/piotr/web/ekorepetycje",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -242,6 +275,9 @@
       <workItem from="1774555824291" duration="5513000" />
       <workItem from="1774599383006" duration="27000" />
       <workItem from="1774984469434" duration="14000" />
+      <workItem from="1775755210181" duration="1882000" />
+      <workItem from="1775804587526" duration="59000" />
+      <workItem from="1775835025974" duration="3528000" />
     </task>
     <servers />
   </component>

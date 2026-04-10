@@ -139,5 +139,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="lwtable-site" />
+    <orderEntry type="module" module-name="ekorepetycje" />
   </component>
 </module>

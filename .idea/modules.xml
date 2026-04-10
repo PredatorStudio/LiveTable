@@ -3,6 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/LiveTable.iml" filepath="$PROJECT_DIR$/.idea/LiveTable.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../ekorepetycje/.idea/ekorepetycje.iml" filepath="$PROJECT_DIR$/../../ekorepetycje/.idea/ekorepetycje.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../lwtable-site/.idea/lwtable-site.iml" filepath="$PROJECT_DIR$/../lwtable-site/.idea/lwtable-site.iml" />
     </modules>
   </component>
 </project>

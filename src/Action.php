@@ -6,8 +6,8 @@ class Action
 {
     public string $label;
     public string $method = ''; // Livewire method name
-    public string $href   = ''; // or a plain link
-    public string $icon   = ''; // raw SVG string
+    public string $href = ''; // or a plain link
+    public string $icon = ''; // raw SVG string
 
     private function __construct(string $label)
     {
@@ -21,7 +21,7 @@ class Action
 
     public function method(string $method): static
     {
-        $clone         = clone $this;
+        $clone = clone $this;
         $clone->method = $method;
 
         return $clone;
@@ -29,7 +29,7 @@ class Action
 
     public function href(string $href): static
     {
-        $clone       = clone $this;
+        $clone = clone $this;
         $clone->href = $href;
 
         return $clone;
@@ -37,7 +37,7 @@ class Action
 
     public function icon(string $icon): static
     {
-        $clone       = clone $this;
+        $clone = clone $this;
         $clone->icon = $icon;
 
         return $clone;

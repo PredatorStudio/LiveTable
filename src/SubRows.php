@@ -7,16 +7,18 @@ use Illuminate\Support\Collection;
 
 class SubRows
 {
-    private array    $items  = [];
-    private ?Builder $query  = null;
-    private bool     $loaded = false;
+    private array $items = [];
+    private ?Builder $query = null;
+    private bool $loaded = false;
 
-    private function __construct() {}
+    private function __construct()
+    {
+    }
 
     public static function fromArray(array $items): static
     {
-        $instance         = new static;
-        $instance->items  = $items;
+        $instance = new static;
+        $instance->items = $items;
         $instance->loaded = true;
 
         return $instance;
@@ -24,8 +26,8 @@ class SubRows
 
     public static function fromCollection(Collection $collection): static
     {
-        $instance         = new static;
-        $instance->items  = $collection->all();
+        $instance = new static;
+        $instance->items = $collection->all();
         $instance->loaded = true;
 
         return $instance;
@@ -37,7 +39,7 @@ class SubRows
      */
     public static function fromQuery(Builder $query): static
     {
-        $instance        = new static;
+        $instance = new static;
         $instance->query = $query;
 
         return $instance;
@@ -45,8 +47,8 @@ class SubRows
 
     public function getItems(): array
     {
-        if (! $this->loaded && $this->query !== null) {
-            $this->items  = $this->query->get()->all();
+        if (!$this->loaded && $this->query !== null) {
+            $this->items = $this->query->get()->all();
             $this->loaded = true;
         }
 

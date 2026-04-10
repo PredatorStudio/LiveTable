@@ -36,7 +36,8 @@ class Column
     public function __construct(
         public readonly string $key,
         public readonly string $label,
-    ) {
+    )
+    {
         $this->cell = new TextCell;
     }
 
@@ -178,26 +179,26 @@ class Column
         $value = data_get($row, $this->key);
 
         if ($this->formatter !== null) {
-            return strip_tags(html_entity_decode((string) ($this->formatter)($row, $value), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+            return strip_tags(html_entity_decode((string)($this->formatter)($row, $value), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
         }
 
         return $this->cell->renderPlain($row, $value);
     }
 
     /**
-     * @param  mixed  $row  The current data row.
-     * @param  string  $primaryKey  The primary key field name (needed for editable cells).
+     * @param mixed $row The current data row.
+     * @param string $primaryKey The primary key field name (needed for editable cells).
      */
     public function renderCell(mixed $row, string $primaryKey = ''): string
     {
         $value = data_get($row, $this->key);
 
         if ($this->formatter !== null) {
-            return (string) ($this->formatter)($row, $value);
+            return (string)($this->formatter)($row, $value);
         }
 
         if ($this->cell instanceof EditableCellInterface) {
-            $rowId = $primaryKey !== '' ? (string) data_get($row, $primaryKey) : '';
+            $rowId = $primaryKey !== '' ? (string)data_get($row, $primaryKey) : '';
 
             return $this->cell->renderEditable($row, $value, $rowId);
         }
